@@ -349,6 +349,17 @@
           </div>
           
           <div class="form-group">
+            <label>Bet Type</label>
+            <select id="betType">
+              <option>Moneyline (ML)</option>
+              <option>Spread</option>
+              <option>Total (Over/Under)</option>
+              <option>Player Prop</option>
+              <option>Team Prop</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
             <label>Sport</label>
             <select id="sport">
               <option>NBA</option>
@@ -387,6 +398,7 @@
             <tr>
               <th>Date</th>
               <th>Pick</th>
+              <th>Type</th>
               <th>Odds</th>
               <th>Edge %</th>
               <th>Stake</th>
@@ -578,6 +590,8 @@
         return;
       }
 
+      const betType = document.getElementById('betType').value;
+      
       const bet = {
         id: Date.now(),
         date: new Date().toISOString().split('T')[0],
@@ -586,6 +600,7 @@
         edge,
         stake,
         sport,
+        betType,
         status: 'PENDING',
         pnl: 0
       };
@@ -654,6 +669,7 @@
         filtered = filtered.filter(b => 
           b.pick.toLowerCase().includes(searchTerm) ||
           b.sport.toLowerCase().includes(searchTerm) ||
+          b.betType.toLowerCase().includes(searchTerm) ||
           b.date.includes(searchTerm)
         );
       }
@@ -677,6 +693,7 @@
         <tr>
           <td>${bet.date}</td>
           <td><strong>${bet.pick}</strong></td>
+          <td><span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 4px 8px; border-radius: 4px;">${bet.betType || 'ML'}</span></td>
           <td>${bet.odds > 0 ? '+' : ''}${bet.odds}</td>
           <td>${bet.edge}%</td>
           <td>$${bet.stake}</td>
