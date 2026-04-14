@@ -52,6 +52,7 @@
       margin-bottom: 30px;
       border-bottom: 1px solid rgba(0, 214, 143, 0.2);
       padding-bottom: 15px;
+      flex-wrap: wrap;
     }
 
     .tab {
@@ -259,6 +260,24 @@
       padding: 40px 20px;
       color: #888;
     }
+
+    a {
+      color: #00d68f;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    h2, h3 {
+      margin-bottom: 15px;
+    }
+
+    ul {
+      list-style: none;
+      line-height: 2;
+    }
   </style>
 </head>
 <body>
@@ -275,6 +294,7 @@
       <button class="tab active" onclick="switchTab('tracker')">📊 Bet Tracker</button>
       <button class="tab" onclick="switchTab('analytics')">📈 Analytics</button>
       <button class="tab" onclick="switchTab('validation')">✅ Validation</button>
+      <button class="tab" onclick="switchTab('about')">ℹ️ About</button>
     </div>
 
     <!-- Bet Tracker Tab -->
@@ -402,10 +422,63 @@
         </ul>
       </div>
     </div>
+
+    <!-- About Tab -->
+    <div id="about" class="tab-content">
+      <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+          <h2 style="color: #00d68f;">⚡ AlexBET Lite</h2>
+          <p style="color: #aaa; line-height: 1.8; margin-bottom: 20px;">
+            Professional sports betting tracker for testing and validating edge detection algorithms. Log bets, track results, and measure win rate in real-time.
+          </p>
+          <p style="color: #888; font-size: 13px;">
+            <strong>Version:</strong> 1.0.0<br>
+            <strong>Status:</strong> Testing & Validation<br>
+            <strong>Target:</strong> 56-65% Win Rate
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+          <h3>🔗 Related Products</h3>
+          <ul style="list-style: none; line-height: 2.2;">
+            <li><a href="https://t.me/AlexBetSharp_Bot" target="_blank">📱 @AlexBetSharp_Bot</a> — Telegram bot for real-time gem alerts</li>
+            <li><a href="https://github.com/oddsifylabs/alexbet-sharp-bot" target="_blank">🐙 GitHub Repo</a> — Open source bot code</li>
+            <li><a href="https://alexbet.oddsifylabs.com" target="_blank">📊 AlexBET Terminal V3</a> — Full dashboard (coming soon)</li>
+          </ul>
+        </div>
+
+        <div style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,100,100,0.3); border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+          <h3 style="color: #ff6464;">⚠️ Gambling Disclaimer</h3>
+          <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 15px;">
+            Sports betting involves risk. Only bet what you can afford to lose. This tool is for testing purposes only and does not guarantee profits. Past results do not indicate future performance.
+          </p>
+          <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 15px;">
+            AlexBET Lite is a personal testing tool. Always bet responsibly and in accordance with local laws.
+          </p>
+          <p style="color: #888; font-size: 12px; line-height: 2;">
+            <strong>Need Help?</strong><br>
+            <a href="https://www.ncpg.org/" target="_blank" style="color: #ff9999;">National Council on Problem Gambling: 1-800-522-4700</a><br>
+            <a href="https://www.gamblingtherapy.org/" target="_blank" style="color: #ff9999;">Gambling Therapy (24/7 Chat Support)</a>
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
+          <h3>📦 Archive Bets</h3>
+          <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">
+            Move settled bets to archive to keep your active tracker clean.
+          </p>
+          <button class="export-btn" onclick="archiveSettledBets()" style="background: rgba(255,215,0,0.2); color: #ffd700; border-color: #ffd700;">📦 Archive All Settled Bets</button>
+          <p style="color: #888; font-size: 12px; margin-top: 15px;">
+            Archived bets are saved to a separate JSON file for your records.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
+    let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
     function switchTab(tab) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -466,6 +539,32 @@
       bets = bets.filter(b => b.id !== id);
       saveBets();
       renderBets();
+    }
+
+    function archiveSettledBets() {
+      const settled = bets.filter(b => b.status !== 'PENDING');
+      
+      if (settled.length === 0) {
+        alert('No settled bets to archive.');
+        return;
+      }
+
+      archived = archived.concat(settled);
+      bets = bets.filter(b => b.status === 'PENDING');
+      
+      saveBets();
+      renderBets();
+      
+      // Export archived bets
+      const dataStr = JSON.stringify(archived, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `alexbet-lite-archived-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      
+      alert(`✅ ${settled.length} bets archived and exported!`);
     }
 
     function renderBets() {
@@ -556,6 +655,7 @@
 
     function saveBets() {
       localStorage.setItem('alexbet_lite_bets', JSON.stringify(bets));
+      localStorage.setItem('alexbet_lite_archived', JSON.stringify(archived));
     }
 
     function exportData() {
