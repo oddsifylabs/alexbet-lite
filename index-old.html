@@ -270,6 +270,26 @@
       text-decoration: underline;
     }
 
+    .social-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 214, 143, 0.2);
+      border: 1px solid #00d68f;
+      border-radius: 50%;
+      color: #00d68f;
+      font-size: 24px;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .social-icon:hover {
+      background: rgba(0, 214, 143, 0.4);
+      transform: translateY(-3px);
+    }
+
     h2, h3 {
       margin-bottom: 15px;
     }
@@ -277,163 +297,6 @@
     ul {
       list-style: none;
       line-height: 2;
-    }
-
-    /* About Page Styles */
-    .about-hero {
-      background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15));
-      border: 1px solid rgba(0,214,143,0.3);
-      border-radius: 12px;
-      padding: 50px 40px;
-      margin-bottom: 40px;
-      text-align: center;
-    }
-
-    .about-hero h2 {
-      color: #00d68f;
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-
-    .about-hero p {
-      color: #aaa;
-      line-height: 1.8;
-      font-size: 15px;
-      max-width: 500px;
-      margin: 0 auto 30px;
-    }
-
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      font-size: 13px;
-    }
-
-    .hero-stat {
-      text-align: center;
-    }
-
-    .hero-stat-value {
-      color: #00d68f;
-      font-weight: 700;
-      font-size: 20px;
-      margin-bottom: 5px;
-    }
-
-    .hero-stat-label {
-      color: #888;
-      font-size: 12px;
-    }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-
-    .about-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(0,214,143,0.2);
-      border-radius: 12px;
-      padding: 25px;
-    }
-
-    .about-card h3 {
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-
-    .about-card ul li {
-      margin-bottom: 15px;
-      font-size: 13px;
-    }
-
-    .about-card ul li a {
-      color: #00d68f;
-      font-weight: 500;
-      display: block;
-      margin-bottom: 3px;
-    }
-
-    .about-card ul li span {
-      color: #666;
-      font-size: 12px;
-    }
-
-    .disclaimer {
-      background: rgba(255,0,0,0.1);
-      border: 1px solid rgba(255,100,100,0.3);
-    }
-
-    .disclaimer h3 {
-      color: #ff6464;
-    }
-
-    .disclaimer p {
-      color: #aaa;
-      font-size: 12px;
-      line-height: 1.7;
-      margin-bottom: 12px;
-    }
-
-    .disclaimer-help {
-      color: #ff9999;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .disclaimer-help a {
-      color: #ff9999;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .social-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: rgba(0,214,143,0.2);
-      border: 1px solid #00d68f;
-      border-radius: 50%;
-      color: #00d68f;
-      font-size: 20px;
-      transition: all 0.3s;
-      text-decoration: none;
-    }
-
-    .social-link:hover {
-      background: rgba(0,214,143,0.4);
-      transform: scale(1.15);
-    }
-
-    @media (max-width: 768px) {
-      .about-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-stats {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .about-hero {
-        padding: 30px 20px;
-      }
-
-      .about-hero h2 {
-        font-size: 28px;
-      }
     }
   </style>
 </head>
@@ -582,77 +445,61 @@
 
     <!-- About Tab -->
     <div id="about" class="tab-content">
-      <!-- Hero Section -->
-      <div class="about-hero">
-        <h2>⚡ AlexBET Lite</h2>
-        <p>Professional sports betting tracker for testing and validating edge detection algorithms. Log bets, track results, and measure win rate in real-time.</p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-value">1.0.0</div>
-            <div class="hero-stat-label">Version</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value" style="color: #ffd700;">Testing</div>
-            <div class="hero-stat-label">Status</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">56-65%</div>
-            <div class="hero-stat-label">Target Win Rate</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Two Column Grid -->
-      <div class="about-grid">
-        <!-- Left Column -->
-        <div>
-          <div class="about-card">
-            <h3>🔗 Related Products</h3>
-            <ul>
-              <li>
-                <a href="https://t.me/AlexBetSharp_Bot" target="_blank">📱 @AlexBetSharp_Bot</a>
-                <span>Real-time gem alerts</span>
-              </li>
-              <li>
-                <a href="https://github.com/oddsifylabs/alexbet-sharp-bot" target="_blank">🐙 GitHub Repo</a>
-                <span>Open source code</span>
-              </li>
-              <li>
-                <a href="https://alexbet.oddsifylabs.com" target="_blank">📊 Terminal V3</a>
-                <span>Full dashboard</span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="about-card" style="margin-top: 25px;">
-            <h3>📦 Archive Bets</h3>
-            <p style="color: #aaa; font-size: 12px; margin-bottom: 15px; line-height: 1.6;">Move settled bets to archive. Keeps your tracker clean and organized.</p>
-            <button class="export-btn" onclick="archiveSettledBets()" style="background: rgba(255,215,0,0.2); color: #ffd700; border-color: #ffd700; width: 100%; padding: 10px 12px; font-size: 12px;">📦 Archive</button>
-          </div>
+      <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+          <h2 style="color: #00d68f;">⚡ AlexBET Lite</h2>
+          <p style="color: #aaa; line-height: 1.8; margin-bottom: 20px;">
+            Professional sports betting tracker for testing and validating edge detection algorithms. Log bets, track results, and measure win rate in real-time.
+          </p>
+          <p style="color: #888; font-size: 13px;">
+            <strong>Version:</strong> 1.0.0<br>
+            <strong>Status:</strong> Testing & Validation<br>
+            <strong>Target:</strong> 56-65% Win Rate
+          </p>
         </div>
 
-        <!-- Right Column -->
-        <div>
-          <div class="about-card disclaimer">
-            <h3>⚠️ Gambling Disclaimer</h3>
-            <p>Sports betting involves risk. Only bet what you can afford to lose. This tool is for testing purposes only and does not guarantee profits. Past results do not indicate future performance.</p>
-            <div class="disclaimer-help">Need Help?</div>
-            <p style="color: #888; font-size: 11px; line-height: 1.8;">
-              <a href="https://www.ncpg.org/" target="_blank">National Council on Problem Gambling</a><br>
-              <strong>1-800-522-4700</strong><br><br>
-              <a href="https://www.gamblingtherapy.org/" target="_blank">Gambling Therapy</a><br>
-              24/7 Chat Support
-            </p>
-          </div>
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+          <h3>🔗 Related Products</h3>
+          <ul style="list-style: none; line-height: 2.2;">
+            <li><a href="https://t.me/AlexBetSharp_Bot" target="_blank">📱 @AlexBetSharp_Bot</a> — Telegram bot for real-time gem alerts</li>
+            <li><a href="https://github.com/oddsifylabs/alexbet-sharp-bot" target="_blank">🐙 GitHub Repo</a> — Open source bot code</li>
+            <li><a href="https://alexbet.oddsifylabs.com" target="_blank">📊 AlexBET Terminal V3</a> — Full dashboard (coming soon)</li>
+          </ul>
+        </div>
 
-          <div class="about-card" style="margin-top: 25px;">
-            <h3>🌐 Follow Us</h3>
-            <div class="social-links">
-              <a href="https://x.com/AlexBetTerminal" target="_blank" title="X / Twitter" class="social-link">𝕏</a>
-              <a href="https://www.pinterest.com/AlexBETTerminal/" target="_blank" title="Pinterest" class="social-link">📌</a>
-              <a href="https://www.facebook.com/groups/1251330230316053" target="_blank" title="Facebook" class="social-link">f</a>
-              <a href="https://oddsifylabs.com" target="_blank" title="Website" class="social-link">🌐</a>
-            </div>
+        <div style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,100,100,0.3); border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+          <h3 style="color: #ff6464;">⚠️ Gambling Disclaimer</h3>
+          <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 15px;">
+            Sports betting involves risk. Only bet what you can afford to lose. This tool is for testing purposes only and does not guarantee profits. Past results do not indicate future performance.
+          </p>
+          <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 15px;">
+            AlexBET Lite is a personal testing tool. Always bet responsibly and in accordance with local laws.
+          </p>
+          <p style="color: #888; font-size: 12px; line-height: 2;">
+            <strong>Need Help?</strong><br>
+            <a href="https://www.ncpg.org/" target="_blank" style="color: #ff9999;">National Council on Problem Gambling: 1-800-522-4700</a><br>
+            <a href="https://www.gamblingtherapy.org/" target="_blank" style="color: #ff9999;">Gambling Therapy (24/7 Chat Support)</a>
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
+          <h3>📦 Archive Bets</h3>
+          <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">
+            Move settled bets to archive to keep your active tracker clean.
+          </p>
+          <button class="export-btn" onclick="archiveSettledBets()" style="background: rgba(255,215,0,0.2); color: #ffd700; border-color: #ffd700;">📦 Archive All Settled Bets</button>
+          <p style="color: #888; font-size: 12px; margin-top: 15px;">
+            Archived bets are saved to a separate JSON file for your records.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-top: 30px;">
+          <h3>🌐 Follow AlexBET</h3>
+          <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+            <a href="https://x.com/AlexBetTerminal" target="_blank" title="X / Twitter" style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 50%; color: #00d68f; font-size: 24px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,214,143,0.4)'" onmouseout="this.style.background='rgba(0,214,143,0.2)'">𝕏</a>
+            <a href="https://www.pinterest.com/AlexBETTerminal/" target="_blank" title="Pinterest" style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 50%; color: #00d68f; font-size: 24px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,214,143,0.4)'" onmouseout="this.style.background='rgba(0,214,143,0.2)'">📌</a>
+            <a href="https://www.facebook.com/groups/1251330230316053" target="_blank" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 50%; color: #00d68f; font-size: 24px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,214,143,0.4)'" onmouseout="this.style.background='rgba(0,214,143,0.2)'">f</a>
+            <a href="https://oddsifylabs.com" target="_blank" title="Website" style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 50%; color: #00d68f; font-size: 24px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,214,143,0.4)'" onmouseout="this.style.background='rgba(0,214,143,0.2)'">🌐</a>
           </div>
         </div>
       </div>
@@ -738,6 +585,7 @@
       saveBets();
       renderBets();
       
+      // Export archived bets
       const dataStr = JSON.stringify(archived, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
@@ -795,11 +643,13 @@
         document.getElementById('winRate').textContent = `${wr}%`;
         document.getElementById('winDetail').textContent = `${won}/${settled_count} wins`;
         
+        // Color code
         const wrElement = document.getElementById('winRate');
         if (wr >= 56) wrElement.style.color = '#00d68f';
         else if (wr >= 52) wrElement.style.color = '#ffd700';
         else wrElement.style.color = '#ff6464';
 
+        // Validation
         document.getElementById('targetStatus').textContent = `${wr}%`;
         document.getElementById('targetStatus').style.color = wr >= 56 ? '#00d68f' : '#ffd700';
       }
@@ -821,6 +671,7 @@
       const roi = totalStaked > 0 ? ((pnl / totalStaked) * 100).toFixed(1) : 0;
       document.getElementById('roi').textContent = `${roi}%`;
 
+      // Validation checklist
       if (settled_count >= 30) document.getElementById('validation-sample').style.color = '#00d68f';
       if (settled_count >= 3) document.getElementById('validation-consistency').style.color = '#00d68f';
     }
