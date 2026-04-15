@@ -728,10 +728,11 @@
       </div>
     </div>
     <footer class="app-footer">
-      AlexBET Lite - <strong id="appVersion">v2026.04.15.3</strong> <span id="appCommit">| GitHub commit: 4ec4f3e</span>
+      AlexBET Lite - <strong id="appVersion">v2026.04.15.4</strong> <span id="appCommit">| GitHub commit: local</span>
     </footer>
   </div>
 
+  <script src="./version.js"></script>
   <script src="./live-scores.js"></script>
   <script src="./injury-tracker.js"></script>
   <script src="./custom-edge-calculator.js"></script>
@@ -741,8 +742,9 @@
   <script src="./injury-alerts-pro.js"></script>
   <script src="./team-management.js"></script>
   <script>
-    const APP_VERSION = 'v2026.04.15.3';
-    const APP_COMMIT = '4ec4f3e';
+    const BUILD_META = window.__ALEXBET_BUILD__ || {};
+    const APP_VERSION = BUILD_META.version || 'v2026.04.15.4';
+    const APP_COMMIT = BUILD_META.commit || 'local';
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
