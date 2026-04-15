@@ -1127,6 +1127,7 @@
       bets.push(bet);
       saveBets();
       renderBets();
+      attachEventListeners(); // Re-attach listeners after DOM update
       clearForm();
     }
 
@@ -1152,6 +1153,7 @@
           }
           saveBets();
           renderBets();
+          attachEventListeners(); // Re-attach listeners after DOM update
           console.log(`[updateBetStatus] ✅ Updated bet ${numId} to ${status}`);
         } else {
           console.log(`[updateBetStatus] ❌ Bet not found! ID: ${numId}`);
@@ -1202,6 +1204,7 @@
         bets = bets.filter(b => b.id !== numId);
         saveBets();
         renderBets();
+        attachEventListeners(); // Re-attach listeners after DOM update
         console.log(`[Deleted] Bet ${numId}`);
       }
     }
@@ -1226,6 +1229,7 @@
       }
       
       renderBetsFiltered(filtered);
+      attachEventListeners(); // Re-attach listeners after DOM update
     }
 
     function renderBetsFiltered(betsToRender) {
