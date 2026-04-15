@@ -516,6 +516,16 @@
         <div style="color: #aaa; font-size: 12px;">Your bankroll is down <span id="alertPercent">15%</span> from peak. Be cautious with bet sizing.</div>
       </div>
 
+      <div id="clvStreakAlert" style="display: none; background: rgba(0,214,143,0.15); border: 1px solid #00d68f; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <div style="color: #00d68f; font-weight: bold; margin-bottom: 10px;">🔥 Positive CLV streak</div>
+        <div style="color: #aaa; font-size: 12px;">You have <span id="streakCount">0</span> straight settled bets with positive CLV.</div>
+      </div>
+
+      <div id="clvNegativeAlert" style="display: none; background: rgba(255,215,0,0.12); border: 1px solid #ffd700; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <div style="color: #ffd700; font-weight: bold; margin-bottom: 10px;">⚠️ Negative CLV warning</div>
+        <div style="color: #aaa; font-size: 12px;">Your last 10 settled bets are averaging <span id="avgClvNeg">0</span>% CLV. Consider reviewing entry timing and price quality.</div>
+      </div>
+
       <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
         <h3 style="margin-bottom: 20px;">Status</h3>
         <div id="bankrollStatus" style="font-size: 14px; line-height: 2; color: #aaa;">
@@ -1124,11 +1134,18 @@
       }
     }
 
+    function americanOddsToProbability(odds) {
+      if (!odds) return 0;
+      return odds > 0
+        ? 100 / (odds + 100)
+        : Math.abs(odds) / (Math.abs(odds) + 100);
+    }
+
     function calculateCLV(entryOdds, closingOdds) {
       if (!entryOdds || !closingOdds) return 0;
       
-      const entryProb = Math.abs(entryOdds) / (Math.abs(entryOdds) + 100);
-      const closingProb = Math.abs(closingOdds) / (Math.abs(closingOdds) + 100);
+      const entryProb = americanOddsToProbability(entryOdds);
+      const closingProb = americanOddsToProbability(closingOdds);
       
       const clv = (closingProb - entryProb) * 100;
       return parseFloat(clv.toFixed(2));
@@ -1170,7 +1187,7 @@
       const tbody = document.getElementById('betsBody');
       
       if (betsToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="empty-state">No bets match your search.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No bets match your search.</td></tr>';
         return;
       }
 
@@ -1254,7 +1271,7 @@
       const tbody = document.getElementById('betsBody');
       
       if (bets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="empty-state">No bets yet. Add one to start tracking.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No bets yet. Add one to start tracking.</td></tr>';
         updateStats();
         return;
       }
@@ -1352,6 +1369,7 @@
       link.href = url;
       link.download = `alexbet-lite-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
+      URL.revokeObjectURL(url);
     }
 
     function attachEventListeners() {
@@ -1365,7 +1383,6 @@
           e.preventDefault();
           const betId = this.getAttribute('data-bet-id');
           console.log(`[DELETE CLICKED] Bet ID: ${betId}`);
-          alert(`Deleting bet ${betId}`);
           deleteBet(betId);
           return false;
         };
@@ -1379,7 +1396,6 @@
           const betId = this.getAttribute('data-bet-id');
           const status = this.value;
           console.log(`[STATUS CHANGED] Bet ${betId} => ${status}`);
-          alert(`Changing bet ${betId} to ${status}`);
           updateBetStatus(betId, status);
         };
       });
