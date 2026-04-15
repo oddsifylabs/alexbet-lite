@@ -331,6 +331,18 @@
       color: #00d68f;
     }
 
+    .app-footer {
+      margin-top: 40px;
+      padding: 18px 0 6px;
+      text-align: center;
+      color: #7d84a6;
+      font-size: 12px;
+    }
+
+    .app-footer strong {
+      color: #00d68f;
+    }
+
     @keyframes pulse {
       0%, 100% {
         background: rgba(77, 159, 255, 0.1);
@@ -715,6 +727,9 @@
         </div>
       </div>
     </div>
+    <footer class="app-footer">
+      AlexBET Lite <strong id="appVersion">v2026.04.15.2</strong>
+    </footer>
   </div>
 
   <script src="./live-scores.js"></script>
@@ -726,6 +741,7 @@
   <script src="./injury-alerts-pro.js"></script>
   <script src="./team-management.js"></script>
   <script>
+    const APP_VERSION = 'v2026.04.15.2';
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
@@ -1450,6 +1466,7 @@
       });
     }
     
+    document.getElementById('appVersion').textContent = APP_VERSION;
     renderBets();
     attachEventListeners();
     checkReminders();
