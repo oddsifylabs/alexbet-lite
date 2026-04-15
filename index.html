@@ -315,6 +315,15 @@
       color: #00d68f;
     }
 
+    @keyframes pulse {
+      0%, 100% {
+        background: rgba(77, 159, 255, 0.1);
+      }
+      50% {
+        background: rgba(77, 159, 255, 0.2);
+      }
+    }
+
     @media (max-width: 768px) {
       .search-filter-bar {
         grid-template-columns: 1fr;
@@ -424,7 +433,9 @@
               <th>Edge %</th>
               <th>Stake</th>
               <th>Sport</th>
+              <th>Live Score</th>
               <th>Status</th>
+              <th>Result</th>
               <th>P&L</th>
               <th></th>
             </tr>
@@ -563,6 +574,7 @@
     </div>
   </div>
 
+  <script src="./live-scores.js"></script>
   <script>
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
@@ -687,8 +699,12 @@
 
       tbody.innerHTML = betsToRender.map(bet => {
         const clvClass = bet.clv > 0 ? 'clv-positive' : bet.clv < 0 ? 'clv-negative' : 'clv-neutral';
+        const scoreDisplay = bet.liveScore ? liveScores.formatScore(bet.liveScore) : 'No score';
+        const statusBadge = bet.liveScore ? (bet.liveScore.status === 'live' ? '🔵 Live' : bet.liveScore.status === 'final' ? '✅ Final' : '⚪ Pending') : '⚪';
+        const rowClass = bet.liveScore && bet.liveScore.status === 'live' ? ' style="background: rgba(77, 159, 255, 0.1); animation: pulse 2s infinite;"' : '';
+        
         return `
-        <tr>
+        <tr${rowClass}>
           <td>${bet.date}</td>
           <td><strong>${bet.pick}</strong></td>
           <td><span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 4px 8px; border-radius: 4px;">${bet.betType}</span></td>
@@ -698,6 +714,8 @@
           <td>${bet.edge}%</td>
           <td>$${bet.stake}</td>
           <td>${bet.sport}</td>
+          <td><small>${scoreDisplay}</small></td>
+          <td>${statusBadge}</td>
           <td>
             <select class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
               <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
@@ -713,6 +731,46 @@
       }).join('');
     }
 
+    // Fetch live scores periodically
+    let scoreUpdateInterval = null;
+    
+    async function updateLiveScores() {
+      for (let bet of bets) {
+        if (bet.status === 'PENDING') {
+          const scoreData = await liveScores.getScore(bet.pick, bet.sport);
+          bet.liveScore = scoreData;
+          
+          // Auto-mark as won/lost if final
+          if (scoreData.status === 'final') {
+            if (scoreData.winner === 'won') {
+              updateBetStatus(bet.id, 'WON');
+            } else if (scoreData.winner === 'lost') {
+              updateBetStatus(bet.id, 'LOST');
+            } else if (scoreData.winner === 'push') {
+              updateBetStatus(bet.id, 'PUSH');
+            }
+          }
+        }
+      }
+      saveBets();
+      renderBets();
+    }
+
+    function startLiveScoreUpdates() {
+      if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+      // Update every 30 seconds
+      scoreUpdateInterval = setInterval(updateLiveScores, 30000);
+      // Initial update
+      updateLiveScores();
+    }
+
+    function stopLiveScoreUpdates() {
+      if (scoreUpdateInterval) {
+        clearInterval(scoreUpdateInterval);
+        scoreUpdateInterval = null;
+      }
+    }
+
     function renderBets() {
       const tbody = document.getElementById('betsBody');
       
@@ -724,6 +782,14 @@
 
       renderBetsFiltered(bets);
       updateStats();
+      
+      // Start live score updates if we have pending bets
+      const hasPending = bets.some(b => b.status === 'PENDING');
+      if (hasPending) {
+        startLiveScoreUpdates();
+      } else {
+        stopLiveScoreUpdates();
+      }
     }
 
     function updateStats() {
