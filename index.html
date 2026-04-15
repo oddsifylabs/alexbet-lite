@@ -358,50 +358,70 @@
       <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
         <h3 style="color: #00d68f; margin-bottom: 20px;">➕ Log New Bet</h3>
         <div class="controls" style="margin: 0; background: transparent; border: none; padding: 0;">
-          <div class="form-group">
-            <label>Pick</label>
-            <input type="text" id="pick" placeholder="e.g., Miami Heat">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+              <label>Sport</label>
+              <select id="sport" onchange="loadGames()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+                <option value="">Select Sport...</option>
+                <option value="NBA">🏀 NBA</option>
+                <option value="NFL">🏈 NFL</option>
+                <option value="MLB">⚾ MLB</option>
+                <option value="NHL">🏒 NHL</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Game Date</label>
+              <select id="gameDate" onchange="updateGameList()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+                <option value="">Select date...</option>
+              </select>
+            </div>
           </div>
           
-          <div class="form-group">
-            <label>Entry Odds</label>
-            <input type="number" id="entryOdds" placeholder="-110" step="1">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+              <label>Game</label>
+              <select id="gameSelect" onchange="selectGame()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+                <option value="">Select game...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Pick (Team/Prop)</label>
+              <input type="text" id="pick" placeholder="e.g., Miami Heat" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+            </div>
           </div>
           
-          <div class="form-group">
-            <label>Edge %</label>
-            <input type="number" id="edge" placeholder="6.5" step="0.1">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+              <label>Bet Type</label>
+              <select id="betType" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+                <option>Moneyline (ML)</option>
+                <option>Spread</option>
+                <option>Total (Over/Under)</option>
+                <option>Player Prop</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Entry Odds</label>
+              <input type="number" id="entryOdds" placeholder="-110" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+            </div>
           </div>
           
-          <div class="form-group">
-            <label>Stake ($)</label>
-            <input type="number" id="stake" placeholder="100" step="1">
-          </div>
-          
-          <div class="form-group">
-            <label>Bet Type</label>
-            <select id="betType">
-              <option>Moneyline (ML)</option>
-              <option>Spread</option>
-              <option>Total (Over/Under)</option>
-              <option>Player Prop</option>
-              <option>Team Prop</option>
-            </select>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+              <label>Edge %</label>
+              <input type="number" id="edge" placeholder="6.5" step="0.1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+            </div>
+            
+            <div class="form-group">
+              <label>Stake ($)</label>
+              <input type="number" id="stake" placeholder="100" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Sport</label>
-            <select id="sport">
-              <option>NBA</option>
-              <option>NFL</option>
-              <option>MLB</option>
-              <option>NHL</option>
-              <option>Tennis</option>
-              <option>Soccer</option>
-            </select>
-          </div>
-
-          <button onclick="addBet()">➕ Add Bet</button>
+          <button onclick="addBet()" style="width: 100%; padding: 12px; background: #00d68f; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">➕ Add Bet</button>
         </div>
       </div>
 
@@ -929,6 +949,56 @@
       if (tab === 'performance') renderPerformanceTab();
     }
 
+    let availableGames = {};
+    
+    async function loadGames() {
+      const sport = document.getElementById('sport').value;
+      if (!sport) return;
+
+      try {
+        const liveScorer = new LiveScoreFetcher();
+        const games = await liveScorer.fetchSportGames(sport);
+        
+        availableGames[sport] = games;
+        
+        const dates = [...new Set(games.map(g => g.date?.split('T')[0]))].sort();
+        const dateSelect = document.getElementById('gameDate');
+        dateSelect.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+        
+        if (dates.length > 0) {
+          document.getElementById('gameDate').value = dates[0];
+          updateGameList();
+        }
+      } catch (err) {
+        console.error('Error loading games:', err);
+      }
+    }
+    
+    function updateGameList() {
+      const sport = document.getElementById('sport').value;
+      const selectedDate = document.getElementById('gameDate').value;
+      const games = availableGames[sport] || [];
+      
+      const filteredGames = games.filter(g => g.date?.startsWith(selectedDate));
+      const gameSelect = document.getElementById('gameSelect');
+      
+      gameSelect.innerHTML = '<option value="">Select game...</option>' + 
+        filteredGames.map(g => {
+          const comp = g.competitions?.[0]?.competitors || [];
+          const away = comp[1]?.team?.displayName || 'Away';
+          const home = comp[0]?.team?.displayName || 'Home';
+          return `<option value="${g.id}|${away}|${home}">${away} @ ${home}</option>`;
+        }).join('');
+    }
+    
+    function selectGame() {
+      const value = document.getElementById('gameSelect').value;
+      if (value) {
+        const [gameId, away, home] = value.split('|');
+        document.getElementById('pick').value = home || '';
+      }
+    }
+
     function addBet() {
       const pick = document.getElementById('pick').value;
       const entryOdds = parseInt(document.getElementById('entryOdds').value);
@@ -936,18 +1006,20 @@
       const stake = parseInt(document.getElementById('stake').value);
       const betType = document.getElementById('betType').value;
       const sport = document.getElementById('sport').value;
+      const gameDate = document.getElementById('gameDate').value;
 
-      if (!pick || !entryOdds || !edge || !stake) {
-        alert('Fill in all fields');
+      if (!pick || !entryOdds || !edge || !stake || !sport || !gameDate) {
+        alert('Fill in all required fields');
         return;
       }
 
       const bet = {
         id: Date.now(),
         date: new Date().toISOString().split('T')[0],
+        gameDate: gameDate,
         pick,
         entryOdds,
-        closingOdds: entryOdds,
+        closingOdds: null,
         clv: 0,
         edge,
         stake,
@@ -1196,6 +1268,8 @@
       document.getElementById('entryOdds').value = '';
       document.getElementById('edge').value = '';
       document.getElementById('stake').value = '';
+      document.getElementById('gameDate').value = '';
+      document.getElementById('gameSelect').value = '';
     }
 
     function saveBets() {
