@@ -655,7 +655,7 @@
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
-    function calculatePerformanceStats() {
+
       const settled = bets.filter(b => b.status !== 'PENDING');
       if (settled.length === 0) return null;
 
@@ -802,6 +802,53 @@
         <div style="color: #aaa;">Risk Level: ${riskMsg}</div>
         <div style="color: #aaa;">${safeMsg}</div>
       `;
+      
+      // CLV Streak detection
+      const clvStats = calculateClvStreaks();
+      const streakAlert = document.getElementById('clvStreakAlert');
+      const negAlert = document.getElementById('clvNegativeAlert');
+      
+      if (streakAlert && clvStats.currentStreak >= 5 && clvStats.direction === 'positive') {
+        streakAlert.style.display = 'block';
+        document.getElementById('streakCount').textContent = clvStats.currentStreak;
+      } else if (streakAlert) {
+        streakAlert.style.display = 'none';
+      }
+      
+      if (negAlert && clvStats.last10Count >= 10 && clvStats.avgClvLast10 < -0.5) {
+        negAlert.style.display = 'block';
+        document.getElementById('avgClvNeg').textContent = clvStats.avgClvLast10;
+      } else if (negAlert) {
+        negAlert.style.display = 'none';
+      }
+    }
+    
+    function calculateClvStreaks() {
+      const settled = bets.filter(b => b.status !== 'PENDING').sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (settled.length === 0) return { currentStreak: 0, direction: 'none', avgClvLast10: 0, last10Count: 0 };
+
+      let currentStreak = 0;
+      let direction = settled[0]?.clv > 0 ? 'positive' : 'negative';
+      
+      for (let bet of settled) {
+        if ((direction === 'positive' && bet.clv > 0) || (direction === 'negative' && bet.clv < 0)) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+
+      const last10 = settled.slice(0, 10);
+      const avgClvLast10 = last10.length > 0 
+        ? (last10.reduce((sum, b) => sum + (b.clv || 0), 0) / last10.length)
+        : 0;
+
+      return {
+        currentStreak,
+        direction,
+        avgClvLast10: avgClvLast10.toFixed(2),
+        last10Count: last10.length
+      };
     }
 
     function switchTab(tab) {
