@@ -1077,7 +1077,8 @@
     }
 
     function updateBetStatus(id, status) {
-      const bet = bets.find(b => b.id === id);
+      const numId = parseInt(id);
+      const bet = bets.find(b => b.id === numId);
       if (bet) {
         bet.status = status;
         if (status === 'WON') {
@@ -1090,6 +1091,7 @@
         }
         saveBets();
         renderBets();
+        console.log(`Updated bet ${numId} to ${status}`);
       }
     }
 
@@ -1118,9 +1120,11 @@
 
     function deleteBet(id) {
       if (confirm('Delete this bet?')) {
-        bets = bets.filter(b => b.id !== id);
+        const numId = parseInt(id);
+        bets = bets.filter(b => b.id !== numId);
         saveBets();
         renderBets();
+        console.log(`Deleted bet ${numId}`);
       }
     }
     
@@ -1186,7 +1190,7 @@
           <td><small>${scoreDisplay}</small></td>
           <td>${statusBadge}</td>
           <td>
-            <select class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
+            <select class="status-select" onchange="updateBetStatus('${bet.id}', this.value)">
               <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
               <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
               <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
@@ -1194,7 +1198,7 @@
             </select>
           </td>
           <td><strong>${bet.pnl >= 0 ? '+' : ''}$${bet.pnl}</strong></td>
-          <td><button class="delete-btn" onclick="deleteBet(${bet.id})">✕</button></td>
+          <td><button class="delete-btn" type="button" onclick="deleteBet('${bet.id}')">✕</button></td>
         </tr>
       `;
       }).join('');
