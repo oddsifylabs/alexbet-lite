@@ -390,9 +390,7 @@
             
             <div class="form-group">
               <label>Pick (Team/Prop)</label>
-              <select id="pick" onchange="handlePickChange()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-                <option value="">Select team...</option>
-              </select>
+              <input type="text" id="pick" placeholder="Auto-filled from game selection" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
             </div>
           </div>
           
@@ -1035,8 +1033,14 @@
         const gameId = parts[0];
         const away = parts[1];
         const home = parts[2];
-        document.getElementById('pick').value = home || '';
-        console.log(`[Game Selected] ${away} @ ${home}`);
+        
+        // Ask user which team
+        const choice = confirm(`Which team?\n\nOK = ${home} (Home)\nCancel = ${away} (Away)`);
+        const pickField = document.getElementById('pick');
+        pickField.value = choice ? home : away;
+        pickField.focus();
+        
+        console.log(`[Game] ${away} @ ${home} - Selected: ${pickField.value}`);
       }
     }
 
@@ -1119,24 +1123,12 @@
     }
 
     function deleteBet(id) {
-      if (confirm('Delete this bet?')) {
-        const numId = parseInt(id);
+      const numId = parseInt(id);
+      if (confirm(`Delete bet #${numId}?`)) {
         bets = bets.filter(b => b.id !== numId);
         saveBets();
         renderBets();
-        console.log(`Deleted bet ${numId}`);
-      }
-    }
-    
-    function handlePickChange() {
-      const pickSelect = document.getElementById('pick');
-      if (pickSelect && pickSelect.value === 'custom') {
-        const customProp = prompt('Enter custom prop (e.g., Player Points Over 25.5):');
-        if (customProp) {
-          pickSelect.value = customProp;
-        } else {
-          pickSelect.value = '';
-        }
+        console.log(`[Deleted] Bet ${numId}`);
       }
     }
 
