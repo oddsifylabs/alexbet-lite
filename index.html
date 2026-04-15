@@ -189,43 +189,90 @@
       margin-top: 8px;
     }
 
-    .bets-table {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 214, 143, 0.2);
-      border-radius: 12px;
-      overflow-x: auto;
-      overflow-y: hidden;
+    .bets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
       margin-bottom: 20px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .bet-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 214, 143, 0.2);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    th {
-      background: rgba(0, 214, 143, 0.1);
-      padding: 12px 15px;
-      text-align: left;
-      font-size: 11px;
+    .bet-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 214, 143, 0.35);
+    }
+
+    .bet-card.live {
+      border-color: rgba(77, 159, 255, 0.55);
+      box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.25);
+    }
+
+    .bet-card-header,
+    .bet-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bet-card-pick {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .bet-card-date {
+      color: #7d84a6;
+      font-size: 12px;
+    }
+
+    .bet-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .bet-field {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .bet-field-label {
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(0, 214, 143, 0.2);
+      letter-spacing: 0.06em;
+      color: #7d84a6;
+      margin-bottom: 6px;
+    }
+
+    .bet-field-value {
+      font-size: 14px;
+      color: #fff;
       font-weight: 600;
-      position: sticky;
-      top: 0;
-      backdrop-filter: blur(6px);
-      z-index: 1;
     }
 
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
-    }
-
-    tr:hover {
-      background: rgba(0, 214, 143, 0.05);
+    .bet-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.08);
+      color: #d9def2;
     }
 
     .status-select {
@@ -352,6 +399,12 @@
       }
     }
 
+    @media (max-width: 1024px) {
+      .bets-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 14px;
@@ -367,7 +420,9 @@
 
       .controls,
       .search-filter-bar,
-      .stats-grid {
+      .stats-grid,
+      .bets-grid,
+      .bet-card-grid {
         grid-template-columns: 1fr;
       }
 
@@ -375,9 +430,10 @@
         padding: 8px 14px;
       }
 
-      th, td {
-        padding: 10px 12px;
-        white-space: nowrap;
+      .bet-card-header,
+      .bet-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   </style>
@@ -491,32 +547,8 @@
         </div>
       </div>
 
-      <div class="bets-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Pick</th>
-              <th>Type</th>
-              <th>Entry Odds</th>
-              <th>Closing Odds</th>
-              <th>CLV %</th>
-              <th>Edge %</th>
-              <th>Stake</th>
-              <th>Sport</th>
-              <th>Live Score</th>
-              <th>Game Status</th>
-              <th>Bet Result</th>
-              <th>P&L</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="betsBody">
-            <tr>
-              <td colspan="14" class="empty-state">No bets yet. Add one to start tracking.</td>
-            </tr>
-          </tbody>
-        </table>
+      <div id="betsCards" class="bets-grid">
+        <div class="empty-state">No bets yet. Add one to start tracking.</div>
       </div>
 
       <button class="export-btn" onclick="exportData()">📥 Export JSON</button>
@@ -1252,44 +1284,88 @@
     }
 
     function renderBetsFiltered(betsToRender) {
-      const tbody = document.getElementById('betsBody');
+      const cards = document.getElementById('betsCards');
       
       if (betsToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No bets match your search.</td></tr>';
+        cards.innerHTML = '<div class="empty-state">No bets match your search.</div>';
         return;
       }
 
-      tbody.innerHTML = betsToRender.map(bet => {
+      cards.innerHTML = betsToRender.map(bet => {
         const clvClass = bet.clv > 0 ? 'clv-positive' : bet.clv < 0 ? 'clv-negative' : 'clv-neutral';
-        const scoreDisplay = bet.liveScore ? liveScores.formatScore(bet.liveScore) : 'No score';
-        const statusBadge = bet.liveScore ? (bet.liveScore.status === 'live' ? '🔵 Live' : bet.liveScore.status === 'final' ? '✅ Final' : '⚪ Pending') : '⚪';
-        const rowClass = bet.liveScore && bet.liveScore.status === 'live' ? ' style="background: rgba(77, 159, 255, 0.1); animation: pulse 2s infinite;"' : '';
-        
+        const scoreState = !bet.liveScore || bet.liveScore.status === 'not_found'
+          ? 'Waiting for matchup'
+          : bet.liveScore.status === 'pending'
+          ? 'Scheduled'
+          : bet.liveScore.status === 'live'
+          ? 'Live'
+          : bet.liveScore.status === 'final'
+          ? 'Final'
+          : 'Checking';
+        const scoreDisplay = bet.liveScore ? liveScores.formatScore(bet.liveScore) : 'Waiting for matchup';
+        const isLive = bet.liveScore && bet.liveScore.status === 'live';
+        const gameBadge = bet.liveScore?.status === 'live'
+          ? '🔵 Live'
+          : bet.liveScore?.status === 'final'
+          ? '✅ Final'
+          : bet.liveScore?.status === 'pending'
+          ? '⚪ Scheduled'
+          : '🕒 Matching';
+
         return `
-        <tr${rowClass}>
-          <td>${bet.date}</td>
-          <td><strong>${bet.pick}</strong></td>
-          <td><span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 4px 8px; border-radius: 4px;">${bet.betType}</span></td>
-          <td>${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</td>
-          <td><button class="clv-button" onclick="updateClosingOdds(${bet.id})">Set: ${bet.closingOdds ? (bet.closingOdds > 0 ? '+' : '') + bet.closingOdds : '—'}</button></td>
-          <td class="${clvClass}">${bet.clv ? bet.clv.toFixed(2) : '—'}%</td>
-          <td>${bet.edge}%</td>
-          <td>$${bet.stake}</td>
-          <td>${bet.sport}</td>
-          <td><small>${scoreDisplay}</small></td>
-          <td>${statusBadge}</td>
-          <td>
-            <select id="status-${bet.id}" name="betStatus" class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
-              <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-              <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
-              <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
-              <option value="PUSH" ${bet.status === 'PUSH' ? 'selected' : ''}>PUSH</option>
-            </select>
-          </td>
-          <td><strong>${bet.pnl >= 0 ? '+' : ''}$${bet.pnl}</strong></td>
-          <td><button class="delete-btn" type="button" onclick="deleteBet(${bet.id})">✕</button></td>
-        </tr>
-      `;
+          <div class="bet-card ${isLive ? 'live' : ''}">
+            <div class="bet-card-header">
+              <div>
+                <div class="bet-card-date">Logged ${bet.date}</div>
+                <div class="bet-card-pick">${bet.pick}</div>
+              </div>
+              <span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 6px 10px; border-radius: 999px; font-weight: 700;">${bet.betType}</span>
+            </div>
+
+            <div class="bet-card-grid">
+              <div class="bet-field">
+                <div class="bet-field-label">Entry Odds</div>
+                <div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Closing Odds</div>
+                <div class="bet-field-value"><button class="clv-button" onclick="updateClosingOdds(${bet.id})">${bet.closingOdds ? (bet.closingOdds > 0 ? '+' : '') + bet.closingOdds : 'Set odds'}</button></div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">CLV</div>
+                <div class="bet-field-value ${clvClass}">${bet.clv ? bet.clv.toFixed(2) : '—'}%</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Stake / Edge</div>
+                <div class="bet-field-value">$${bet.stake} • ${bet.edge}%</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Sport</div>
+                <div class="bet-field-value">${bet.sport}</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">P&L</div>
+                <div class="bet-field-value">${bet.pnl >= 0 ? '+' : ''}$${bet.pnl}</div>
+              </div>
+            </div>
+
+            <div class="bet-field">
+              <div class="bet-field-label">Live Score</div>
+              <div class="bet-field-value">${scoreDisplay}</div>
+              <div style="margin-top: 8px;"><span class="bet-status-badge">${gameBadge}</span> <span style="color: #7d84a6; font-size: 12px; margin-left: 8px;">${scoreState}</span></div>
+            </div>
+
+            <div class="bet-card-footer">
+              <select id="status-${bet.id}" name="betStatus" class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
+                <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
+                <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
+                <option value="PUSH" ${bet.status === 'PUSH' ? 'selected' : ''}>PUSH</option>
+              </select>
+              <button class="delete-btn" type="button" onclick="deleteBet(${bet.id})">Delete</button>
+            </div>
+          </div>
+        `;
       }).join('');
     }
 
@@ -1362,19 +1438,15 @@
     }
 
     function renderBets() {
-      // First render the HTML
-      const tracker = document.getElementById('tracker');
-      const tbody = document.getElementById('betsBody');
+      const cards = document.getElementById('betsCards');
       
       if (bets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No bets yet. Add one to start tracking.</td></tr>';
+        cards.innerHTML = '<div class="empty-state">No bets yet. Add one to start tracking.</div>';
         updateStats();
         return;
       }
 
       renderBetsFiltered(bets);
-      console.log('[renderBets] Calling attachEventListeners');
-      attachEventListeners();  // Attach listeners AFTER rendering
       updateStats();
       
       // Start live score updates if we have pending bets
