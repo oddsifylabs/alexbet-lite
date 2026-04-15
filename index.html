@@ -851,6 +851,67 @@
       };
     }
 
+    function checkReminders() {
+      const today = new Date().toISOString().split('T')[0];
+      const lastCheckKey = 'alexbet_last_reminder_check';
+      const lastCheck = localStorage.getItem(lastCheckKey);
+      
+      if (lastCheck === today) return;
+      
+      const settled = bets.filter(b => b.status !== 'PENDING');
+      const won = settled.filter(b => b.status === 'WON').length;
+      const total = settled.length;
+      const winRate = total > 0 ? Math.round((won / total) * 100) : 0;
+      
+      const lastBetDate = bets.length > 0 ? new Date(bets[bets.length - 1].date) : null;
+      const daysSinceLastBet = lastBetDate ? Math.floor((new Date() - lastBetDate) / (1000 * 60 * 60 * 24)) : 999;
+      
+      const clvStats = calculateClvStreaks();
+      const avgClvLast10 = clvStats.avgClvLast10;
+      
+      let reminder = null;
+      
+      if (daysSinceLastBet >= 3) {
+        reminder = `📚 No bets in ${daysSinceLastBet} days. Time to get back in the game!`;
+      } else if (total >= 30 && winRate >= 56 && parseFloat(avgClvLast10) > 0) {
+        reminder = `🎉 You have 30+ bets, 56%+ win rate, and positive CLV! You're ready to launch!`;
+      } else if (total >= 20 && winRate < 50) {
+        reminder = `⚠️ Win rate is ${winRate}%, below 56% target. Keep testing and refining.`;
+      } else if (clvStats.last10Count >= 10 && parseFloat(avgClvLast10) < -0.5) {
+        reminder = `⚠️ Last 10 bets averaging ${avgClvLast10}% CLV. Consider adjusting your algorithm.`;
+      } else if (total > 0 && total < 10) {
+        reminder = `📈 You have ${total} bets logged. Keep going until 30+ for validation!`;
+      }
+      
+      if (reminder) {
+        showReminderBanner(reminder);
+      }
+      
+      localStorage.setItem(lastCheckKey, today);
+    }
+    
+    function showReminderBanner(message) {
+      const banner = document.createElement('div');
+      banner.style.background = 'rgba(0,214,143,0.2)';
+      banner.style.border = '1px solid #00d68f';
+      banner.style.borderRadius = '8px';
+      banner.style.padding = '15px 20px';
+      banner.style.marginBottom = '20px';
+      banner.style.color = '#aaa';
+      banner.style.fontSize = '13px';
+      banner.style.display = 'flex';
+      banner.style.justifyContent = 'space-between';
+      banner.style.alignItems = 'center';
+      banner.innerHTML = `
+        <div>${message}</div>
+        <button onclick="this.parentElement.style.display='none'" style="background: none; border: none; color: #888; cursor: pointer; font-size: 18px;">✕</button>
+      `;
+      const tracker = document.getElementById('tracker');
+      if (tracker) {
+        tracker.insertAdjacentElement('afterbegin', banner);
+      }
+    }
+
     function switchTab(tab) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1146,6 +1207,7 @@
     }
 
     renderBets();
+    checkReminders();
   </script>
 </body>
 </html>
