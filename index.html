@@ -728,7 +728,7 @@
       </div>
     </div>
     <footer class="app-footer">
-      AlexBET Lite <strong id="appVersion">v2026.04.15.2</strong>
+      AlexBET Lite - <strong id="appVersion">v2026.04.15.3</strong> <span id="appCommit">| GitHub commit: 4ec4f3e</span>
     </footer>
   </div>
 
@@ -741,7 +741,8 @@
   <script src="./injury-alerts-pro.js"></script>
   <script src="./team-management.js"></script>
   <script>
-    const APP_VERSION = 'v2026.04.15.2';
+    const APP_VERSION = 'v2026.04.15.3';
+    const APP_COMMIT = '4ec4f3e';
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
@@ -1467,6 +1468,7 @@
     }
     
     document.getElementById('appVersion').textContent = APP_VERSION;
+    document.getElementById('appCommit').textContent = `| GitHub commit: ${APP_COMMIT}`;
     renderBets();
     attachEventListeners();
     checkReminders();
