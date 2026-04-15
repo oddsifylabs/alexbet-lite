@@ -1279,7 +1279,7 @@
           <td><small>${scoreDisplay}</small></td>
           <td>${statusBadge}</td>
           <td>
-            <select id="status-${bet.id}" name="betStatus" class="status-select" data-bet-id="${bet.id}">
+            <select id="status-${bet.id}" name="betStatus" class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
               <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
               <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
               <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
@@ -1287,7 +1287,7 @@
             </select>
           </td>
           <td><strong>${bet.pnl >= 0 ? '+' : ''}$${bet.pnl}</strong></td>
-          <td><button class="delete-btn" type="button" data-bet-id="${bet.id}">✕</button></td>
+          <td><button class="delete-btn" type="button" onclick="deleteBet(${bet.id})">✕</button></td>
         </tr>
       `;
       }).join('');
@@ -1441,36 +1441,11 @@
     }
 
     function attachEventListeners() {
-      const betsBody = document.getElementById('betsBody');
-      if (!betsBody || betsBody.dataset.bound === 'true') return;
-
-      console.log('[attachEventListeners] Binding delegated table handlers');
-      betsBody.dataset.bound = 'true';
-
-      betsBody.addEventListener('click', (e) => {
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (!deleteBtn) return;
-
-        e.preventDefault();
-        const betId = deleteBtn.getAttribute('data-bet-id');
-        console.log(`[DELETE CLICKED] Bet ID: ${betId}`);
-        deleteBet(betId);
-      });
-
-      betsBody.addEventListener('change', (e) => {
-        const select = e.target.closest('.status-select');
-        if (!select) return;
-
-        const betId = select.getAttribute('data-bet-id');
-        const status = select.value;
-        console.log(`[STATUS CHANGED] Bet ${betId} => ${status}`);
-        updateBetStatus(betId, status);
-      });
+      // Table actions use inline handlers in renderBetsFiltered for maximum reliability.
     }
     
     document.getElementById('appVersion').textContent = APP_VERSION;
     document.getElementById('appCommit').textContent = `| GitHub commit: ${APP_COMMIT}`;
-    attachEventListeners();
     renderBets();
     checkReminders();
   </script>
