@@ -1248,6 +1248,7 @@
       }
 
       renderBetsFiltered(bets);
+      console.log('[renderBets] Calling attachEventListeners');
       attachEventListeners();  // Attach listeners AFTER rendering
       updateStats();
       
@@ -1342,23 +1343,31 @@
     }
 
     function attachEventListeners() {
+      console.log('[attachEventListeners] Called - attaching handlers');
+      
       // Delete buttons
-      document.querySelectorAll('.delete-btn').forEach(btn => {
+      const deleteBtns = document.querySelectorAll('.delete-btn');
+      console.log(`[Delete buttons found: ${deleteBtns.length}]`);
+      deleteBtns.forEach(btn => {
         btn.onclick = function(e) {
           e.preventDefault();
           const betId = this.getAttribute('data-bet-id');
-          console.log(`[Delete] Bet ${betId}`);
+          console.log(`[DELETE CLICKED] Bet ID: ${betId}`);
+          alert(`Deleting bet ${betId}`);
           deleteBet(betId);
           return false;
         };
       });
       
       // Status dropdowns
-      document.querySelectorAll('.status-select').forEach(select => {
+      const selects = document.querySelectorAll('.status-select');
+      console.log(`[Status selects found: ${selects.length}]`);
+      selects.forEach(select => {
         select.onchange = function() {
           const betId = this.getAttribute('data-bet-id');
           const status = this.value;
-          console.log(`[Status] Bet ${betId} → ${status}`);
+          console.log(`[STATUS CHANGED] Bet ${betId} => ${status}`);
+          alert(`Changing bet ${betId} to ${status}`);
           updateBetStatus(betId, status);
         };
       });
