@@ -346,6 +346,7 @@
 
     <div class="tabs">
       <button class="tab active" onclick="switchTab('tracker')">📊 Bet Tracker</button>
+      <button class="tab" onclick="switchTab('bankroll')">💰 Bankroll</button>
       <button class="tab" onclick="switchTab('analytics')">📈 Analytics</button>
       <button class="tab" onclick="switchTab('performance')">🎯 Performance</button>
       <button class="tab" onclick="switchTab('validation')">✅ Validation</button>
@@ -450,6 +451,57 @@
       </div>
 
       <button class="export-btn" onclick="exportData()">📥 Export JSON</button>
+    </div>
+
+    <!-- Bankroll Dashboard Tab -->
+    <div id="bankroll" class="tab-content">
+      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
+        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 10px;">💰 Bankroll Management</h2>
+        <p style="color: #aaa; font-size: 13px;">Real-time bankroll tracking and drawdown protection</p>
+      </div>
+
+      <div style="background: rgba(0,214,143,0.2); border: 2px solid #00d68f; border-radius: 16px; padding: 50px; margin-bottom: 40px; text-align: center;">
+        <div style="color: #aaa; font-size: 13px; margin-bottom: 15px;">CURRENT BANKROLL</div>
+        <div id="currentBankroll" style="font-size: 48px; font-weight: bold; color: #00d68f; margin-bottom: 10px;">$5,000</div>
+        <div style="color: #aaa; font-size: 12px;" id="bankrollChange">Starting: $5,000</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px;">
+        <div class="stat-card">
+          <div class="stat-label">Daily P&L</div>
+          <div class="stat-value" id="dailyPnl">+$0</div>
+          <div class="stat-detail" id="dailyDetail">Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total P&L</div>
+          <div class="stat-value" id="totalPnlBR" style="color: #00d68f;">+$0</div>
+          <div class="stat-detail">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Drawdown %</div>
+          <div class="stat-value" id="drawdownPercent">0%</div>
+          <div class="stat-detail" id="drawdownDetail">From peak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Units at Risk</div>
+          <div class="stat-value" id="unitsRisk">0</div>
+          <div class="stat-detail">Pending bets</div>
+        </div>
+      </div>
+
+      <div id="drawdownAlert" style="display: none; background: rgba(255,100,100,0.2); border: 2px solid #ff6464; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+        <div style="color: #ff9999; font-weight: bold; margin-bottom: 10px;">⚠️ DRAWDOWN ALERT</div>
+        <div style="color: #aaa; font-size: 12px;">Your bankroll is down <span id="alertPercent">15%</span> from peak. Be cautious with bet sizing.</div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
+        <h3 style="margin-bottom: 20px;">Status</h3>
+        <div id="bankrollStatus" style="font-size: 14px; line-height: 2; color: #aaa;">
+          <div style="color: #00d68f;">✅ Bankroll: Healthy</div>
+          <div style="color: #aaa;">Risk Level: Low (0% of bankroll pending)</div>
+          <div style="color: #aaa;">Safe to bet</div>
+        </div>
+      </div>
     </div>
 
     <!-- Analytics Tab -->
@@ -682,12 +734,83 @@
       `;
     }
 
+    function calculateBankrollStats() {
+      const totalPnl = bets.reduce((sum, b) => sum + (b.pnl || 0), 0);
+      const currentBankroll = 5000 + totalPnl;
+      const pending = bets.filter(b => b.status === 'PENDING');
+      const pendingRisk = pending.reduce((sum, b) => sum + (b.stake || 0), 0);
+      
+      let peakBankroll = 5000;
+      let runningBankroll = 5000;
+      const settledBets = bets.filter(b => b.status !== 'PENDING');
+      settledBets.forEach(b => {
+        runningBankroll += b.pnl || 0;
+        peakBankroll = Math.max(peakBankroll, runningBankroll);
+      });
+      const drawdown = ((peakBankroll - runningBankroll) / peakBankroll) * 100;
+      
+      const today = new Date().toISOString().split('T')[0];
+      const todayBets = bets.filter(b => b.date === today && b.status !== 'PENDING');
+      const dailyPnl = todayBets.reduce((sum, b) => sum + (b.pnl || 0), 0);
+      
+      return {
+        currentBankroll: Math.round(currentBankroll),
+        totalPnl,
+        pending,
+        pendingRisk,
+        drawdown,
+        peakBankroll,
+        dailyPnl,
+        riskPercent: (pendingRisk / currentBankroll) * 100
+      };
+    }
+
+    function renderBankrollTab() {
+      const stats = calculateBankrollStats();
+      const color = stats.currentBankroll >= 5000 ? '#00d68f' : stats.currentBankroll >= 4500 ? '#ffd700' : '#ff6464';
+      document.getElementById('currentBankroll').innerHTML = `<span style="color: ${color};">$${stats.currentBankroll.toLocaleString()}</span>`;
+      const change = stats.totalPnl >= 0 ? `+$${stats.totalPnl}` : `-$${Math.abs(stats.totalPnl)}`;
+      document.getElementById('bankrollChange').textContent = `Change: ${change}`;
+      const dailyColor = stats.dailyPnl > 0 ? '#00d68f' : stats.dailyPnl < 0 ? '#ff6464' : '#aaa';
+      document.getElementById('dailyPnl').innerHTML = `<span style="color: ${dailyColor};">${stats.dailyPnl > 0 ? '+' : ''}$${stats.dailyPnl}</span>`;
+      const totalColor = stats.totalPnl > 0 ? '#00d68f' : stats.totalPnl < 0 ? '#ff6464' : '#aaa';
+      document.getElementById('totalPnlBR').innerHTML = `<span style="color: ${totalColor};">${stats.totalPnl > 0 ? '+' : ''}$${stats.totalPnl}</span>`;
+      const ddColor = stats.drawdown < 5 ? '#00d68f' : stats.drawdown < 10 ? '#ffd700' : '#ff6464';
+      document.getElementById('drawdownPercent').innerHTML = `<span style="color: ${ddColor};">${stats.drawdown.toFixed(1)}%</span>`;
+      document.getElementById('drawdownDetail').textContent = `Peak: $${stats.peakBankroll.toLocaleString()}`;
+      document.getElementById('unitsRisk').textContent = stats.pending.length;
+      const alertDiv = document.getElementById('drawdownAlert');
+      if (stats.drawdown > 10) {
+        alertDiv.style.display = 'block';
+        document.getElementById('alertPercent').textContent = stats.drawdown.toFixed(1);
+      } else {
+        alertDiv.style.display = 'none';
+      }
+      let status = '✅ Bankroll: Healthy';
+      let riskMsg = `Low (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
+      let safeMsg = 'Safe to bet';
+      if (stats.drawdown > 10) {
+        status = '⚠️ Bankroll: Caution';
+        riskMsg = `High (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
+        safeMsg = 'Reduce bet size';
+      } else if (stats.drawdown > 5) {
+        status = '⚠️ Bankroll: Monitor';
+        riskMsg = `Medium (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
+      }
+      document.getElementById('bankrollStatus').innerHTML = `
+        <div style="${stats.drawdown > 10 ? 'color: #ff6464;' : 'color: #00d68f;'}">${status}</div>
+        <div style="color: #aaa;">Risk Level: ${riskMsg}</div>
+        <div style="color: #aaa;">${safeMsg}</div>
+      `;
+    }
+
     function switchTab(tab) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
       updateStats();
+      if (tab === 'bankroll') renderBankrollTab();
       if (tab === 'performance') renderPerformanceTab();
     }
 
