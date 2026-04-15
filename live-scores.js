@@ -42,26 +42,44 @@ class LiveScoreFetcher {
   }
 
   /**
-   * Extract team name from pick (simple heuristic)
-   * Examples: "Heat" -> "Miami Heat", "Lakers" -> "Los Angeles Lakers"
+   * Normalize a team query so shorthand like "Heat" or "LAL" still matches.
    */
-  findGameByTeam(sport, teamName) {
-    // Common team abbreviations
-    const teamMap = {
-      'Heat': 'Miami Heat', 'Heat': 'Miami', 'MIA': 'Miami Heat',
-      'Celtics': 'Boston Celtics', 'BOS': 'Boston Celtics',
-      'Lakers': 'Los Angeles Lakers', 'LAL': 'Los Angeles Lakers',
-      'Warriors': 'Golden State Warriors', 'GSW': 'Golden State Warriors',
-      'Bucks': 'Milwaukee Bucks', 'MIL': 'Milwaukee Bucks',
-      'Chiefs': 'Kansas City Chiefs', 'KC': 'Kansas City Chiefs',
-      'Cowboys': 'Dallas Cowboys', 'DAL': 'Dallas Cowboys',
-      'Patriots': 'New England Patriots', 'NE': 'New England Patriots',
-      'Yankees': 'New York Yankees', 'NYY': 'New York Yankees',
-      'Red Sox': 'Boston Red Sox', 'BOS': 'Boston Red Sox'
+  normalizeTeamQuery(teamName) {
+    const aliases = {
+      'heat': ['miami heat', 'miami', 'heat', 'mia'],
+      'celtics': ['boston celtics', 'boston', 'celtics', 'bos'],
+      'lakers': ['los angeles lakers', 'la lakers', 'lakers', 'lal'],
+      'warriors': ['golden state warriors', 'golden state', 'warriors', 'gsw'],
+      'bucks': ['milwaukee bucks', 'milwaukee', 'bucks', 'mil'],
+      'chiefs': ['kansas city chiefs', 'kansas city', 'chiefs', 'kc'],
+      'cowboys': ['dallas cowboys', 'dallas', 'cowboys', 'dal'],
+      'patriots': ['new england patriots', 'new england', 'patriots', 'ne'],
+      'yankees': ['new york yankees', 'new york', 'yankees', 'nyy'],
+      'red sox': ['boston red sox', 'red sox'],
     };
 
-    const normalizedTeam = teamMap[teamName] || teamName;
-    return { team: normalizedTeam, sport };
+    const query = (teamName || '').toLowerCase().trim();
+    for (const values of Object.values(aliases)) {
+      if (values.includes(query)) return values;
+    }
+    return [query];
+  }
+
+  getHomeAwayTeams(competitors = []) {
+    const home = competitors.find(team => team.homeAway === 'home') || competitors[0] || {};
+    const away = competitors.find(team => team.homeAway === 'away') || competitors[1] || {};
+    return {
+      homeTeam: home.team?.displayName || home.displayName || '',
+      awayTeam: away.team?.displayName || away.displayName || '',
+      homeScore: parseInt(home.score || 0, 10),
+      awayScore: parseInt(away.score || 0, 10),
+    };
+  }
+
+  matchesPick(pick, homeTeam, awayTeam) {
+    const aliases = this.normalizeTeamQuery(pick);
+    const haystacks = [homeTeam, awayTeam].map(team => (team || '').toLowerCase());
+    return aliases.some(alias => haystacks.some(team => team.includes(alias)));
   }
 
   /**
@@ -75,16 +93,12 @@ class LiveScoreFetcher {
       // Find matching game
       for (const game of games) {
         const competitors = game.competitions?.[0]?.competitors || [];
-        const homeTeam = competitors[0]?.team?.displayName || '';
-        const awayTeam = competitors[1]?.team?.displayName || '';
+        const { homeTeam, awayTeam, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
         
-        // Check if pick matches either team
-        if (homeTeam.toLowerCase().includes(pick.toLowerCase()) || 
-            awayTeam.toLowerCase().includes(pick.toLowerCase())) {
+        // Check if pick matches either team, including shorthand/aliases
+        if (this.matchesPick(pick, homeTeam, awayTeam)) {
           
           const status = game.status?.type?.name || 'scheduled';
-          const homeScore = competitors[0]?.score || 0;
-          const awayScore = competitors[1]?.score || 0;
           
           // Extract quarter/period info
           let quarter = '';
@@ -166,13 +180,14 @@ class LiveScoreFetcher {
   /**
    * Get status badge
    */
-  getStatusBadge(status) {
-    const badges = {
-      'pending': '⚪',
-      'live': '🔵',
-      'final': status.winner === 'won' ? '✅' : '❌'
-    };
-    return badges[status] || '❓';
+  getStatusBadge(scoreData) {
+    if (!scoreData) return '❓';
+    if (scoreData.status === 'pending') return '⚪';
+    if (scoreData.status === 'live') return '🔵';
+    if (scoreData.status === 'final') {
+      return scoreData.winner === 'won' ? '✅' : scoreData.winner === 'push' ? '➖' : '❌';
+    }
+    return '❓';
   }
 }
 

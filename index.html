@@ -902,7 +902,9 @@
       const total = settled.length;
       const winRate = total > 0 ? Math.round((won / total) * 100) : 0;
       
-      const lastBetDate = bets.length > 0 ? new Date(bets[bets.length - 1].date) : null;
+      const lastBetDate = bets.length > 0
+        ? new Date(Math.max(...bets.map(b => new Date(b.date).getTime()).filter(Boolean)))
+        : null;
       const daysSinceLastBet = lastBetDate ? Math.floor((new Date() - lastBetDate) / (1000 * 60 * 60 * 24)) : 999;
       
       const clvStats = calculateClvStreaks();
@@ -1020,15 +1022,18 @@
           let away = 'Away';
           let home = 'Home';
           
-          // Try competitions first
+          // Prefer explicit ESPN homeAway metadata when available
           const comp = g.competitions?.[0]?.competitors || [];
           if (comp.length >= 2) {
-            away = comp[0]?.team?.displayName || comp[0]?.displayName || 'Away';
-            home = comp[1]?.team?.displayName || comp[1]?.displayName || 'Home';
+            const awayComp = comp.find(c => c.homeAway === 'away') || comp[0];
+            const homeComp = comp.find(c => c.homeAway === 'home') || comp[1];
+            away = awayComp?.team?.displayName || awayComp?.displayName || 'Away';
+            home = homeComp?.team?.displayName || homeComp?.displayName || 'Home';
           } else if (g.competitors && g.competitors.length >= 2) {
-            // Fall back to top-level competitors
-            away = g.competitors[0]?.displayName || 'Away';
-            home = g.competitors[1]?.displayName || 'Home';
+            const awayComp = g.competitors.find(c => c.homeAway === 'away') || g.competitors[0];
+            const homeComp = g.competitors.find(c => c.homeAway === 'home') || g.competitors[1];
+            away = awayComp?.displayName || 'Away';
+            home = homeComp?.displayName || 'Home';
           }
           
           const label = `${away} @ ${home}`;
@@ -1124,9 +1129,14 @@
     function updateClosingOdds(id) {
       const closingOdds = prompt('Enter closing odds (e.g., -115):');
       if (closingOdds) {
+        const parsedOdds = parseInt(closingOdds, 10);
+        if (Number.isNaN(parsedOdds) || parsedOdds === 0) {
+          alert('Please enter valid American odds, like -115 or +120.');
+          return;
+        }
         const bet = bets.find(b => b.id === id);
         if (bet) {
-          bet.closingOdds = parseInt(closingOdds);
+          bet.closingOdds = parsedOdds;
           bet.clv = calculateCLV(bet.entryOdds, bet.closingOdds);
           saveBets();
           renderBets();
