@@ -1441,38 +1441,37 @@
     }
 
     function attachEventListeners() {
-      console.log('[attachEventListeners] Called - attaching handlers');
-      
-      // Delete buttons
-      const deleteBtns = document.querySelectorAll('.delete-btn');
-      console.log(`[Delete buttons found: ${deleteBtns.length}]`);
-      deleteBtns.forEach(btn => {
-        btn.onclick = function(e) {
-          e.preventDefault();
-          const betId = this.getAttribute('data-bet-id');
-          console.log(`[DELETE CLICKED] Bet ID: ${betId}`);
-          deleteBet(betId);
-          return false;
-        };
+      const betsBody = document.getElementById('betsBody');
+      if (!betsBody || betsBody.dataset.bound === 'true') return;
+
+      console.log('[attachEventListeners] Binding delegated table handlers');
+      betsBody.dataset.bound = 'true';
+
+      betsBody.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (!deleteBtn) return;
+
+        e.preventDefault();
+        const betId = deleteBtn.getAttribute('data-bet-id');
+        console.log(`[DELETE CLICKED] Bet ID: ${betId}`);
+        deleteBet(betId);
       });
-      
-      // Status dropdowns
-      const selects = document.querySelectorAll('.status-select');
-      console.log(`[Status selects found: ${selects.length}]`);
-      selects.forEach(select => {
-        select.onchange = function() {
-          const betId = this.getAttribute('data-bet-id');
-          const status = this.value;
-          console.log(`[STATUS CHANGED] Bet ${betId} => ${status}`);
-          updateBetStatus(betId, status);
-        };
+
+      betsBody.addEventListener('change', (e) => {
+        const select = e.target.closest('.status-select');
+        if (!select) return;
+
+        const betId = select.getAttribute('data-bet-id');
+        const status = select.value;
+        console.log(`[STATUS CHANGED] Bet ${betId} => ${status}`);
+        updateBetStatus(betId, status);
       });
     }
     
     document.getElementById('appVersion').textContent = APP_VERSION;
     document.getElementById('appCommit').textContent = `| GitHub commit: ${APP_COMMIT}`;
-    renderBets();
     attachEventListeners();
+    renderBets();
     checkReminders();
   </script>
 </body>
