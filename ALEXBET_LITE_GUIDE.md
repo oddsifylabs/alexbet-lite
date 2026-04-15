@@ -18,7 +18,7 @@ AlexBET Lite is a professional sports betting tracker with **Closing Line Value 
 
 ### Step 1: Access AlexBET Lite
 
-**URL:** https://alexbet-lite.netlify.app
+**URL:** https://alexbetlite.netlify.app
 
 **Browser:** Works in any modern browser (Chrome, Safari, Firefox, Edge)
 
@@ -369,7 +369,7 @@ When you hit 56%+ win rate + positive CLV:
 
 ## Next Steps
 
-1. Open https://alexbet-lite.netlify.app
+1. Open https://alexbetlite.netlify.app
 2. Get a gem from @AlexBetSharp_Bot (`/scan`)
 3. Log your first bet
 4. Set closing odds when game starts
