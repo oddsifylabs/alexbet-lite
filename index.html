@@ -1153,16 +1153,35 @@
       const betType = document.getElementById('betType').value;
       const sport = document.getElementById('sport').value;
       const gameDate = document.getElementById('gameDate').value;
+      const gameSelection = document.getElementById('gameSelect').value;
 
       if (!pick || !entryOdds || !edge || !stake || !sport || !gameDate) {
         alert('Fill in all required fields');
         return;
       }
 
+      let gameId = null;
+      let gameName = pick;
+      let gameTime = gameDate;
+
+      if (gameSelection) {
+        const [selectedGameId, away, home] = gameSelection.split('|');
+        gameId = selectedGameId;
+        gameName = away && home ? `${away} @ ${home}` : pick;
+
+        const selectedGame = (availableGames[sport] || []).find(g => String(g.id) === String(selectedGameId));
+        if (selectedGame?.date) {
+          gameTime = selectedGame.date;
+        }
+      }
+
       const bet = {
         id: Date.now(),
         date: new Date().toISOString().split('T')[0],
+        gameId,
         gameDate: gameDate,
+        gameName,
+        gameTime,
         pick,
         entryOdds,
         closingOdds: null,
@@ -1311,6 +1330,10 @@
           : bet.liveScore?.status === 'pending'
           ? '⚪ Scheduled'
           : '🕒 Matching';
+        const gameName = bet.gameName || bet.pick;
+        const gameTimeLabel = bet.gameTime
+          ? new Date(bet.gameTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+          : bet.gameDate || 'Game time unavailable';
 
         return `
           <div class="bet-card ${isLive ? 'live' : ''}">
@@ -1318,6 +1341,8 @@
               <div>
                 <div class="bet-card-date">Logged ${bet.date}</div>
                 <div class="bet-card-pick">${bet.pick}</div>
+                <div style="margin-top: 6px; color: #d9def2; font-size: 13px; font-weight: 600;">${gameName}</div>
+                <div style="margin-top: 4px; color: #7d84a6; font-size: 12px;">${gameTimeLabel}</div>
               </div>
               <span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 6px 10px; border-radius: 999px; font-weight: 700;">${bet.betType}</span>
             </div>
