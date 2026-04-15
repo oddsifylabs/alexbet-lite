@@ -360,8 +360,8 @@
         <div class="controls" style="margin: 0; background: transparent; border: none; padding: 0;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-              <label>Sport</label>
-              <select id="sport" onchange="loadGames()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="sport">Sport</label>
+              <select id="sport" name="sport" onchange="loadGames()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
                 <option value="">Select Sport...</option>
                 <option value="NBA">🏀 NBA</option>
                 <option value="NFL">🏈 NFL</option>
@@ -373,8 +373,8 @@
             </div>
             
             <div class="form-group">
-              <label>Game Date</label>
-              <select id="gameDate" onchange="setTimeout(updateGameList, 100)" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="gameDate">Game Date</label>
+              <select id="gameDate" name="gameDate" onchange="setTimeout(updateGameList, 100)" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
                 <option value="">Select date...</option>
               </select>
             </div>
@@ -382,22 +382,22 @@
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-              <label>Game</label>
-              <select id="gameSelect" onchange="selectGame()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="gameSelect">Game</label>
+              <select id="gameSelect" name="gameSelect" onchange="selectGame()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
                 <option value="">Select game...</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label>Pick (Team/Prop)</label>
-              <input type="text" id="pick" placeholder="Auto-filled from game selection" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="pick">Pick (Team/Prop)</label>
+              <input type="text" id="pick" name="pick" placeholder="Auto-filled from game selection" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
             </div>
           </div>
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-              <label>Bet Type</label>
-              <select id="betType" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="betType">Bet Type</label>
+              <select id="betType" name="betType" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
                 <option>Moneyline (ML)</option>
                 <option>Spread</option>
                 <option>Total (Over/Under)</option>
@@ -406,20 +406,20 @@
             </div>
             
             <div class="form-group">
-              <label>Entry Odds</label>
-              <input type="number" id="entryOdds" placeholder="-110" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="entryOdds">Entry Odds</label>
+              <input type="number" id="entryOdds" name="entryOdds" placeholder="-110" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
             </div>
           </div>
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-              <label>Edge %</label>
-              <input type="number" id="edge" placeholder="6.5" step="0.1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="edge">Edge %</label>
+              <input type="number" id="edge" name="edge" placeholder="6.5" step="0.1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
             </div>
             
             <div class="form-group">
-              <label>Stake ($)</label>
-              <input type="number" id="stake" placeholder="100" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="stake">Stake ($)</label>
+              <input type="number" id="stake" name="stake" placeholder="100" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
             </div>
           </div>
 
