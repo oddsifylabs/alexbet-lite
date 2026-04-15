@@ -1194,7 +1194,7 @@
           <td><small>${scoreDisplay}</small></td>
           <td>${statusBadge}</td>
           <td>
-            <select class="status-select" data-bet-id="${bet.id}">
+            <select id="status-${bet.id}" name="betStatus" class="status-select" data-bet-id="${bet.id}">
               <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
               <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
               <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
