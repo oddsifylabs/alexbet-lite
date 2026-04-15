@@ -1295,27 +1295,55 @@
 
     // Fetch live scores periodically
     let scoreUpdateInterval = null;
+    let isScoreUpdateRunning = false;
     
     async function updateLiveScores() {
-      for (let bet of bets) {
-        if (bet.status === 'PENDING') {
-          const scoreData = await liveScores.getScore(bet.pick, bet.sport);
+      if (isScoreUpdateRunning) return;
+      isScoreUpdateRunning = true;
+
+      try {
+        const pendingBets = bets.filter(b => b.status === 'PENDING');
+        if (pendingBets.length === 0) return;
+
+        const updates = await Promise.all(pendingBets.map(async (bet) => ({
+          id: bet.id,
+          scoreData: await liveScores.getScore(bet.pick, bet.sport)
+        })));
+
+        let changed = false;
+
+        updates.forEach(({ id, scoreData }) => {
+          const bet = bets.find(b => b.id === id);
+          if (!bet) return;
+
           bet.liveScore = scoreData;
-          
-          // Auto-mark as won/lost if final
-          if (scoreData.status === 'final') {
+
+          if (scoreData?.status === 'final') {
             if (scoreData.winner === 'won') {
-              updateBetStatus(bet.id, 'WON');
+              bet.status = 'WON';
+              bet.pnl = bet.entryOdds > 0
+                ? Math.floor((bet.stake * bet.entryOdds) / 100)
+                : Math.floor((bet.stake * 100) / Math.abs(bet.entryOdds));
+              changed = true;
             } else if (scoreData.winner === 'lost') {
-              updateBetStatus(bet.id, 'LOST');
+              bet.status = 'LOST';
+              bet.pnl = -bet.stake;
+              changed = true;
             } else if (scoreData.winner === 'push') {
-              updateBetStatus(bet.id, 'PUSH');
+              bet.status = 'PUSH';
+              bet.pnl = 0;
+              changed = true;
             }
           }
+        });
+
+        if (changed || updates.length > 0) {
+          saveBets();
+          renderBets();
         }
+      } finally {
+        isScoreUpdateRunning = false;
       }
-      saveBets();
-      renderBets();
     }
 
     function startLiveScoreUpdates() {
