@@ -658,7 +658,7 @@
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
-
+    function calculatePerformanceStats() {
       const settled = bets.filter(b => b.status !== 'PENDING');
       if (settled.length === 0) return null;
 
