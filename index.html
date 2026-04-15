@@ -347,6 +347,7 @@
     <div class="tabs">
       <button class="tab active" onclick="switchTab('tracker')">📊 Bet Tracker</button>
       <button class="tab" onclick="switchTab('analytics')">📈 Analytics</button>
+      <button class="tab" onclick="switchTab('performance')">🎯 Performance</button>
       <button class="tab" onclick="switchTab('validation')">✅ Validation</button>
       <button class="tab" onclick="switchTab('about')">ℹ️ About</button>
     </div>
@@ -515,6 +516,29 @@
       </div>
     </div>
 
+    <!-- Performance Tab (Analytics by Sport/Market) -->
+    <div id="performance" class="tab-content">
+      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
+        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 10px;">🏆 Performance Breakdown</h2>
+        <p style="color: #aaa; font-size: 13px;">Win rate by sport, market type, and ROI analysis</p>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px;">🏀 Win Rate by Sport</h3>
+        <div id="sportBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px;">📊 Win Rate by Market Type</h3>
+        <div id="marketBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
+        <h3 style="margin-bottom: 15px;">💰 P&L Summary</h3>
+        <div id="pnlBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
+      </div>
+    </div>
+
     <!-- Validation Tab -->
     <div id="validation" class="tab-content">
       <div class="stat-card" style="max-width: 400px;">
@@ -579,12 +603,92 @@
     let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
     let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
 
+    function calculatePerformanceStats() {
+      const settled = bets.filter(b => b.status !== 'PENDING');
+      if (settled.length === 0) return null;
+
+      const bySport = {};
+      const byMarket = {};
+      let totalPnl = 0;
+      let totalStaked = 0;
+
+      settled.forEach(b => {
+        totalPnl += b.pnl || 0;
+        totalStaked += b.stake || 0;
+        
+        if (!bySport[b.sport]) bySport[b.sport] = { won: 0, total: 0, pnl: 0 };
+        bySport[b.sport].total++;
+        bySport[b.sport].pnl += b.pnl || 0;
+        if (b.status === 'WON') bySport[b.sport].won++;
+
+        const market = b.betType || 'ML';
+        if (!byMarket[market]) byMarket[market] = { won: 0, total: 0, pnl: 0 };
+        byMarket[market].total++;
+        byMarket[market].pnl += b.pnl || 0;
+        if (b.status === 'WON') byMarket[market].won++;
+      });
+
+      return { bySport, byMarket, totalPnl, totalStaked, settled: settled.length };
+    }
+
+    function renderPerformanceTab() {
+      const stats = calculatePerformanceStats();
+      if (!stats) {
+        document.getElementById('sportBreakdown').innerHTML = '<p style="color: #888; grid-column: 1/-1;">Need settled bets to view performance</p>';
+        return;
+      }
+
+      // Sport breakdown
+      document.getElementById('sportBreakdown').innerHTML = Object.entries(stats.bySport).map(([sport, data]) => {
+        const wr = Math.round((data.won / data.total) * 100);
+        const color = wr >= 56 ? '#00d68f' : wr >= 50 ? '#ffd700' : '#ff6464';
+        return `
+          <div style="background: rgba(255,255,255,0.08); border: 1px solid ${color}; border-radius: 8px; padding: 15px; text-align: center;">
+            <div style="font-weight: bold; font-size: 22px; color: ${color};">${wr}%</div>
+            <div style="color: #aaa; font-size: 11px; margin-top: 5px;">${sport} (${data.won}/${data.total})</div>
+            <div style="color: ${data.pnl > 0 ? '#00d68f' : '#ff6464'}; font-size: 11px; margin-top: 3px;">$${data.pnl}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Market breakdown
+      document.getElementById('marketBreakdown').innerHTML = Object.entries(stats.byMarket).map(([market, data]) => {
+        const wr = Math.round((data.won / data.total) * 100);
+        const color = wr >= 56 ? '#00d68f' : wr >= 50 ? '#ffd700' : '#ff6464';
+        return `
+          <div style="background: rgba(255,255,255,0.08); border: 1px solid ${color}; border-radius: 8px; padding: 15px; text-align: center;">
+            <div style="font-weight: bold; font-size: 22px; color: ${color};">${wr}%</div>
+            <div style="color: #aaa; font-size: 11px; margin-top: 5px;">${market} (${data.won}/${data.total})</div>
+            <div style="color: ${data.pnl > 0 ? '#00d68f' : '#ff6464'}; font-size: 11px; margin-top: 3px;">$${data.pnl}</div>
+          </div>
+        `;
+      }).join('');
+
+      // P&L summary
+      const roi = stats.totalStaked > 0 ? ((stats.totalPnl / stats.totalStaked) * 100).toFixed(1) : 0;
+      document.getElementById('pnlBreakdown').innerHTML = `
+        <div style="background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 8px; padding: 15px; text-align: center;">
+          <div style="font-weight: bold; font-size: 22px; color: #00d68f;">$${stats.totalPnl}</div>
+          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">Total P&L</div>
+        </div>
+        <div style="background: rgba(255,215,0,0.2); border: 1px solid #ffd700; border-radius: 8px; padding: 15px; text-align: center;">
+          <div style="font-weight: bold; font-size: 22px; color: #ffd700;">${roi > 0 ? '+' : ''}${roi}%</div>
+          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">ROI</div>
+        </div>
+        <div style="background: rgba(100,150,255,0.2); border: 1px solid #6496ff; border-radius: 8px; padding: 15px; text-align: center;">
+          <div style="font-weight: bold; font-size: 22px; color: #6496ff;">${stats.settled}</div>
+          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">Settled Bets</div>
+        </div>
+      `;
+    }
+
     function switchTab(tab) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
       updateStats();
+      if (tab === 'performance') renderPerformanceTab();
     }
 
     function addBet() {
