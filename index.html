@@ -1051,8 +1051,8 @@
           <td><strong>${bet.pick}</strong></td>
           <td><span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 4px 8px; border-radius: 4px;">${bet.betType}</span></td>
           <td>${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</td>
-          <td><button class="clv-button" onclick="updateClosingOdds(${bet.id})">Set: ${bet.closingOdds > 0 ? '+' : ''}${bet.closingOdds}</button></td>
-          <td class="${clvClass}">${bet.clv}%</td>
+          <td><button class="clv-button" onclick="updateClosingOdds(${bet.id})">Set: ${bet.closingOdds ? (bet.closingOdds > 0 ? '+' : '') + bet.closingOdds : '—'}</button></td>
+          <td class="${clvClass}">${bet.clv ? bet.clv.toFixed(2) : '—'}%</td>
           <td>${bet.edge}%</td>
           <td>$${bet.stake}</td>
           <td>${bet.sport}</td>
