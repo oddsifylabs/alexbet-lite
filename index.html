@@ -115,6 +115,11 @@
       border-radius: 6px;
       color: #fff;
       font-size: 13px;
+      width: 100%;
+    }
+
+    input::placeholder {
+      color: #7d84a6;
     }
 
     input:focus, select:focus {
@@ -156,6 +161,12 @@
       border-radius: 12px;
       padding: 20px;
       text-align: center;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 214, 143, 0.4);
     }
 
     .stat-label {
@@ -182,7 +193,8 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(0, 214, 143, 0.2);
       border-radius: 12px;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
       margin-bottom: 20px;
     }
 
@@ -200,6 +212,10 @@
       letter-spacing: 0.05em;
       border-bottom: 1px solid rgba(0, 214, 143, 0.2);
       font-weight: 600;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(6px);
+      z-index: 1;
     }
 
     td {
@@ -325,12 +341,31 @@
     }
 
     @media (max-width: 768px) {
-      .search-filter-bar {
+      body {
+        padding: 14px;
+      }
+
+      .header {
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .controls,
+      .search-filter-bar,
+      .stats-grid {
         grid-template-columns: 1fr;
       }
 
-      .stats-grid {
-        grid-template-columns: 1fr;
+      .tab {
+        padding: 8px 14px;
+      }
+
+      th, td {
+        padding: 10px 12px;
+        white-space: nowrap;
       }
     }
   </style>
@@ -466,7 +501,7 @@
           </thead>
           <tbody id="betsBody">
             <tr>
-              <td colspan="12" class="empty-state">No bets yet. Add one to start tracking.</td>
+              <td colspan="14" class="empty-state">No bets yet. Add one to start tracking.</td>
             </tr>
           </tbody>
         </table>
