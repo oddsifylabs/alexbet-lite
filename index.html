@@ -1050,6 +1050,16 @@
     }
 
     let availableGames = {};
+
+    function getLocalGameDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
     
     async function loadGames() {
       const sport = document.getElementById('sport').value;
@@ -1071,7 +1081,7 @@
         
         availableGames[sport] = games;
         
-        const dates = [...new Set(games.map(g => g.date?.split('T')[0]))].filter(d => d).sort();
+        const dates = [...new Set(games.map(g => getLocalGameDate(g.date)))].filter(d => d).sort();
         const dateSelect = document.getElementById('gameDate');
         dateSelect.innerHTML = '<option value="">Select date...</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
         
@@ -1095,7 +1105,7 @@
       }
       
       const games = availableGames[sport] || [];
-      const filteredGames = games.filter(g => g.date?.startsWith(selectedDate));
+      const filteredGames = games.filter(g => getLocalGameDate(g.date) === selectedDate);
       const gameSelect = document.getElementById('gameSelect');
       
       if (filteredGames.length === 0) {
