@@ -374,7 +374,7 @@
             
             <div class="form-group">
               <label>Game Date</label>
-              <select id="gameDate" onchange="updateGameList()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <select id="gameDate" onchange="setTimeout(updateGameList, 100)" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
                 <option value="">Select date...</option>
               </select>
             </div>
@@ -957,38 +957,58 @@
       const sport = document.getElementById('sport').value;
       if (!sport) return;
 
+      document.getElementById('gameDate').innerHTML = '<option value="">Loading...</option>';
+      document.getElementById('gameSelect').innerHTML = '<option value="">Select game...</option>';
+
       try {
         const liveScorer = new LiveScoreFetcher();
         const games = await liveScorer.fetchSportGames(sport);
+        
+        if (!games || games.length === 0) {
+          document.getElementById('gameDate').innerHTML = '<option value="">No games found</option>';
+          return;
+        }
         
         availableGames[sport] = games;
         
         const dates = [...new Set(games.map(g => g.date?.split('T')[0]))].sort();
         const dateSelect = document.getElementById('gameDate');
-        dateSelect.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+        dateSelect.innerHTML = '<option value="">Select date...</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
         
         if (dates.length > 0) {
-          document.getElementById('gameDate').value = dates[0];
+          dateSelect.value = dates[0];
           updateGameList();
         }
       } catch (err) {
         console.error('Error loading games:', err);
+        document.getElementById('gameDate').innerHTML = '<option value="">Error loading games</option>';
       }
     }
     
     function updateGameList() {
       const sport = document.getElementById('sport').value;
       const selectedDate = document.getElementById('gameDate').value;
-      const games = availableGames[sport] || [];
       
+      if (!sport || !selectedDate) {
+        document.getElementById('gameSelect').innerHTML = '<option value="">Select game...</option>';
+        return;
+      }
+      
+      const games = availableGames[sport] || [];
       const filteredGames = games.filter(g => g.date?.startsWith(selectedDate));
       const gameSelect = document.getElementById('gameSelect');
+      
+      if (filteredGames.length === 0) {
+        gameSelect.innerHTML = '<option value="">No games on this date</option>';
+        return;
+      }
       
       gameSelect.innerHTML = '<option value="">Select game...</option>' + 
         filteredGames.map(g => {
           const comp = g.competitions?.[0]?.competitors || [];
           const away = comp[1]?.team?.displayName || 'Away';
           const home = comp[0]?.team?.displayName || 'Home';
+          const status = g.status?.type?.name || 'Scheduled';
           return `<option value="${g.id}|${away}|${home}">${away} @ ${home}</option>`;
         }).join('');
     }
