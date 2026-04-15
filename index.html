@@ -1237,6 +1237,8 @@
     }
 
     function renderBets() {
+      // First render the HTML
+      const tracker = document.getElementById('tracker');
       const tbody = document.getElementById('betsBody');
       
       if (bets.length === 0) {
@@ -1246,6 +1248,7 @@
       }
 
       renderBetsFiltered(bets);
+      attachEventListeners();  // Attach listeners AFTER rendering
       updateStats();
       
       // Start live score updates if we have pending bets
@@ -1338,30 +1341,32 @@
       link.click();
     }
 
-    renderBets();
-    checkReminders();
-    
-    // Add event listeners after rendering
-    setTimeout(() => {
-      document.querySelectorAll('.status-select').forEach(select => {
-        select.addEventListener('change', function() {
+    function attachEventListeners() {
+      // Delete buttons
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = function(e) {
+          e.preventDefault();
           const betId = this.getAttribute('data-bet-id');
-          const status = this.value;
-          console.log(`Status change: bet ${betId} → ${status}`);
-          updateBetStatus(betId, status);
-        });
+          console.log(`[Delete] Bet ${betId}`);
+          deleteBet(betId);
+          return false;
+        };
       });
       
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
+      // Status dropdowns
+      document.querySelectorAll('.status-select').forEach(select => {
+        select.onchange = function() {
           const betId = this.getAttribute('data-bet-id');
-          console.log(`Delete clicked: bet ${betId}`);
-          deleteBet(betId);
-        });
+          const status = this.value;
+          console.log(`[Status] Bet ${betId} → ${status}`);
+          updateBetStatus(betId, status);
+        };
       });
-    }, 100);
+    }
+    
+    renderBets();
+    attachEventListeners();
+    checkReminders();
   </script>
 </body>
 </html>
