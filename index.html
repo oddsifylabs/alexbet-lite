@@ -964,6 +964,8 @@
         const liveScorer = new LiveScoreFetcher();
         const games = await liveScorer.fetchSportGames(sport);
         
+        console.log(`[Games] Loaded ${games.length} ${sport} games`, games.slice(0, 2));
+        
         if (!games || games.length === 0) {
           document.getElementById('gameDate').innerHTML = '<option value="">No games found</option>';
           return;
@@ -971,7 +973,7 @@
         
         availableGames[sport] = games;
         
-        const dates = [...new Set(games.map(g => g.date?.split('T')[0]))].sort();
+        const dates = [...new Set(games.map(g => g.date?.split('T')[0]))].filter(d => d).sort();
         const dateSelect = document.getElementById('gameDate');
         dateSelect.innerHTML = '<option value="">Select date...</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
         
@@ -1005,19 +1007,34 @@
       
       gameSelect.innerHTML = '<option value="">Select game...</option>' + 
         filteredGames.map(g => {
+          let away = 'Away';
+          let home = 'Home';
+          
+          // Try competitions first
           const comp = g.competitions?.[0]?.competitors || [];
-          const away = comp[1]?.team?.displayName || 'Away';
-          const home = comp[0]?.team?.displayName || 'Home';
-          const status = g.status?.type?.name || 'Scheduled';
-          return `<option value="${g.id}|${away}|${home}">${away} @ ${home}</option>`;
+          if (comp.length >= 2) {
+            away = comp[0]?.team?.displayName || comp[0]?.displayName || 'Away';
+            home = comp[1]?.team?.displayName || comp[1]?.displayName || 'Home';
+          } else if (g.competitors && g.competitors.length >= 2) {
+            // Fall back to top-level competitors
+            away = g.competitors[0]?.displayName || 'Away';
+            home = g.competitors[1]?.displayName || 'Home';
+          }
+          
+          const label = `${away} @ ${home}`;
+          return `<option value="${g.id}|${away}|${home}">${label}</option>`;
         }).join('');
     }
     
     function selectGame() {
       const value = document.getElementById('gameSelect').value;
       if (value) {
-        const [gameId, away, home] = value.split('|');
+        const parts = value.split('|');
+        const gameId = parts[0];
+        const away = parts[1];
+        const home = parts[2];
         document.getElementById('pick').value = home || '';
+        console.log(`[Game Selected] ${away} @ ${home}`);
       }
     }
 
