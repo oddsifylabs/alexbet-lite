@@ -1081,21 +1081,33 @@
     }
 
     function updateBetStatus(id, status) {
-      const numId = parseInt(id);
-      const bet = bets.find(b => b.id === numId);
-      if (bet) {
-        bet.status = status;
-        if (status === 'WON') {
-          if (bet.entryOdds > 0) bet.pnl = Math.floor((bet.stake * bet.entryOdds) / 100);
-          else bet.pnl = Math.floor((bet.stake * 100) / Math.abs(bet.entryOdds));
-        } else if (status === 'LOST') {
-          bet.pnl = -bet.stake;
-        } else if (status === 'PUSH') {
-          bet.pnl = 0;
+      try {
+        console.log(`[updateBetStatus] Called with id=${id}, status=${status}`);
+        const numId = parseInt(id);
+        console.log(`[updateBetStatus] Parsed ID: ${numId}`);
+        console.log(`[updateBetStatus] Bets array length: ${bets.length}`);
+        
+        const bet = bets.find(b => b.id === numId);
+        console.log(`[updateBetStatus] Found bet:`, bet);
+        
+        if (bet) {
+          bet.status = status;
+          if (status === 'WON') {
+            if (bet.entryOdds > 0) bet.pnl = Math.floor((bet.stake * bet.entryOdds) / 100);
+            else bet.pnl = Math.floor((bet.stake * 100) / Math.abs(bet.entryOdds));
+          } else if (status === 'LOST') {
+            bet.pnl = -bet.stake;
+          } else if (status === 'PUSH') {
+            bet.pnl = 0;
+          }
+          saveBets();
+          renderBets();
+          console.log(`[updateBetStatus] ✅ Updated bet ${numId} to ${status}`);
+        } else {
+          console.log(`[updateBetStatus] ❌ Bet not found! ID: ${numId}`);
         }
-        saveBets();
-        renderBets();
-        console.log(`Updated bet ${numId} to ${status}`);
+      } catch(e) {
+        console.error(`[updateBetStatus] ERROR:`, e.message);
       }
     }
 
