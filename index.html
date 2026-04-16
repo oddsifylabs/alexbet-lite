@@ -1368,29 +1368,32 @@
           <div class="bet-card ${isLive ? 'live' : ''}">
             <div class="bet-card-header">
               <div style="width: 100%;">
-                <div class="bet-card-date">Logged ${bet.date}</div>
-                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                  <div class="bet-card-date">Logged ${bet.date}</div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    ${bet.leagueLogo ? `<img src="${bet.leagueLogo}" alt="${bet.sport} logo" style="width: 22px; height: 22px; object-fit: contain; opacity: 0.9;">` : ''}
+                    <span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 6px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap;">${bet.betType}</span>
+                  </div>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;">
                   <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
                     ${bet.awayLogo ? `<img src="${bet.awayLogo}" alt="${bet.awayTeam || 'Away'} logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px;">` : ''}
-                    <div style="min-width: 0;">
-                      <div style="font-size: 12px; color: #7d84a6;">Away</div>
-                      <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.awayTeam || 'Away Team'}</div>
-                    </div>
+                    <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.awayTeam || 'Away Team'}</div>
                   </div>
-                  ${bet.leagueLogo ? `<img src="${bet.leagueLogo}" alt="${bet.sport} logo" style="width: 26px; height: 26px; object-fit: contain; opacity: 0.9;">` : ''}
-                  <div style="display: flex; align-items: center; gap: 10px; min-width: 0; text-align: right;">
-                    <div style="min-width: 0;">
-                      <div style="font-size: 12px; color: #7d84a6;">Home</div>
-                      <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.homeTeam || 'Home Team'}</div>
-                    </div>
+                  <div style="font-size: 11px; color: #7d84a6; font-weight: 700;">@</div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; text-align: right;">
+                    <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.homeTeam || 'Home Team'}</div>
                     ${bet.homeLogo ? `<img src="${bet.homeLogo}" alt="${bet.homeTeam || 'Home'} logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px;">` : ''}
                   </div>
                 </div>
-                <div style="margin-top: 10px; color: #d9def2; font-size: 13px; font-weight: 600;">${gameName}</div>
-                <div style="margin-top: 4px; color: #7d84a6; font-size: 12px;">${gameTimeLabel}</div>
-                <div class="bet-card-pick" style="margin-top: 10px;">${bet.pick}</div>
+
+                <div style="margin-top: 10px; color: #7d84a6; font-size: 12px;">${gameTimeLabel}</div>
+                <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
+                  <span style="font-size: 11px; color: #7d84a6; text-transform: uppercase; letter-spacing: 0.05em;">Pick</span>
+                  <span style="font-size: 14px; font-weight: 700; color: #fff;">${bet.pick}</span>
+                </div>
               </div>
-              <span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 6px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap;">${bet.betType}</span>
             </div>
 
             <div class="bet-card-grid">
