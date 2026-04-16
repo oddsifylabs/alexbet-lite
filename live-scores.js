@@ -150,7 +150,8 @@ class LiveScoreFetcher {
             quarter,
             timeRemaining,
             picked: pick,
-            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
+            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
+            rawCompetitors: competitors // Add raw data for debugging
           };
         }
       }
@@ -190,7 +191,8 @@ class LiveScoreFetcher {
             quarter,
             timeRemaining,
             picked: pick,
-            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
+            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
+            rawCompetitors: competitors // Add raw data for debugging
           };
         }
       }
