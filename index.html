@@ -1714,10 +1714,11 @@
 
     function startLiveScoreUpdates() {
       if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
-      // Update every 30 seconds
-      scoreUpdateInterval = setInterval(updateLiveScores, 30000);
-      // Initial update
-      updateLiveScores();
+      // Auto-refresh disabled - manual only
+      // scoreUpdateInterval = setInterval(updateLiveScores, 30000);
+      // Initial update disabled
+      // updateLiveScores();
+      console.log('Live score updates disabled');
     }
 
     function stopLiveScoreUpdates() {
