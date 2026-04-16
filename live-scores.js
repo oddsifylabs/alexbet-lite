@@ -122,6 +122,7 @@ class LiveScoreFetcher {
       if (gameId) {
         const exactGame = games.find(game => String(game.id) === String(gameId));
         if (exactGame) {
+          console.log('[LiveScore DEBUG] Found exact game by ID:', gameId, exactGame.name, exactGame); // LOG HERE
           const competitors = exactGame.competitions?.[0]?.competitors || [];
           const { homeTeam, awayTeam, homeLogo, awayLogo, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
           const status = exactGame.status?.type?.name || 'scheduled';
@@ -136,7 +137,7 @@ class LiveScoreFetcher {
             }
           }
 
-          return {
+          const result = {
             gameId: exactGame.id,
             status: this.normalizeStatus(status),
             score: {
@@ -152,7 +153,10 @@ class LiveScoreFetcher {
             picked: pick,
             winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
           };
+          console.log('[LiveScore DEBUG] Returning scoreData for exact match:', result); // LOG HERE
+          return result;
         }
+        console.log('[LiveScore DEBUG] Exact game by ID not found in fetched events. Falling back to fuzzy match.', gameId); // LOG HERE
       }
       
       // Find matching game
@@ -162,7 +166,7 @@ class LiveScoreFetcher {
         
         // Check if pick matches either team, including shorthand/aliases
         if (this.matchesPick(pick, homeTeam, awayTeam)) {
-          
+          console.log('[LiveScore DEBUG] Found game by fuzzy match:', pick, game.name, game); // LOG HERE
           const status = game.status?.type?.name || 'scheduled';
           
           // Extract quarter/period info
@@ -176,7 +180,7 @@ class LiveScoreFetcher {
             }
           }
 
-          return {
+          const result = {
             gameId: game.id,
             status: this.normalizeStatus(status),
             score: {
@@ -192,12 +196,15 @@ class LiveScoreFetcher {
             picked: pick,
             winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
           };
+          console.log('[LiveScore DEBUG] Returning scoreData for fuzzy match:', result); // LOG HERE
+          return result;
         }
       }
 
+      console.log('[LiveScore DEBUG] Game not found after all checks for pick/ID:', pick, gameId); // LOG HERE
       return { status: 'not_found', score: null };
     } catch (err) {
-      console.error('[LiveScore] Error getting score:', err.message);
+      console.error('[LiveScore ERROR] Error getting score:', err.message); // LOG HERE (updated to ERROR)
       return { status: 'error', score: null };
     }
   }
