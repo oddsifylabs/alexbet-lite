@@ -556,9 +556,10 @@
 
     <!-- Bankroll Dashboard Tab -->
     <div id="bankroll" class="tab-content">
-      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
-        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 10px;">💰 Bankroll Management</h2>
-        <p style="color: #aaa; font-size: 13px;">Real-time bankroll tracking and drawdown protection</p>
+      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.16), rgba(77,159,255,0.16)); border: 1px solid rgba(0,214,143,0.3); border-radius: 16px; padding: 28px; margin-bottom: 28px; text-align: left;">
+        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #7d84a6; margin-bottom: 8px;">Bankroll Dashboard</div>
+        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 8px;">💰 Bankroll Management</h2>
+        <p style="color: #b8bed6; font-size: 13px;">Track your roll, edit your baseline, and watch drawdown and pending exposure in one place.</p>
       </div>
 
       <div style="background: rgba(0,214,143,0.12); border: 2px solid rgba(0,214,143,0.5); border-radius: 16px; padding: 28px; margin-bottom: 28px;">
@@ -593,7 +594,7 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 28px;">
         <div class="stat-card">
           <div class="stat-label">Daily P&L</div>
           <div class="stat-value" id="dailyPnl">+$0</div>
@@ -616,27 +617,37 @@
         </div>
       </div>
 
-      <div id="drawdownAlert" style="display: none; background: rgba(255,100,100,0.2); border: 2px solid #ff6464; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+      <div id="drawdownAlert" style="display: none; background: rgba(255,100,100,0.16); border: 1px solid #ff6464; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
         <div style="color: #ff9999; font-weight: bold; margin-bottom: 10px;">⚠️ DRAWDOWN ALERT</div>
         <div style="color: #aaa; font-size: 12px;">Your bankroll is down <span id="alertPercent">15%</span> from peak. Be cautious with bet sizing.</div>
       </div>
 
-      <div id="clvStreakAlert" style="display: none; background: rgba(0,214,143,0.15); border: 1px solid #00d68f; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+      <div id="clvStreakAlert" style="display: none; background: rgba(0,214,143,0.12); border: 1px solid #00d68f; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
         <div style="color: #00d68f; font-weight: bold; margin-bottom: 10px;">🔥 Positive CLV streak</div>
         <div style="color: #aaa; font-size: 12px;">You have <span id="streakCount">0</span> straight settled bets with positive CLV.</div>
       </div>
 
-      <div id="clvNegativeAlert" style="display: none; background: rgba(255,215,0,0.12); border: 1px solid #ffd700; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+      <div id="clvNegativeAlert" style="display: none; background: rgba(255,215,0,0.1); border: 1px solid #ffd700; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
         <div style="color: #ffd700; font-weight: bold; margin-bottom: 10px;">⚠️ Negative CLV warning</div>
         <div style="color: #aaa; font-size: 12px;">Your last 10 settled bets are averaging <span id="avgClvNeg">0</span>% CLV. Consider reviewing entry timing and price quality.</div>
       </div>
 
-      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
-        <h3 style="margin-bottom: 20px;">Status</h3>
-        <div id="bankrollStatus" style="font-size: 14px; line-height: 2; color: #aaa;">
-          <div style="color: #00d68f;">✅ Bankroll: Healthy</div>
-          <div style="color: #aaa;">Risk Level: Low (0% of bankroll pending)</div>
-          <div style="color: #aaa;">Safe to bet</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; align-items: stretch;">
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 14px; padding: 22px;">
+          <h3 style="margin-bottom: 16px;">Status</h3>
+          <div id="bankrollStatus" style="font-size: 14px; line-height: 2; color: #aaa;">
+            <div style="color: #00d68f;">✅ Bankroll: Healthy</div>
+            <div style="color: #aaa;">Risk Level: Low (0% of bankroll pending)</div>
+            <div style="color: #aaa;">Safe to bet</div>
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px;">
+          <h3 style="margin-bottom: 16px;">Quick Tips</h3>
+          <div style="display: grid; gap: 10px; color: #b8bed6; font-size: 13px;">
+            <div>• Edit current bankroll anytime to sync the dashboard with reality.</div>
+            <div>• Watch drawdown and pending risk before increasing stake size.</div>
+            <div>• Positive CLV streaks matter more than short-term win rate swings.</div>
+          </div>
         </div>
       </div>
     </div>
