@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlexBET Live Dashboard v2</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      max-width: 2000px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(15, 20, 45, 0.8);
+      border: 1px solid rgba(0, 214, 143, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 214, 143, 0.2);
+      padding-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #00d68f;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .stat-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 214, 143, 0.1);
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #00d68f;
+    }
+
+    .stat-value.negative {
+      color: #ff6464;
+    }
+
+    .stat-value.neutral {
+      color: #4d9fff;
+    }
+
+    .live-bets {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .bet-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #00d68f;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .bet-item.loss {
+      border-left-color: #ff6464;
+    }
+
+    .bet-item.pending {
+      border-left-color: #4d9fff;
+    }
+
+    .bet-team {
+      font-weight: 600;
+      color: #00d68f;
+    }
+
+    .bet-team.loss {
+      color: #ff6464;
+    }
+
+    .bet-odds {
+      color: #4d9fff;
+    }
+
+    .bet-status {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 250px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 20px;
+      gap: 5px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: rgba(0, 214, 143, 0.3);
+      border-radius: 4px 4px 0 0;
+      min-height: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .chart-bar:hover {
+      background: rgba(0, 214, 143, 0.6);
+    }
+
+    .chart-bar.loss {
+      background: rgba(255, 100, 100, 0.3);
+    }
+
+    .chart-bar.loss:hover {
+      background: rgba(255, 100, 100, 0.6);
+    }
+
+    .chart-label {
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .alert {
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: #ff9999;
+    }
+
+    .alert.success {
+      background: rgba(0, 214, 143, 0.1);
+      border: 1px solid rgba(0, 214, 143, 0.3);
+      color: #00d68f;
+    }
+
+    .alert.info {
+      background: rgba(77, 159, 255, 0.1);
+      border: 1px solid rgba(77, 159, 255, 0.3);
+      color: #4d9fff;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+      color: #888;
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(0, 214, 143, 0.2);
+      border-top-color: #00d68f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      color: #ff9999;
+      text-align: center;
+    }
+
+    .refresh-btn {
+      background: rgba(0, 214, 143, 0.2);
+      color: #00d68f;
+      border: 1px solid #00d68f;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(0, 214, 143, 0.3);
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      background: linear-gradient(135deg, #00d68f, #4d9fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="header">
+      <h1>⚡ AlexBET Live Dashboard v2</h1>
+      <div class="header-controls">
+        <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📊 Live Stats</div>
+          <div class="card-subtitle">Today's Performance</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value" id="winRate">--%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total Bets</div>
+          <div class="stat-value" id="totalBets">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Avg Edge</div>
+          <div class="stat-value" id="avgEdge">--%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">P&L</div>
+          <div class="stat-value" id="pnl">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bankroll -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">💰 Bankroll</div>
+          <div class="card-subtitle">Risk Management</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat">
+          <div class="stat-label">Current</div>
+          <div class="stat-value" id="bankroll">$0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">ROI</div>
+          <div class="stat-value" id="roi">0%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Max Drawdown</div>
+          <div class="stat-value" id="drawdown">0%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Next Bet Size (1%)</div>
+          <div class="stat-value" id="betSize">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win/Loss Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📈 Win/Loss Distribution</div>
+          <div class="card-subtitle">Last 30 bets</div>
+        </div>
+      </div>
+      <div class="chart-container" id="chartContainer">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- CLV Tracking -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🎯 CLV Tracking</div>
+          <div class="card-subtitle">Closing Line Value</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat">
+          <div class="stat-label">Avg CLV</div>
+          <div class="stat-value" id="avgClv">--%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Positive CLV</div>
+          <div class="stat-value" id="positiveClv">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Negative CLV</div>
+          <div class="stat-value" id="negativeClv">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">CLV Streak</div>
+          <div class="stat-value" id="clvStreak">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Bets -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔴 Live Bets</div>
+          <div class="card-subtitle">Current Pending</div>
+        </div>
+      </div>
+      <div class="live-bets" id="liveBets">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔔 Alerts</div>
+          <div class="card-subtitle">Recent Notifications</div>
+        </div>
+      </div>
+      <div id="alerts">
+        <div class="alert info">Dashboard loaded successfully ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data management
+    const state = {
+      bets: [],
+      bankroll: 5000,
+      alerts: []
+    };
+
+    // Initialize
+    function init() {
+      loadData();
+      updateDashboard();
+      setInterval(updateDashboard, 30000); // Refresh every 30s
+    }
+
+    // Load data from localStorage
+    function loadData() {
+      try {
+        const saved = localStorage.getItem('alexbet_lite');
+        if (saved) {
+          state.bets = JSON.parse(saved);
+        }
+        addAlert('Data loaded from localStorage', 'success');
+      } catch (e) {
+        addAlert(`Error loading data: ${e.message}`, 'error');
+      }
+    }
+
+    // Update dashboard
+    function updateDashboard() {
+      try {
+        updateStats();
+        updateChart();
+        updateLiveBets();
+        updateClv();
+      } catch (e) {
+        addAlert(`Error updating dashboard: ${e.message}`, 'error');
+      }
+    }
+
+    // Calculate and display stats
+    function updateStats() {
+      const settled = state.bets.filter(b => b.status !== 'PENDING');
+      const won = settled.filter(b => b.status === 'WON').length;
+      const total = settled.length;
+      const winRate = total > 0 ? ((won / total) * 100).toFixed(1) : 0;
+      
+      const totalPnl = settled.reduce((sum, b) => sum + (b.pnl || 0), 0);
+      const roi = state.bankroll > 0 ? ((totalPnl / state.bankroll) * 100).toFixed(1) : 0;
+
+      document.getElementById('winRate').textContent = `${winRate}%`;
+      document.getElementById('totalBets').textContent = total;
+      document.getElementById('pnl').textContent = `$${totalPnl}`;
+      document.getElementById('roi').textContent = `${roi}%`;
+      document.getElementById('bankroll').textContent = `$${(state.bankroll + totalPnl).toFixed(0)}`;
+      document.getElementById('betSize').textContent = `$${((state.bankroll + totalPnl) * 0.01).toFixed(0)}`;
+
+      const avgEdge = total > 0 ? (state.bets.reduce((sum, b) => sum + (b.edge || 0), 0) / state.bets.length).toFixed(2) : 0;
+      document.getElementById('avgEdge').textContent = `${avgEdge}%`;
+
+      // Drawdown
+      let peak = state.bankroll;
+      let maxDrawdown = 0;
+      for (let bet of state.bets) {
+        const current = state.bankroll + state.bets.slice(0, state.bets.indexOf(bet) + 1).reduce((sum, b) => sum + (b.pnl || 0), 0);
+        if (current > peak) peak = current;
+        const dd = ((peak - current) / peak) * 100;
+        if (dd > maxDrawdown) maxDrawdown = dd;
+      }
+      document.getElementById('drawdown').textContent = `${maxDrawdown.toFixed(1)}%`;
+    }
+
+    // Update chart
+    function updateChart() {
+      const last30 = state.bets.slice(-30);
+      const container = document.getElementById('chartContainer');
+      
+      if (last30.length === 0) {
+        container.innerHTML = '<div class="error">No data yet</div>';
+        return;
+      }
+
+      const maxHeight = 200;
+      const maxBet = Math.max(...last30.map(b => Math.abs(b.pnl || 0)), 1);
+
+      container.innerHTML = last30.map(bet => {
+        const height = (Math.abs(bet.pnl || 0) / maxBet) * maxHeight;
+        const isWin = bet.status === 'WON';
+        const isPending = bet.status === 'PENDING';
+        return `
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <div class="chart-bar ${isWin ? '' : isPending ? 'pending' : 'loss'}" 
+                 style="height: ${height}px;" title="${bet.pick}: ${isWin ? '+' : ''}$${bet.pnl || 0}">
+            </div>
+            <div class="chart-label">${bet.sport[0]}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update live bets
+    function updateLiveBets() {
+      const pending = state.bets.filter(b => b.status === 'PENDING').slice(-10).reverse();
+      const container = document.getElementById('liveBets');
+
+      if (pending.length === 0) {
+        container.innerHTML = '<div class="alert info">No pending bets 🎯</div>';
+        return;
+      }
+
+      container.innerHTML = pending.map(bet => `
+        <div class="bet-item ${bet.status === 'LOST' ? 'loss' : 'pending'}">
+          <div>
+            <div class="bet-team">${bet.pick}</div>
+            <div class="bet-odds">${bet.betType} @ ${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</div>
+          </div>
+          <div class="bet-status">
+            <div>${bet.sport} | Edge: ${bet.edge}%</div>
+            <div>Stake: $${bet.stake}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Update CLV
+    function updateClv() {
+      const withClv = state.bets.filter(b => b.clv !== undefined && b.clv !== null);
+      const avgClv = withClv.length > 0 ? (withClv.reduce((sum, b) => sum + b.clv, 0) / withClv.length).toFixed(2) : 0;
+      const positive = withClv.filter(b => b.clv > 0).length;
+      const negative = withClv.filter(b => b.clv < 0).length;
+
+      document.getElementById('avgClv').textContent = `${avgClv}%`;
+      document.getElementById('positiveClv').textContent = positive;
+      document.getElementById('negativeClv').textContent = negative;
+      
+      // CLV streak
+      let streak = 0;
+      let lastWasPositive = null;
+      for (let bet of state.bets) {
+        if (bet.clv === undefined) continue;
+        const isPositive = bet.clv > 0;
+        if (lastWasPositive === null) {
+          lastWasPositive = isPositive;
+          streak = 1;
+        } else if (isPositive === lastWasPositive) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      document.getElementById('clvStreak').textContent = `${streak > 0 ? '+' : ''}${streak}`;
+    }
+
+    // Alert system
+    function addAlert(message, type = 'info') {
+      const alert = {id: Date.now(), message, type};
+      state.alerts.unshift(alert);
+      if (state.alerts.length > 5) state.alerts.pop();
+
+      const container = document.getElementById('alerts');
+      container.innerHTML = state.alerts.map(a => 
+        `<div class="alert ${a.type}">${a.message}</div>`
+      ).join('');
+
+      setTimeout(() => {
+        state.alerts = state.alerts.filter(a => a.id !== alert.id);
+        if (state.alerts.length > 0) {
+          container.innerHTML = state.alerts.map(a => 
+            `<div class="alert ${a.type}">${a.message}</div>`
+          ).join('');
+        }
+      }, 5000);
+    }
+
+    // Refresh
+    function refreshDashboard() {
+      loadData();
+      updateDashboard();
+      addAlert('Dashboard refreshed ✓', 'success');
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
