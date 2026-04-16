@@ -151,7 +151,7 @@ class LiveScoreFetcher {
             timeRemaining,
             picked: pick,
             winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
-            rawCompetitors: competitors // Add raw data for debugging
+            debugGameData: competitors.length === 0 ? exactGame : null // Add full game data for debugging
           };
         }
       }
@@ -192,7 +192,7 @@ class LiveScoreFetcher {
             timeRemaining,
             picked: pick,
             winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
-            rawCompetitors: competitors // Add raw data for debugging
+            debugGameData: competitors.length === 0 ? game : null // Add full game data for debugging
           };
         }
       }
