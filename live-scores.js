@@ -136,6 +136,7 @@ class LiveScoreFetcher {
               quarter = periods[exactGame.status.period] || `P${exactGame.status.period}`;
             }
           }
+          console.log('[LiveScore DEBUG] Extracted values (exact match): ', {homeTeam, awayTeam, homeLogo, awayLogo, homeScore, awayScore, status}); // NEW LOG HERE
 
           const result = {
             gameId: exactGame.id,
@@ -179,6 +180,7 @@ class LiveScoreFetcher {
               quarter = periods[game.status.period] || `P${game.status.period}`;
             }
           }
+          console.log('[LiveScore DEBUG] Extracted values (fuzzy match): ', {homeTeam, awayTeam, homeLogo, awayLogo, homeScore, awayScore, status}); // NEW LOG HERE
 
           const result = {
             gameId: game.id,
