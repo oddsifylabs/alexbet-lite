@@ -442,7 +442,7 @@
   <div class="container">
     <div class="header">
       <div>
-        <h1>⚡ AlexBET Lite <span style="font-size: 14px; color: #888;">v2026.04.15.3</span></h1>
+        <h1>⚡ AlexBET Lite <span id="headerVersion" style="font-size: 14px; color: #888;">v2026.04.15.5</span></h1>
         <p class="subtitle">Test & validate gem algorithm | Track CLV | Target: 56-65% win rate</p>
       </div>
     </div>
@@ -1689,6 +1689,7 @@
     }
     
     document.getElementById('appVersion').textContent = APP_VERSION;
+    document.getElementById('headerVersion').textContent = APP_VERSION;
     document.getElementById('appCommit').textContent = `| GitHub commit: ${APP_COMMIT}`;
     renderBets();
     checkReminders();
