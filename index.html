@@ -1657,12 +1657,6 @@
                 <div class="bet-field-value">${scoreData?.quarter ? `${scoreData.quarter} ${scoreData.timeRemaining || ''}`.trim() : statusLabel}</div>
               </div>
             </div>
-            ${scoreData?.debugGameData ? `
-            <div class="bet-field" style="margin-top: 14px; background: rgba(77,159,255,0.08); border-color: rgba(77,159,255,0.2);">
-              <div class="bet-field-label">DEBUG: Raw Game Data</div>
-              <pre style="white-space: pre-wrap; word-break: break-all; font-size: 10px; color: #b8bed6; max-height: 100px; overflow-y: auto;">${JSON.stringify(scoreData.debugGameData, null, 2)}</pre>
-            </div>
-            ` : ''}
           </div>
         `;
       }).join('');

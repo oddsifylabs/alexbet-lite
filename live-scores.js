@@ -96,10 +96,10 @@ class LiveScoreFetcher {
     const home = competitors.find(team => team.homeAway === 'home') || competitors[0] || {};
     const away = competitors.find(team => team.homeAway === 'away') || competitors[1] || {};
     return {
-      homeTeam: home.team?.displayName || home.displayName || '',
-      awayTeam: away.team?.displayName || away.displayName || '',
-      homeLogo: home.team?.logo || home.team?.logos?.[0]?.href || '',
-      awayLogo: away.team?.logo || away.team?.logos?.[0]?.href || '',
+      homeTeam: home.displayName || '',
+      awayTeam: away.displayName || '',
+      homeLogo: home.logo || '',
+      awayLogo: away.logo || '',
       homeScore: parseInt(home.score || 0, 10),
       awayScore: parseInt(away.score || 0, 10),
     };
@@ -150,8 +150,7 @@ class LiveScoreFetcher {
             quarter,
             timeRemaining,
             picked: pick,
-            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
-            debugGameData: competitors.length === 0 ? exactGame : null // Add full game data for debugging
+            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
           };
         }
       }
@@ -191,8 +190,7 @@ class LiveScoreFetcher {
             quarter,
             timeRemaining,
             picked: pick,
-            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status),
-            debugGameData: competitors.length === 0 ? game : null // Add full game data for debugging
+            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
           };
         }
       }
