@@ -51,6 +51,9 @@ class LiveScoreFetcher {
       'lakers': ['los angeles lakers', 'la lakers', 'lakers', 'lal'],
       'warriors': ['golden state warriors', 'golden state', 'warriors', 'gsw'],
       'bucks': ['milwaukee bucks', 'milwaukee', 'bucks', 'mil'],
+      'magic': ['orlando magic', 'orlando', 'magic', 'orl'],
+      '76ers': ['philadelphia 76ers', 'philadelphia', '76ers', 'sixers', 'phi'],
+      'sixers': ['philadelphia 76ers', 'philadelphia', '76ers', 'sixers', 'phi'],
       'chiefs': ['kansas city chiefs', 'kansas city', 'chiefs', 'kc'],
       'cowboys': ['dallas cowboys', 'dallas', 'cowboys', 'dal'],
       'patriots': ['new england patriots', 'new england', 'patriots', 'ne'],
@@ -58,11 +61,35 @@ class LiveScoreFetcher {
       'red sox': ['boston red sox', 'red sox'],
     };
 
-    const query = (teamName || '').toLowerCase().trim();
-    for (const values of Object.values(aliases)) {
-      if (values.includes(query)) return values;
+    const rawQuery = (teamName || '').toLowerCase().trim();
+    const cleanedQuery = rawQuery
+      .replace(/@\s*[+-]?\d+(\.\d+)?/g, ' ')
+      .replace(/[+-]\d+(\.\d+)?/g, ' ')
+      .replace(/\b(ml|moneyline|spread|total|over|under)\b/g, ' ')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const candidates = new Set([rawQuery, cleanedQuery]);
+    const tokens = cleanedQuery.split(' ').filter(Boolean);
+    if (tokens.length >= 2) {
+      candidates.add(tokens.slice(0, 2).join(' '));
+      candidates.add(tokens.slice(-2).join(' '));
     }
-    return [query];
+    tokens.forEach(token => candidates.add(token));
+
+    const expanded = new Set();
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      expanded.add(candidate);
+      for (const values of Object.values(aliases)) {
+        if (values.includes(candidate)) {
+          values.forEach(value => expanded.add(value));
+        }
+      }
+    }
+
+    return [...expanded].filter(Boolean);
   }
 
   getHomeAwayTeams(competitors = []) {
@@ -149,7 +176,8 @@ class LiveScoreFetcher {
    * Determine if picked team won
    */
   determineWinner(pickedTeam, homeTeam, awayTeam, homeScore, awayScore, status) {
-    const isHome = homeTeam.toLowerCase().includes(pickedTeam.toLowerCase());
+    const pickedHome = this.matchesPick(pickedTeam, homeTeam, '');
+    const isHome = pickedHome || !this.matchesPick(pickedTeam, awayTeam, '');
     const pickedScore = isHome ? homeScore : awayScore;
     const oppositeScore = isHome ? awayScore : homeScore;
 
