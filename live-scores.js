@@ -113,9 +113,43 @@ class LiveScoreFetcher {
    * Get live score for a bet pick
    * Returns: { gameId, status: 'pending|live|final', score: { home, away }, homeTeam, awayTeam, quarter, timeRemaining }
    */
-  async getScore(pick, sport) {
+  async getScore(pick, sport, gameId = null) {
     try {
       const games = await this.fetchSportGames(sport);
+
+      if (gameId) {
+        const exactGame = games.find(game => String(game.id) === String(gameId));
+        if (exactGame) {
+          const competitors = exactGame.competitions?.[0]?.competitors || [];
+          const { homeTeam, awayTeam, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
+          const status = exactGame.status?.type?.name || 'scheduled';
+
+          let quarter = '';
+          let timeRemaining = '';
+          if (exactGame.status?.displayClock) {
+            timeRemaining = exactGame.status.displayClock;
+            if (exactGame.status?.period) {
+              const periods = { 1: 'Q1', 2: 'Q2', 3: 'Q3', 4: 'Q4', 5: 'OT' };
+              quarter = periods[exactGame.status.period] || `P${exactGame.status.period}`;
+            }
+          }
+
+          return {
+            gameId: exactGame.id,
+            status: this.normalizeStatus(status),
+            score: {
+              home: homeScore,
+              away: awayScore
+            },
+            homeTeam,
+            awayTeam,
+            quarter,
+            timeRemaining,
+            picked: pick,
+            winner: this.determineWinner(pick, homeTeam, awayTeam, homeScore, awayScore, status)
+          };
+        }
+      }
       
       // Find matching game
       for (const game of games) {

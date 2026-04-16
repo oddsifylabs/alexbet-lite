@@ -1544,7 +1544,7 @@
 
         const updates = await Promise.all(pendingBets.map(async (bet) => ({
           id: bet.id,
-          scoreData: await liveScores.getScore(bet.pick, bet.sport)
+          scoreData: await liveScores.getScore(bet.pick, bet.sport, bet.gameId)
         })));
 
         let changed = false;
