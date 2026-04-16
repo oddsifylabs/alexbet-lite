@@ -561,10 +561,36 @@
         <p style="color: #aaa; font-size: 13px;">Real-time bankroll tracking and drawdown protection</p>
       </div>
 
-      <div style="background: rgba(0,214,143,0.2); border: 2px solid #00d68f; border-radius: 16px; padding: 50px; margin-bottom: 40px; text-align: center;">
-        <div style="color: #aaa; font-size: 13px; margin-bottom: 15px;">CURRENT BANKROLL</div>
-        <div id="currentBankroll" style="font-size: 48px; font-weight: bold; color: #00d68f; margin-bottom: 10px;">$5,000</div>
-        <div style="color: #aaa; font-size: 12px;" id="bankrollChange">Starting: $5,000</div>
+      <div style="background: rgba(0,214,143,0.12); border: 2px solid rgba(0,214,143,0.5); border-radius: 16px; padding: 28px; margin-bottom: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <div style="color: #aaa; font-size: 12px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em;">Current Bankroll</div>
+            <div id="currentBankroll" style="font-size: 44px; font-weight: bold; color: #00d68f; margin-bottom: 8px;">$5,000</div>
+            <div style="color: #aaa; font-size: 12px;" id="bankrollChange">Starting: $5,000</div>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="export-btn" type="button" onclick="editCurrentBankroll()">✏️ Edit current bankroll</button>
+            <button class="clv-button" type="button" onclick="editStartingBankroll()">Set starting bankroll</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom: 28px;">
+        <div class="stat-card">
+          <div class="stat-label">Starting Roll</div>
+          <div class="stat-value" id="startingBankrollCard">$5,000</div>
+          <div class="stat-detail">Editable baseline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peak Bankroll</div>
+          <div class="stat-value" id="peakBankrollCard">$5,000</div>
+          <div class="stat-detail">High-water mark</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Risk $</div>
+          <div class="stat-value" id="pendingRiskAmount">$0</div>
+          <div class="stat-detail">Open exposure</div>
+        </div>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px;">
@@ -859,14 +885,43 @@
       `;
     }
 
+    function getStartingBankroll() {
+      const saved = parseFloat(localStorage.getItem('alexbet_starting_bankroll') || '5000');
+      return Number.isFinite(saved) && saved > 0 ? saved : 5000;
+    }
+
+    function setStartingBankroll(amount) {
+      localStorage.setItem('alexbet_starting_bankroll', String(Math.round(amount)));
+    }
+
+    function editStartingBankroll() {
+      const current = getStartingBankroll();
+      const next = prompt('Set your starting bankroll', current);
+      const parsed = parseFloat(next);
+      if (!Number.isFinite(parsed) || parsed <= 0) return;
+      setStartingBankroll(parsed);
+      renderBankrollTab();
+    }
+
+    function editCurrentBankroll() {
+      const stats = calculateBankrollStats();
+      const next = prompt('Set your current bankroll', stats.currentBankroll);
+      const parsed = parseFloat(next);
+      if (!Number.isFinite(parsed) || parsed <= 0) return;
+      const adjustedStart = parsed - stats.totalPnl;
+      setStartingBankroll(adjustedStart > 0 ? adjustedStart : parsed);
+      renderBankrollTab();
+    }
+
     function calculateBankrollStats() {
+      const startingBankroll = getStartingBankroll();
       const totalPnl = bets.reduce((sum, b) => sum + (b.pnl || 0), 0);
-      const currentBankroll = 5000 + totalPnl;
+      const currentBankroll = startingBankroll + totalPnl;
       const pending = bets.filter(b => b.status === 'PENDING');
       const pendingRisk = pending.reduce((sum, b) => sum + (b.stake || 0), 0);
       
-      let peakBankroll = 5000;
-      let runningBankroll = 5000;
+      let peakBankroll = startingBankroll;
+      let runningBankroll = startingBankroll;
       const settledBets = bets.filter(b => b.status !== 'PENDING');
       settledBets.forEach(b => {
         runningBankroll += b.pnl || 0;
@@ -879,6 +934,7 @@
       const dailyPnl = todayBets.reduce((sum, b) => sum + (b.pnl || 0), 0);
       
       return {
+        startingBankroll: Math.round(startingBankroll),
         currentBankroll: Math.round(currentBankroll),
         totalPnl,
         pending,
@@ -886,16 +942,19 @@
         drawdown,
         peakBankroll,
         dailyPnl,
-        riskPercent: (pendingRisk / currentBankroll) * 100
+        riskPercent: currentBankroll > 0 ? (pendingRisk / currentBankroll) * 100 : 0
       };
     }
 
     function renderBankrollTab() {
       const stats = calculateBankrollStats();
-      const color = stats.currentBankroll >= 5000 ? '#00d68f' : stats.currentBankroll >= 4500 ? '#ffd700' : '#ff6464';
+      const color = stats.currentBankroll >= stats.startingBankroll ? '#00d68f' : stats.currentBankroll >= stats.startingBankroll * 0.9 ? '#ffd700' : '#ff6464';
       document.getElementById('currentBankroll').innerHTML = `<span style="color: ${color};">$${stats.currentBankroll.toLocaleString()}</span>`;
       const change = stats.totalPnl >= 0 ? `+$${stats.totalPnl}` : `-$${Math.abs(stats.totalPnl)}`;
-      document.getElementById('bankrollChange').textContent = `Change: ${change}`;
+      document.getElementById('bankrollChange').textContent = `Starting: $${stats.startingBankroll.toLocaleString()} • Change: ${change}`;
+      document.getElementById('startingBankrollCard').textContent = `$${stats.startingBankroll.toLocaleString()}`;
+      document.getElementById('peakBankrollCard').textContent = `$${Math.round(stats.peakBankroll).toLocaleString()}`;
+      document.getElementById('pendingRiskAmount').textContent = `$${stats.pendingRisk.toLocaleString()}`;
       const dailyColor = stats.dailyPnl > 0 ? '#00d68f' : stats.dailyPnl < 0 ? '#ff6464' : '#aaa';
       document.getElementById('dailyPnl').innerHTML = `<span style="color: ${dailyColor};">${stats.dailyPnl > 0 ? '+' : ''}$${stats.dailyPnl}</span>`;
       const totalColor = stats.totalPnl > 0 ? '#00d68f' : stats.totalPnl < 0 ? '#ff6464' : '#aaa';
