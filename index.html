@@ -290,6 +290,41 @@
       color: #d9def2;
     }
 
+    .live-dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .live-game-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+      border: 1px solid rgba(77,159,255,0.28);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.18);
+    }
+
+    .live-game-scoreline {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .live-game-scoreline:last-child {
+      border-bottom: none;
+    }
+
+    .live-game-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
     .status-select {
       background: rgba(0, 214, 143, 0.1);
       border: 1px solid #00d68f;
@@ -466,6 +501,7 @@
 
     <div class="tabs">
       <button class="tab active" onclick="switchTab('tracker')">📊 Bet Tracker</button>
+      <button class="tab" onclick="switchTab('live-dashboard')">📡 Live Board</button>
       <button class="tab" onclick="switchTab('bankroll')">💰 Bankroll</button>
       <button class="tab" onclick="switchTab('analytics')">📈 Analytics</button>
       <button class="tab" onclick="switchTab('performance')">🎯 Performance</button>
@@ -569,6 +605,18 @@
       </div>
 
       <button class="export-btn" onclick="exportData()">📥 Export JSON</button>
+    </div>
+
+    <div id="live-dashboard" class="tab-content">
+      <div style="background: linear-gradient(135deg, rgba(77,159,255,0.16), rgba(0,214,143,0.12)); border: 1px solid rgba(77,159,255,0.28); border-radius: 16px; padding: 28px; margin-bottom: 24px;">
+        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #7d84a6; margin-bottom: 8px;">Pending Bets Dashboard</div>
+        <h2 style="color: #4d9fff; font-size: 28px; margin-bottom: 8px;">📡 Live Board</h2>
+        <p style="color: #b8bed6; font-size: 13px;">A cleaner live view for all pending bets, with matchup context, team graphics, scores, and bet details.</p>
+      </div>
+
+      <div id="liveDashboardCards" class="live-dashboard-grid">
+        <div class="empty-state">No pending bets right now.</div>
+      </div>
     </div>
 
     <!-- Bankroll Dashboard Tab -->
@@ -1134,6 +1182,7 @@
       updateStats();
       if (tab === 'bankroll') renderBankrollTab();
       if (tab === 'performance') renderPerformanceTab();
+      if (tab === 'live-dashboard') renderLiveDashboard();
     }
 
     let availableGames = {};
@@ -1510,12 +1559,6 @@
               </div>
             </div>
 
-            <div class="bet-field">
-              <div class="bet-field-label">Live Score</div>
-              <div class="bet-field-value">${scoreDisplay}</div>
-              <div style="margin-top: 8px;"><span class="bet-status-badge">${gameBadge}</span> <span style="color: #7d84a6; font-size: 12px; margin-left: 8px;">${scoreState}</span></div>
-            </div>
-
             <div class="bet-card-footer">
               <select id="status-${bet.id}" name="betStatus" class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
                 <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
@@ -1534,6 +1577,89 @@
     let scoreUpdateInterval = null;
     let isScoreUpdateRunning = false;
     
+    function renderLiveDashboard() {
+      const container = document.getElementById('liveDashboardCards');
+      if (!container) return;
+
+      const pendingBets = bets.filter(b => b.status === 'PENDING');
+      if (pendingBets.length === 0) {
+        container.innerHTML = '<div class="empty-state">No pending bets right now.</div>';
+        return;
+      }
+
+      container.innerHTML = pendingBets.map(bet => {
+        const scoreData = bet.liveScore;
+        const statusLabel = scoreData?.status === 'live'
+          ? 'Live now'
+          : scoreData?.status === 'final'
+          ? 'Final'
+          : scoreData?.status === 'pending'
+          ? 'Scheduled'
+          : 'Searching for game';
+        const statusBadge = scoreData?.status === 'live'
+          ? '🔵 Live'
+          : scoreData?.status === 'final'
+          ? '✅ Final'
+          : scoreData?.status === 'pending'
+          ? '⚪ Scheduled'
+          : '🕒 Matching';
+        const score = scoreData?.score || { away: 0, home: 0 };
+        const awayName = bet.awayTeam || scoreData?.awayTeam || 'Away Team';
+        const homeName = bet.homeTeam || scoreData?.homeTeam || 'Home Team';
+        const displayTime = bet.gameTime ? new Date(bet.gameTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : (bet.gameDate || 'Game time unavailable');
+
+        return `
+          <div class="live-game-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <div style="font-size: 12px; color: #7d84a6; text-transform: uppercase; letter-spacing: 0.08em;">Pending Bet</div>
+                <div style="font-size: 13px; color: #b8bed6; margin-top: 6px;">${displayTime}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${bet.leagueLogo ? `<img src="${bet.leagueLogo}" alt="${bet.sport} logo" style="width: 22px; height: 22px; object-fit: contain;">` : ''}
+                <span class="bet-status-badge">${statusBadge}</span>
+              </div>
+            </div>
+
+            <div class="live-game-scoreline">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                ${bet.awayLogo ? `<img src="${bet.awayLogo}" alt="${awayName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
+                <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${awayName}</div>
+              </div>
+              <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.away}</div>
+            </div>
+
+            <div class="live-game-scoreline">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                ${bet.homeLogo ? `<img src="${bet.homeLogo}" alt="${homeName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
+                <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${homeName}</div>
+              </div>
+              <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.home}</div>
+            </div>
+
+            <div class="live-game-meta-grid">
+              <div class="bet-field">
+                <div class="bet-field-label">Pick</div>
+                <div class="bet-field-value">${bet.pick}</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Bet</div>
+                <div class="bet-field-value">${bet.betType}</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Odds / Stake</div>
+                <div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds} • $${bet.stake}</div>
+              </div>
+              <div class="bet-field">
+                <div class="bet-field-label">Game Status</div>
+                <div class="bet-field-value">${scoreData?.quarter ? `${scoreData.quarter} ${scoreData.timeRemaining || ''}`.trim() : statusLabel}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     async function updateLiveScores() {
       if (isScoreUpdateRunning) return;
       isScoreUpdateRunning = true;
@@ -1577,6 +1703,7 @@
         if (changed || updates.length > 0) {
           saveBets();
           renderBets();
+          renderLiveDashboard();
         }
       } finally {
         isScoreUpdateRunning = false;
@@ -1603,11 +1730,13 @@
       
       if (bets.length === 0) {
         cards.innerHTML = '<div class="empty-state">No bets yet. Add one to start tracking.</div>';
+        renderLiveDashboard();
         updateStats();
         return;
       }
 
       renderBetsFiltered(bets);
+      renderLiveDashboard();
       updateStats();
       
       // Start live score updates if we have pending bets
