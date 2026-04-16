@@ -1606,6 +1606,8 @@
         const score = scoreData?.score || { away: 0, home: 0 };
         const awayName = bet.awayTeam || scoreData?.awayTeam || 'Away Team';
         const homeName = bet.homeTeam || scoreData?.homeTeam || 'Home Team';
+        const awayLogo = bet.awayLogo || scoreData?.awayLogo || '';
+        const homeLogo = bet.homeLogo || scoreData?.homeLogo || '';
         const displayTime = bet.gameTime ? new Date(bet.gameTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : (bet.gameDate || 'Game time unavailable');
 
         return `
@@ -1623,7 +1625,7 @@
 
             <div class="live-game-scoreline">
               <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                ${bet.awayLogo ? `<img src="${bet.awayLogo}" alt="${awayName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
+                ${awayLogo ? `<img src="${awayLogo}" alt="${awayName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
                 <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${awayName}</div>
               </div>
               <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.away}</div>
@@ -1631,7 +1633,7 @@
 
             <div class="live-game-scoreline">
               <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                ${bet.homeLogo ? `<img src="${bet.homeLogo}" alt="${homeName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
+                ${homeLogo ? `<img src="${homeLogo}" alt="${homeName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
                 <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${homeName}</div>
               </div>
               <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.home}</div>

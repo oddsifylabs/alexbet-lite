@@ -98,6 +98,8 @@ class LiveScoreFetcher {
     return {
       homeTeam: home.team?.displayName || home.displayName || '',
       awayTeam: away.team?.displayName || away.displayName || '',
+      homeLogo: home.team?.logo || home.team?.logos?.[0]?.href || '',
+      awayLogo: away.team?.logo || away.team?.logos?.[0]?.href || '',
       homeScore: parseInt(home.score || 0, 10),
       awayScore: parseInt(away.score || 0, 10),
     };
@@ -121,7 +123,7 @@ class LiveScoreFetcher {
         const exactGame = games.find(game => String(game.id) === String(gameId));
         if (exactGame) {
           const competitors = exactGame.competitions?.[0]?.competitors || [];
-          const { homeTeam, awayTeam, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
+          const { homeTeam, awayTeam, homeLogo, awayLogo, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
           const status = exactGame.status?.type?.name || 'scheduled';
 
           let quarter = '';
@@ -143,6 +145,8 @@ class LiveScoreFetcher {
             },
             homeTeam,
             awayTeam,
+            homeLogo,
+            awayLogo,
             quarter,
             timeRemaining,
             picked: pick,
@@ -154,7 +158,7 @@ class LiveScoreFetcher {
       // Find matching game
       for (const game of games) {
         const competitors = game.competitions?.[0]?.competitors || [];
-        const { homeTeam, awayTeam, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
+        const { homeTeam, awayTeam, homeLogo, awayLogo, homeScore, awayScore } = this.getHomeAwayTeams(competitors);
         
         // Check if pick matches either team, including shorthand/aliases
         if (this.matchesPick(pick, homeTeam, awayTeam)) {
@@ -181,6 +185,8 @@ class LiveScoreFetcher {
             },
             homeTeam,
             awayTeam,
+            homeLogo,
+            awayLogo,
             quarter,
             timeRemaining,
             picked: pick,
