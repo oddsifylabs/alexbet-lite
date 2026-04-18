@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AlexBET Lite - Bet tracker & analytics app for testing AlexBOT Sharp recommendations">
+  <meta name="theme-color" content="#0a0e27">
+  <title>AlexBET Lite — Bet Tracker & Analytics</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">
+        <h1>⚡ AlexBET Lite <span class="version" id="headerVersion">v2026.04.18</span></h1>
+        <p class="subtitle">Validate gem algorithm | Track CLV & edge | Target: 56-65% win rate</p>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tab" data-tab="bets">📋 Bets</button>
+      <button class="tab" data-tab="props">🏀 Props</button>
+      <button class="tab" data-tab="analysis">📈 Analysis</button>
+      <button class="tab" data-tab="settings">⚙️ Settings</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <!-- Add Bet Form -->
+      <div class="controls">
+        <div class="form-group">
+          <label for="pick">Pick</label>
+          <input type="text" id="pick" placeholder="Team/Player, Spread, etc.">
+        </div>
+        <div class="form-group">
+          <label for="sport">Sport</label>
+          <select id="sport">
+            <option value="">Select Sport</option>
+            <option value="NBA">🏀 NBA</option>
+            <option value="NFL">🏈 NFL</option>
+            <option value="MLB">⚾ MLB</option>
+            <option value="NHL">🏒 NHL</option>
+            <option value="EPL">⚽ EPL</option>
+            <option value="ATP">🎾 ATP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="betType">Bet Type</label>
+          <select id="betType">
+            <option value="">Select Type</option>
+            <option value="SPREAD">Spread</option>
+            <option value="MONEYLINE">Moneyline</option>
+            <option value="TOTAL">Total</option>
+            <option value="PROP">Prop</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="odds">Odds</label>
+          <input type="number" id="odds" placeholder="e.g., -110">
+        </div>
+        <div class="form-group">
+          <label for="stake">Stake ($)</label>
+          <input type="number" id="stake" placeholder="e.g., 100" min="1">
+        </div>
+        <div class="form-group">
+          <label for="edge">Edge (%)</label>
+          <input type="number" id="edge" placeholder="e.g., 3.5" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="confidence">Confidence</label>
+          <input type="number" id="confidence" placeholder="1-10" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button id="addBetBtn" onclick="addBet()">Add Bet</button>
+        </div>
+      </div>
+
+      <!-- Alert Messages -->
+      <div id="alertContainer"></div>
+
+      <!-- Statistics -->
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <!-- Bets Cards -->
+      <div id="betsCards" class="bets-grid"></div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <h3>No bets yet</h3>
+        <p>Add your first bet above to start tracking</p>
+      </div>
+    </div>
+
+    <!-- Bets Tab -->
+    <div id="bets" class="tab-content">
+      <div class="controls">
+        <div class="form-group">
+          <label for="filterStatus">Status</label>
+          <select id="filterStatus" onchange="filterBets()">
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="WON">Won</option>
+            <option value="LOST">Lost</option>
+            <option value="PUSH">Push</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filterSport">Sport</label>
+          <select id="filterSport" onchange="filterBets()">
+            <option value="">All Sports</option>
+            <option value="NBA">NBA</option>
+            <option value="NFL">NFL</option>
+            <option value="MLB">MLB</option>
+            <option value="NHL">NHL</option>
+            <option value="EPL">EPL</option>
+            <option value="ATP">ATP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="exportBets()">📥 Export JSON</button>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="document.getElementById('importFile').click()" class="secondary">📤 Import JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importBets()">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="clearAllBets()" class="danger">🗑️ Clear All</button>
+        </div>
+      </div>
+
+      <div id="betsTable"></div>
+    </div>
+
+    <!-- Props Tab -->
+    <div id="props" class="tab-content">
+      <div class="controls">
+        <div class="form-group">
+          <label for="propPlayer">Player</label>
+          <input type="text" id="propPlayer" placeholder="Player name">
+        </div>
+        <div class="form-group">
+          <label for="propSport">Sport</label>
+          <select id="propSport">
+            <option value="">Select Sport</option>
+            <option value="NBA">🏀 NBA</option>
+            <option value="NFL">🏈 NFL</option>
+            <option value="MLB">⚾ MLB</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="propType">Prop Type</label>
+          <input type="text" id="propType" placeholder="e.g., Points Over">
+        </div>
+        <div class="form-group">
+          <label for="propLine">Line</label>
+          <input type="number" id="propLine" placeholder="e.g., 24.5" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="propOdds">Odds</label>
+          <input type="number" id="propOdds" placeholder="e.g., -110">
+        </div>
+        <div class="form-group">
+          <label for="propStake">Stake ($)</label>
+          <input type="number" id="propStake" placeholder="e.g., 50" min="1">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="addPropBet()">Add Prop</button>
+        </div>
+      </div>
+
+      <div id="propsContainer"></div>
+    </div>
+
+    <!-- Analysis Tab -->
+    <div id="analysis" class="tab-content">
+      <div id="analysisContainer"></div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <div class="controls">
+        <div class="form-group">
+          <label>App Version</label>
+          <p id="appVersion">v2026.04.18</p>
+        </div>
+        <div class="form-group">
+          <label>Storage Usage</label>
+          <p id="storageUsage">Calculating...</p>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="showSettings()" class="secondary">More Info</button>
+        </div>
+      </div>
+      <div id="settingsPanel"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./src/classes/BetValidator.js"></script>
+  <script src="./src/classes/BetTracker.js"></script>
+  <script src="./src/classes/LiveScoreFetcher.js"></script>
+  <script src="./src/classes/Analytics.js"></script>
+  <script src="./src/classes/PropsTracker.js"></script>
+  <script src="./src/app.js"></script>
+</body>
+</html>
