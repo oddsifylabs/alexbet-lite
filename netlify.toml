@@ -1,8 +1,17 @@
 [build]
   publish = "."
-  command = "./scripts/build-version.sh"
+  command = ""
 
+# SPA redirect - route all URLs to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Production environment
+[context.production]
+  environment = { NODE_ENV = "production" }
+
+# Enable HTTPS (automatic)
+[build.processing]
+  skip_processing = false
