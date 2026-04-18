@@ -1,13 +1,11 @@
 /**
- * BetValidator - Input validation for all bet operations
- * Ensures data integrity and security
+ * BetValidator - Input validation with Security Integration
+ * Ensures data integrity and security with XSS detection
  */
 
 class BetValidator {
   /**
    * Validate a complete bet object
-   * @param {Object} bet - Bet data to validate
-   * @returns {Object} { valid: boolean, errors: string[] }
    */
   static validateBet(bet) {
     const errors = [];
@@ -17,8 +15,19 @@ class BetValidator {
       errors.push('Pick name is required and must be a string');
     } else if (bet.pick.trim().length === 0) {
       errors.push('Pick cannot be empty');
-    } else if (bet.pick.length > 100) {
-      errors.push('Pick name too long (max 100 characters)');
+    } else if (bet.pick.length > 200) {
+      errors.push('Pick name too long (max 200 characters)');
+    } else {
+      // Check for XSS patterns
+      const xssDetected = securityManager.detectXSSPatterns(bet.pick);
+      if (xssDetected.length > 0) {
+        errors.push(`Suspicious patterns detected: ${xssDetected.join(', ')}`);
+        securityManager.logSecurityEvent('XSS_ATTEMPT', {
+          field: 'pick',
+          patterns: xssDetected,
+          value: bet.pick.substring(0, 50)
+        });
+      }
     }
 
     // Sport validation
@@ -34,37 +43,37 @@ class BetValidator {
     }
 
     // Odds validation
-    if (typeof bet.entryOdds !== 'number') {
-      errors.push('Odds must be a number');
-    } else if (bet.entryOdds < -5000 || bet.entryOdds > 5000) {
-      errors.push('Odds must be between -5000 and +5000');
+    if (typeof bet.entryOdds !== 'number' || !Number.isFinite(bet.entryOdds)) {
+      errors.push('Odds must be a valid number');
+    } else if (bet.entryOdds < -10000 || bet.entryOdds > 10000) {
+      errors.push('Odds must be between -10000 and +10000');
     } else if (bet.entryOdds === 0) {
       errors.push('Odds cannot be zero');
     }
 
     // Stake validation
-    if (typeof bet.stake !== 'number') {
-      errors.push('Stake must be a number');
+    if (typeof bet.stake !== 'number' || !Number.isFinite(bet.stake)) {
+      errors.push('Stake must be a valid number');
     } else if (bet.stake <= 0) {
       errors.push('Stake must be greater than 0');
-    } else if (bet.stake > 100000) {
-      errors.push('Stake exceeds maximum ($100,000)');
-    } else if (!Number.isFinite(bet.stake)) {
-      errors.push('Stake must be a valid number');
+    } else if (bet.stake > 1000000) {
+      errors.push('Stake is unreasonably large (max $1,000,000)');
     }
 
-    // Edge validation (optional but if provided, validate)
-    if (bet.edge !== undefined && typeof bet.edge !== 'number') {
-      errors.push('Edge must be a number');
-    } else if (bet.edge !== undefined && (bet.edge < -100 || bet.edge > 100)) {
-      errors.push('Edge must be between -100% and 100%');
+    // Edge validation (optional)
+    if (bet.edge !== undefined && bet.edge !== null) {
+      if (typeof bet.edge !== 'number' || !Number.isFinite(bet.edge)) {
+        errors.push('Edge must be a valid number');
+      } else if (bet.edge < -100 || bet.edge > 100) {
+        errors.push('Edge must be between -100 and 100');
+      }
     }
 
-    // Confidence (optional)
-    if (bet.confidence !== undefined && typeof bet.confidence !== 'number') {
-      errors.push('Confidence must be a number');
-    } else if (bet.confidence !== undefined && (bet.confidence < 1 || bet.confidence > 10)) {
-      errors.push('Confidence must be between 1 and 10');
+    // Confidence validation (optional)
+    if (bet.confidence !== undefined && bet.confidence !== null) {
+      if (!Number.isInteger(bet.confidence) || bet.confidence < 1 || bet.confidence > 10) {
+        errors.push('Confidence must be an integer between 1 and 10');
+      }
     }
 
     return {
@@ -74,33 +83,27 @@ class BetValidator {
   }
 
   /**
-   * Validate a prop bet
+   * Validate player name for prop bets
    */
-  static validatePropBet(propBet) {
+  static validatePlayerName(name) {
     const errors = [];
 
-    if (!propBet.player || typeof propBet.player !== 'string' || propBet.player.trim().length === 0) {
+    if (!name || typeof name !== 'string') {
       errors.push('Player name is required');
-    }
-
-    if (!propBet.sport || !['NBA', 'NFL', 'MLB', 'NHL'].includes(propBet.sport)) {
-      errors.push('Invalid sport for prop bet');
-    }
-
-    if (!propBet.propType || propBet.propType.trim().length === 0) {
-      errors.push('Prop type is required (e.g., "Points Over", "Rebounds")');
-    }
-
-    if (typeof propBet.line !== 'number' || propBet.line <= 0) {
-      errors.push('Line must be a positive number');
-    }
-
-    if (typeof propBet.odds !== 'number' || propBet.odds === 0) {
-      errors.push('Odds must be a valid non-zero number');
-    }
-
-    if (typeof propBet.stake !== 'number' || propBet.stake <= 0) {
-      errors.push('Stake must be a positive number');
+    } else if (name.trim().length === 0) {
+      errors.push('Player name cannot be empty');
+    } else if (name.length > 100) {
+      errors.push('Player name too long (max 100 characters)');
+    } else {
+      // Check for XSS patterns
+      const xssDetected = securityManager.detectXSSPatterns(name);
+      if (xssDetected.length > 0) {
+        errors.push('Invalid characters in player name');
+        securityManager.logSecurityEvent('XSS_ATTEMPT', {
+          field: 'playerName',
+          patterns: xssDetected
+        });
+      }
     }
 
     return {
@@ -110,31 +113,48 @@ class BetValidator {
   }
 
   /**
-   * Sanitize user input to prevent XSS
-   * @param {string} input - Input to sanitize
-   * @returns {string} Sanitized input
+   * Validate prop bet
    */
-  static sanitizeInput(input) {
-    if (typeof input !== 'string') return '';
-
-    return input
-      .trim()
-      .replace(/[<>]/g, '') // Remove angle brackets
-      .substring(0, 200); // Limit length
-  }
-
-  /**
-   * Validate player name for injury tracker
-   */
-  static validatePlayerName(playerName) {
+  static validatePropBet(prop) {
     const errors = [];
 
-    if (!playerName || typeof playerName !== 'string') {
-      errors.push('Player name must be a string');
-    } else if (playerName.trim().length === 0) {
-      errors.push('Player name cannot be empty');
-    } else if (playerName.length > 100) {
-      errors.push('Player name too long');
+    // Player validation
+    const playerValidation = this.validatePlayerName(prop.player);
+    if (!playerValidation.valid) {
+      errors.push(...playerValidation.errors);
+    }
+
+    // Sport validation
+    if (!prop.sport || !['NBA', 'NFL', 'MLB'].includes(prop.sport)) {
+      errors.push('Sport must be NBA, NFL, or MLB');
+    }
+
+    // Prop type validation
+    if (!prop.propType || typeof prop.propType !== 'string' || prop.propType.length === 0) {
+      errors.push('Prop type is required');
+    } else if (prop.propType.length > 100) {
+      errors.push('Prop type too long');
+    }
+
+    // Line validation
+    if (typeof prop.line !== 'number' || !Number.isFinite(prop.line)) {
+      errors.push('Line must be a valid number');
+    } else if (prop.line < 0 || prop.line > 500) {
+      errors.push('Line must be between 0 and 500');
+    }
+
+    // Odds validation
+    if (typeof prop.odds !== 'number' || !Number.isFinite(prop.odds)) {
+      errors.push('Odds must be a valid number');
+    } else if (Math.abs(prop.odds) > 10000) {
+      errors.push('Odds value is unreasonably large');
+    }
+
+    // Stake validation
+    if (typeof prop.stake !== 'number' || !Number.isFinite(prop.stake)) {
+      errors.push('Stake must be a valid number');
+    } else if (prop.stake <= 0 || prop.stake > 100000) {
+      errors.push('Stake must be between 0 and $100,000');
     }
 
     return {
@@ -144,35 +164,138 @@ class BetValidator {
   }
 
   /**
-   * Validate bet status update
+   * Validate bet status transition
    */
-  static validateBetStatus(status, currentStatus) {
-    const validStatuses = ['PENDING', 'WON', 'LOST', 'PUSH', 'CANCELLED'];
+  static validateStatusTransition(currentStatus, newStatus) {
+    const validStatuses = ['PENDING', 'WON', 'LOST', 'PUSH'];
 
-    if (!validStatuses.includes(status)) {
+    if (!validStatuses.includes(currentStatus)) {
       return {
         valid: false,
-        errors: [`Invalid status. Must be one of: ${validStatuses.join(', ')}`]
+        errors: [`Invalid current status: ${currentStatus}`]
       };
     }
 
-    // Prevent invalid transitions
-    const invalidTransitions = {
-      'WON': ['LOST', 'PUSH'],
-      'LOST': ['WON', 'PUSH'],
-      'PUSH': ['WON', 'LOST']
-    };
-
-    if (invalidTransitions[currentStatus] && invalidTransitions[currentStatus].includes(status)) {
+    if (!validStatuses.includes(newStatus)) {
       return {
         valid: false,
-        errors: [`Cannot change status from ${currentStatus} to ${status}`]
+        errors: [`Invalid new status: ${newStatus}`]
       };
     }
+
+    // You can add status transition rules here if needed
+    // For example: SETTLED bets cannot change status
+    // if (['WON', 'LOST', 'PUSH'].includes(currentStatus) && newStatus !== currentStatus) {
+    //   return { valid: false, errors: ['Settled bets cannot change status'] };
+    // }
 
     return {
       valid: true,
       errors: []
     };
   }
+
+  /**
+   * Sanitize user input - remove dangerous characters
+   */
+  static sanitizeInput(input) {
+    if (typeof input !== 'string') {
+      return '';
+    }
+
+    // Use SecurityManager's sanitization
+    return securityManager.sanitizeInput(input);
+  }
+
+  /**
+   * Sanitize for HTML context
+   */
+  static sanitizeForHTML(input) {
+    if (typeof input !== 'string') {
+      return '';
+    }
+
+    // Create a text node and append to DOM to safely escape HTML
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+  }
+
+  /**
+   * Sanitize bet data before storage
+   */
+  static sanitizeBet(bet) {
+    return {
+      ...bet,
+      pick: this.sanitizeInput(bet.pick),
+      sport: bet.sport, // Already validated as enum
+      betType: bet.betType, // Already validated as enum
+      notes: this.sanitizeInput(bet.notes || '')
+    };
+  }
+
+  /**
+   * Sanitize JSON import data
+   */
+  static sanitizeImportData(data) {
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    return data.map(item => {
+      if (typeof item !== 'object' || item === null) {
+        return null;
+      }
+
+      // Use SecurityManager's JSON sanitization
+      const sanitized = securityManager.sanitizeJSON(item);
+
+      // Validate the sanitized item
+      const validation = this.validateBet(sanitized);
+      if (!validation.valid) {
+        console.warn('[BetValidator] Imported bet failed validation:', sanitized);
+        return null;
+      }
+
+      return sanitized;
+    }).filter(item => item !== null);
+  }
+
+  /**
+   * Validate email (for future use)
+   */
+  static validateEmail(email) {
+    const errors = [];
+    const sanitized = securityManager.sanitizeEmail(email);
+
+    if (!sanitized) {
+      errors.push('Invalid email address');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      sanitized
+    };
+  }
+
+  /**
+   * Validate URL (for future use)
+   */
+  static validateURL(url) {
+    const errors = [];
+    const sanitized = securityManager.sanitizeURL(url);
+
+    if (!sanitized) {
+      errors.push('Invalid or untrusted URL');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      sanitized
+    };
+  }
 }
+
+console.log('[BetValidator] Loaded and integrated with SecurityManager');

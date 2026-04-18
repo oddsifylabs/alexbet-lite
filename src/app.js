@@ -108,6 +108,7 @@ function addBet() {
 
   // Quick validation
   if (!pick || !sport || !betType || !odds || !stake) {
+    securityAudit.logValidationFailure('betForm', ['Missing required fields']);
     showAlert('Please fill in all required fields', 'error');
     return;
   }
@@ -124,10 +125,12 @@ function addBet() {
   });
 
   if (result.success) {
+    securityAudit.logDataAccess('bets', 'CREATE', true);
     showAlert(`✅ Bet added: ${pick} @ ${odds > 0 ? '+' : ''}${odds}`, 'success');
     clearBetForm();
     updateDisplays();
   } else {
+    securityAudit.logValidationFailure('betForm', result.errors);
     showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
   }
 }
