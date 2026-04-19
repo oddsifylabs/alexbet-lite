@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = ""
+  base = "."
 
 # SPA redirect - route all URLs to index.html
 [[redirects]]
