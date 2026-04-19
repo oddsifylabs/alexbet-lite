@@ -358,7 +358,7 @@ function renderBets() {
     return `
       <div class="bet-card ${statusClass}">
         <div class="bet-card-header">
-          <div class="bet-card-pick">${bet.pick}</div>
+          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
           <span class="bet-card-date">${time}</span>
         </div>
 
@@ -384,11 +384,21 @@ function renderBets() {
             <div class="bet-field-value">${bet.edge > 0 ? '+' : ''}${bet.edge}%</div>
           </div>
           <div class="bet-field">
+            <div class="bet-field-label">Confidence</div>
+            <div class="bet-field-value">${bet.confidence}/10</div>
+          </div>
+          <div class="bet-field">
             <div class="bet-field-label">P&L</div>
             <div class="bet-field-value" style="color: ${bet.pnl > 0 ? '#00d68f' : bet.pnl < 0 ? '#ff6464' : '#fff'}">
               ${bet.pnl > 0 ? '+' : ''}$${bet.pnl}
             </div>
           </div>
+          ${bet.notes ? `
+          <div class="bet-field" style="grid-column: 1 / -1;">
+            <div class="bet-field-label">Notes</div>
+            <div class="bet-field-value" style="font-size: 12px; color: var(--text-tertiary); font-style: italic;">${bet.notes}</div>
+          </div>
+          ` : ''}
         </div>
 
         <div class="bet-card-footer">
@@ -396,17 +406,17 @@ function renderBets() {
             ${statusEmoji} ${bet.status}
           </span>
           ${bet.status === 'PENDING' ? `
-            <div style="display: flex; gap: 8px;">
-              <select onchange="updateBetStatus('${bet.id}', this.value)" style="font-size: 12px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <select onchange="updateBetStatus('${bet.id}', this.value)" style="font-size: 12px; padding: 6px 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; cursor: pointer;">
                 <option value="">Mark as...</option>
-                <option value="WON">Won</option>
-                <option value="LOST">Lost</option>
-                <option value="PUSH">Push</option>
+                <option value="WON">✅ Won</option>
+                <option value="LOST">❌ Lost</option>
+                <option value="PUSH">➖ Push</option>
               </select>
-              <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+              <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 6px 8px; font-size: 12px; cursor: pointer;">🗑️ Delete</button>
             </div>
           ` : `
-            <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+            <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 6px 8px; font-size: 12px; cursor: pointer;">🗑️ Delete</button>
           `}
         </div>
       </div>

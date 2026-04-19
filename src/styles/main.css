@@ -528,6 +528,7 @@ button.btn-secondary:hover {
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .bet-card-pick {
@@ -754,6 +755,17 @@ button.btn-secondary:hover {
   .bet-card-footer {
     flex-direction: column;
     align-items: flex-start;
+    width: 100%;
+  }
+
+  .bet-card-pick {
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .bet-card-date {
+    width: 100%;
+    text-align: left;
   }
 
   .tab {
