@@ -6,7 +6,7 @@
   <meta name="description" content="AlexBET Lite - Bet tracker & analytics app for testing AlexBOT Sharp recommendations">
   <meta name="theme-color" content="#0a0e27">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://espn-api.herokuapp.com https://api.espn.com https://api.the-odds-api.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://espn-api.herokuapp.com https://api.espn.com https://site.api.espn.com https://api.the-odds-api.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>AlexBET Lite — Bet Tracker & Analytics</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -28,6 +28,7 @@
       <button class="tab" data-tab="bets">📋 Bets</button>
       <button class="tab" data-tab="props">🏀 Props</button>
       <button class="tab" data-tab="analysis">📈 Analysis</button>
+      <button class="tab" data-tab="intel">🔍 Intel</button>
       <button class="tab" data-tab="settings">⚙️ Settings</button>
     </div>
 
@@ -328,6 +329,61 @@
       <div id="analysisContainer"></div>
     </div>
 
+    <!-- Intel Tab -->
+    <div id="intel" class="tab-content">
+      <div class="intel-container">
+        <!-- Beta Info Section -->
+        <div class="intel-section">
+          <h3>📌 Current Beta</h3>
+          <div id="betaInfo" class="info-card">
+            <p>Phase 6 Complete ✅</p>
+            <p>v2026.04.19 - Production Ready</p>
+            <p>Features: Enhanced Forms, Smart Suggestions, Analytics Dashboard</p>
+          </div>
+        </div>
+
+        <!-- Live Games Scores -->
+        <div class="intel-section">
+          <h3>🎮 Live Game Scores</h3>
+          <div id="liveGamesContainer" class="games-grid">
+            <p style="text-align: center; color: #888;">Select a sport above to load live scores</p>
+          </div>
+        </div>
+
+        <!-- News Feed -->
+        <div class="intel-section">
+          <h3>📰 Sports News Feed</h3>
+          <div id="newsFeedContainer" class="news-feed">
+            <p style="text-align: center; color: #888;">Loading sports news...</p>
+          </div>
+        </div>
+
+        <!-- Injury Reports -->
+        <div class="intel-section">
+          <h3>🏥 Injury Reports</h3>
+          <div id="injuryContainer" class="injury-list">
+            <p style="text-align: center; color: #888;">No injury updates available</p>
+          </div>
+        </div>
+
+        <!-- Trending Bets / Market Movers -->
+        <div class="intel-section">
+          <h3>📊 Market Movers</h3>
+          <div id="marketMoversContainer" class="market-movers">
+            <p style="text-align: center; color: #888;">Tracking market movement...</p>
+          </div>
+        </div>
+
+        <!-- Weather & Conditions -->
+        <div class="intel-section">
+          <h3>🌤️ Game Conditions</h3>
+          <div id="weatherContainer" class="weather-info">
+            <p style="text-align: center; color: #888;">Weather data loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Tab -->
     <div id="settings" class="tab-content">
       <div class="controls">
@@ -362,6 +418,7 @@
   <script src="./src/classes/SuggestionEngine.js"></script>
   <script src="./src/classes/Autocomplete.js"></script>
   <script src="./src/classes/BetAnalytics.js"></script>
+  <script src="./src/classes/IntelPage.js"></script>
   <script src="./src/app.js"></script>
 </body>
 </html>
