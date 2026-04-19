@@ -83,29 +83,30 @@ function setupEventListeners() {
     }
   });
 
-  // Auto-populate events based on sport and game date
-  document.getElementById('gameDate').addEventListener('change', populateEvents);
-  document.getElementById('sport').addEventListener('change', populateEvents);
+  // Auto-populate game dates when sport is selected, then events when date is selected
+  document.getElementById('sport').addEventListener('change', populateDatesByGameDates);
+  document.getElementById('gameDate').addEventListener('change', populateEventsByDate);
 
   console.log('[AlexBET] Event listeners setup complete');
 }
 
 // ===================================================
-// Auto-populate Events based on Sport & Date
+// Auto-populate Game Dates and Events based on Sport
 // ===================================================
 
-function populateEvents() {
+function populateDatesByGameDates() {
   const sport = document.getElementById('sport').value;
-  const gameDate = document.getElementById('gameDate').value;
+  const dateSelect = document.getElementById('gameDate');
   const eventSelect = document.getElementById('event');
   
-  if (!sport || !gameDate) {
-    eventSelect.innerHTML = '<option value="">Select sport and game date first</option>';
+  // Reset dropdowns
+  dateSelect.innerHTML = '<option value="">-- Loading dates with games... --</option>';
+  eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
+  
+  if (!sport) {
+    dateSelect.innerHTML = '<option value="">Select sport first</option>';
     return;
   }
-  
-  // Show loading state
-  eventSelect.innerHTML = '<option value="">Loading games...</option>';
   
   // Map sport names to Odds API sport keys
   const sportMap = {
@@ -119,7 +120,7 @@ function populateEvents() {
   
   const apiSport = sportMap[sport];
   if (!apiSport) {
-    eventSelect.innerHTML = '<option value="">Invalid sport selected</option>';
+    dateSelect.innerHTML = '<option value="">Invalid sport</option>';
     return;
   }
   
@@ -131,14 +132,88 @@ function populateEvents() {
     .then(res => res.json())
     .then(data => {
       if (!data.data || data.data.length === 0) {
-        eventSelect.innerHTML = '<option value="">No games found for this date</option>';
+        dateSelect.innerHTML = '<option value="">No games found</option>';
+        return;
+      }
+      
+      // Extract unique dates from games (next 5 days)
+      const today = new Date();
+      const fiveDaysLater = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
+      
+      const datesWithGames = new Set();
+      data.data.forEach(game => {
+        const gameDate = new Date(game.commence_time);
+        if (gameDate >= today && gameDate <= fiveDaysLater) {
+          const dateStr = gameDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          datesWithGames.add(dateStr);
+        }
+      });
+      
+      if (datesWithGames.size === 0) {
+        dateSelect.innerHTML = '<option value="">No games in next 5 days</option>';
+        return;
+      }
+      
+      // Populate date dropdown
+      let html = '<option value="">-- Select date with games --</option>';
+      Array.from(datesWithGames).sort().forEach(date => {
+        const displayDate = new Date(date).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        });
+        html += `<option value="${date}">${displayDate} (${date})</option>`;
+      });
+      
+      dateSelect.innerHTML = html;
+      console.log(`[AlexBET] Found ${datesWithGames.size} dates with games for ${sport}`);
+    })
+    .catch(error => {
+      console.error('[AlexBET] Error fetching games:', error);
+      dateSelect.innerHTML = '<option value="">Error loading dates. Try again.</option>';
+    });
+}
+
+function populateEventsByDate() {
+  const sport = document.getElementById('sport').value;
+  const gameDate = document.getElementById('gameDate').value;
+  const eventSelect = document.getElementById('event');
+  
+  if (!sport || !gameDate) {
+    eventSelect.innerHTML = '<option value="">Select sport and date first</option>';
+    return;
+  }
+  
+  eventSelect.innerHTML = '<option value="">-- Loading games... --</option>';
+  
+  // Map sport names to Odds API sport keys
+  const sportMap = {
+    'NBA': 'basketball_nba',
+    'NFL': 'americanfootball_nfl',
+    'MLB': 'baseball_mlb',
+    'NHL': 'icehockey_nhl',
+    'EPL': 'soccer_epl',
+    'ATP': 'tennis_atp'
+  };
+  
+  const apiSport = sportMap[sport];
+  
+  // Fetch games from Odds API
+  const apiKey = '90679e2eb72560a221fad296e1921812';
+  const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
+  
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.data || data.data.length === 0) {
+        eventSelect.innerHTML = '<option value="">No games found</option>';
         return;
       }
       
       // Filter games for the selected date
-      const selectedDate = new Date(gameDate).toLocaleDateString('en-US');
+      const selectedDate = gameDate; // Already in YYYY-MM-DD format
       const filteredGames = data.data.filter(game => {
-        const gameTime = new Date(game.commence_time).toLocaleDateString('en-US');
+        const gameTime = new Date(game.commence_time).toISOString().split('T')[0];
         return gameTime === selectedDate;
       });
       
@@ -147,11 +222,15 @@ function populateEvents() {
         return;
       }
       
-      // Populate dropdown with games
+      // Populate event dropdown
       let html = '<option value="">-- Select game --</option>';
       filteredGames.forEach(game => {
         const matchup = `${game.home_team} vs ${game.away_team}`;
-        html += `<option value="${matchup}">${matchup}</option>`;
+        const gameTime = new Date(game.commence_time).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        html += `<option value="${matchup}">${matchup} (${gameTime})</option>`;
       });
       
       eventSelect.innerHTML = html;
