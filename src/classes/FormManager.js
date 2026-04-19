@@ -124,16 +124,20 @@ class FormManager {
     const hint = document.getElementById('oddsHint');
     if (!hint) return;
 
+    // Get validation info from suggestion engine
+    const sampleOdds = betType === 'MONEYLINE' ? -110 : -110;
+    const validation = suggestionEngine.validateOdds(sampleOdds, betType);
+
     switch (betType) {
       case 'MONEYLINE':
-        hint.textContent = 'e.g., -110 (favorite) or +200 (underdog)';
+        hint.textContent = 'e.g., -110 (favorite) or +200 (underdog) | Range: -10000 to +10000';
         break;
       case 'SPREAD':
       case 'TOTAL':
-        hint.textContent = 'Usually -110 or -120';
+        hint.textContent = 'Usually -110 or -120 | Range: -130 to -105';
         break;
       case 'PROP':
-        hint.textContent = 'Prop odds vary (e.g., -130, +110)';
+        hint.textContent = 'Prop odds vary (e.g., -130, +110) | Range: -300 to +300';
         break;
       default:
         hint.textContent = '';
@@ -221,6 +225,15 @@ class FormManager {
           error = 'Odds cannot be zero';
         } else if (Math.abs(odds) > 10000) {
           error = 'Odds must be between -10000 and +10000';
+        } else {
+          // Use suggestion engine to validate odds for bet type
+          const betType = this.betForm.betType.value;
+          if (betType) {
+            const validation = suggestionEngine.validateOdds(odds, betType);
+            if (!validation.valid) {
+              error = validation.message;
+            }
+          }
         }
         break;
 
