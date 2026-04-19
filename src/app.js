@@ -199,7 +199,7 @@ function populateDatesByGameDates() {
   }
   
   // Fetch games from Odds API
-  const apiKey = '90679e2eb72560a221fad296e1921812';
+  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
   const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
   
   fetch(url)
@@ -280,7 +280,7 @@ function populateEventsByDate() {
   const apiSport = sportMap[sport];
   
   // Fetch games from Odds API
-  const apiKey = '90679e2eb72560a221fad296e1921812';
+  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
   const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
   
   fetch(url)
