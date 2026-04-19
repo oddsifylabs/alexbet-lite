@@ -3,1845 +3,316 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AlexBET Lite - Bet tracker & analytics app for testing AlexBOT Sharp recommendations">
+  <meta name="theme-color" content="#0a0e27">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://espn-api.herokuapp.com https://api.espn.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>AlexBET Lite — Bet Tracker & Analytics</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at top, rgba(77,159,255,0.16), transparent 32%), linear-gradient(135deg, #0a0e27 0%, #151a33 45%, #1a1f3a 100%);
-      color: #fff;
-      padding: 20px;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1440px;
-      margin: 0 auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding: 20px 22px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      background: linear-gradient(135deg, #00d68f, #4d9fff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 28px;
-    }
-
-    .subtitle {
-      color: #9aa3c7;
-      font-size: 14px;
-      margin-top: 5px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 24px;
-      padding: 10px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.04);
-      flex-wrap: wrap;
-    }
-
-    .tab {
-      padding: 10px 18px;
-      background: transparent;
-      border: 1px solid transparent;
-      color: #98a1c4;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.25s ease;
-      border-radius: 999px;
-    }
-
-    .tab.active {
-      color: #04131e;
-      background: linear-gradient(135deg, #00d68f, #4d9fff);
-      border-color: rgba(255,255,255,0.1);
-      box-shadow: 0 8px 22px rgba(0, 214, 143, 0.22);
-    }
-
-    .tab:hover {
-      color: #fff;
-      border-color: rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .controls {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 214, 143, 0.18);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    label {
-      font-size: 11px;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-weight: 600;
-    }
-
-    input, select {
-      padding: 12px 14px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 13px;
-      width: 100%;
-      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input::placeholder {
-      color: #7d84a6;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: #00d68f;
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    button {
-      background: linear-gradient(135deg, #00d68f, #4d9fff);
-      color: #04131e;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      align-self: flex-end;
-      box-shadow: 0 10px 24px rgba(0, 214, 143, 0.16);
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 214, 143, 0.3);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 214, 143, 0.18);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(0, 214, 143, 0.4);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: #888;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      letter-spacing: 0.05em;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #00d68f;
-    }
-
-    .stat-detail {
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 8px;
-    }
-
-    .bets-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-
-    .bet-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 214, 143, 0.2);
-      border-radius: 14px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .bet-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(0, 214, 143, 0.35);
-    }
-
-    .bet-card.live {
-      border-color: rgba(77, 159, 255, 0.55);
-      box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.25);
-    }
-
-    .bet-card-header,
-    .bet-card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .bet-card-pick {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .bet-card-date {
-      color: #7d84a6;
-      font-size: 12px;
-    }
-
-    .bet-card-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .bet-field {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
-
-    .bet-field-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #7d84a6;
-      margin-bottom: 6px;
-    }
-
-    .bet-field-value {
-      font-size: 14px;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .bet-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255,255,255,0.08);
-      color: #d9def2;
-    }
-
-    .live-dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    .live-game-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
-      border: 1px solid rgba(77,159,255,0.28);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 14px 32px rgba(0,0,0,0.18);
-    }
-
-    .live-game-scoreline {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .live-game-scoreline:last-child {
-      border-bottom: none;
-    }
-
-    .live-game-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .status-select {
-      background: rgba(0, 214, 143, 0.1);
-      border: 1px solid #00d68f;
-      padding: 6px 8px;
-      border-radius: 4px;
-      color: #00d68f;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .delete-btn {
-      background: #ff6464;
-      color: white;
-      padding: 4px 10px;
-      font-size: 11px;
-      border-radius: 3px;
-      cursor: pointer;
-      border: none;
-    }
-
-    .delete-btn:hover {
-      background: #e55555;
-    }
-
-    .export-btn {
-      background: rgba(0, 214, 143, 0.2);
-      color: #00d68f;
-      border: 1px solid #00d68f;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .export-btn:hover {
-      background: rgba(0, 214, 143, 0.3);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #888;
-    }
-
-    a {
-      color: #00d68f;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    h2, h3 {
-      margin-bottom: 15px;
-    }
-
-    ul {
-      list-style: none;
-      line-height: 2;
-    }
-
-    .search-filter-bar {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(0,214,143,0.18);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 20px;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 15px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    .clv-positive {
-      color: #00d68f;
-      font-weight: bold;
-    }
-
-    .clv-negative {
-      color: #ff6464;
-      font-weight: bold;
-    }
-
-    .clv-neutral {
-      color: #aaa;
-    }
-
-    .clv-button {
-      background: none;
-      border: none;
-      color: #4d9fff;
-      cursor: pointer;
-      font-weight: bold;
-      padding: 0;
-      font-size: 13px;
-    }
-
-    .clv-button:hover {
-      color: #00d68f;
-    }
-
-    .app-footer {
-      margin-top: 40px;
-      padding: 18px 16px 6px;
-      text-align: center;
-      color: #7d84a6;
-      font-size: 12px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .app-footer strong {
-      color: #00d68f;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        background: rgba(77, 159, 255, 0.1);
-      }
-      50% {
-        background: rgba(77, 159, 255, 0.2);
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .bets-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: 14px;
-      }
-
-      .header {
-        margin-bottom: 20px;
-      }
-
-      h1 {
-        font-size: 24px;
-      }
-
-      .controls,
-      .search-filter-bar,
-      .stats-grid,
-      .bets-grid,
-      .bet-card-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .tab {
-        padding: 8px 14px;
-      }
-
-      .bet-card-header,
-      .bet-card-footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="./src/styles/main.css">
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <div class="header">
-      <div>
-        <h1>⚡ AlexBET Lite <span id="headerVersion" style="font-size: 14px; color: #888;">v2026.04.15.5</span></h1>
-        <p class="subtitle">Test & validate gem algorithm | Track CLV | Target: 56-65% win rate</p>
+      <div class="header-title">
+        <h1>⚡ AlexBET Lite <span class="version" id="headerVersion">v2026.04.19</span></h1>
+        <p class="subtitle">Validate gem algorithm | Track CLV & edge | Target: 56-65% win rate | Phase 6 Complete ✅</p>
       </div>
     </div>
 
+    <!-- Tab Navigation -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('tracker')">📊 Bet Tracker</button>
-      <button class="tab" onclick="switchTab('live-dashboard')">📡 Live Board</button>
-      <button class="tab" onclick="switchTab('bankroll')">💰 Bankroll</button>
-      <button class="tab" onclick="switchTab('analytics')">📈 Analytics</button>
-      <button class="tab" onclick="switchTab('performance')">🎯 Performance</button>
-      <button class="tab" onclick="switchTab('validation')">✅ Validation</button>
-      <button class="tab" onclick="switchTab('about')">ℹ️ About</button>
+      <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tab" data-tab="bets">📋 Bets</button>
+      <button class="tab" data-tab="props">🏀 Props</button>
+      <button class="tab" data-tab="analysis">📈 Analysis</button>
+      <button class="tab" data-tab="settings">⚙️ Settings</button>
     </div>
 
-    <!-- Bet Tracker Tab -->
-    <div id="tracker" class="tab-content active">
-      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
-        <h3 style="color: #00d68f; margin-bottom: 20px;">➕ Log New Bet</h3>
-        <div class="controls" style="margin: 0; background: transparent; border: none; padding: 0;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
-              <label for="sport">Sport</label>
-              <select id="sport" name="sport" onchange="loadGames()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-                <option value="">Select Sport...</option>
-                <option value="NBA">🏀 NBA</option>
-                <option value="NFL">🏈 NFL</option>
-                <option value="MLB">⚾ MLB</option>
-                <option value="NHL">🏒 NHL</option>
-                <option value="ATP">🎾 Tennis (ATP)</option>
-                <option value="EPL">⚽ Soccer (EPL)</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="gameDate">Game Date</label>
-              <select id="gameDate" name="gameDate" onchange="setTimeout(updateGameList, 100)" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-                <option value="">Select date...</option>
-              </select>
-            </div>
-          </div>
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <!-- Add Bet Form -->
+      <div class="controls">
+        <!-- Section 1: Basic Info -->
+        <div class="form-section">
+          <h4 class="section-title">📋 Basic Info</h4>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
-              <label for="gameSelect">Game</label>
-              <select id="gameSelect" name="gameSelect" onchange="selectGame()" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-                <option value="">Select game...</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="pick">Pick (Team/Prop)</label>
-              <input type="text" id="pick" name="pick" placeholder="Auto-filled from game selection" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-            </div>
+          <div class="form-group">
+            <label for="sport">Sport</label>
+            <select id="sport">
+              <option value="">Select Sport</option>
+              <option value="NBA">🏀 NBA</option>
+              <option value="NFL">🏈 NFL</option>
+              <option value="MLB">⚾ MLB</option>
+              <option value="NHL">🏒 NHL</option>
+              <option value="EPL">⚽ EPL</option>
+              <option value="ATP">🎾 ATP</option>
+            </select>
           </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
-              <label for="betType">Bet Type</label>
-              <select id="betType" name="betType" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-                <option>Moneyline (ML)</option>
-                <option>Spread</option>
-                <option>Total (Over/Under)</option>
-                <option>Player Prop</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="entryOdds">Entry Odds</label>
-              <input type="number" id="entryOdds" name="entryOdds" placeholder="-110" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
-            </div>
+
+          <div class="form-group">
+            <label for="betType">Bet Type</label>
+            <select id="betType">
+              <option value="">Select Type</option>
+              <option value="SPREAD">Spread</option>
+              <option value="MONEYLINE">Moneyline</option>
+              <option value="TOTAL">Total (Over/Under)</option>
+              <option value="PROP">Prop</option>
+            </select>
           </div>
+        </div>
+
+        <!-- Section 2: Type-Specific Fields -->
+        <div class="form-section">
+          <h4 class="section-title">⚙️ Bet Details</h4>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <!-- For all bet types: Pick/Team -->
+          <div class="form-group">
+            <label for="pick">Team / Player / Pick</label>
+            <input type="text" id="pick" placeholder="e.g., Lakers, Mahomes, Warriors -7">
+            <small class="help-text" id="pickHint"></small>
+          </div>
+
+          <!-- SPREAD-SPECIFIC FIELDS -->
+          <div id="spreadFields" style="display: none;">
             <div class="form-group">
-              <label for="edge">Edge %</label>
-              <input type="number" id="edge" name="edge" placeholder="6.5" step="0.1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="spreadLine">Spread Line</label>
+              <input type="number" id="spreadLine" placeholder="e.g., -7.5 or +3.5" step="0.5">
+              <small class="help-text">Negative = favorite, Positive = underdog</small>
             </div>
-            
             <div class="form-group">
-              <label for="stake">Stake ($)</label>
-              <input type="number" id="stake" name="stake" placeholder="100" step="1" style="width: 100%; padding: 10px; border: 1px solid #00d68f; border-radius: 6px; background: #0a0e27; color: #fff;">
+              <label for="spreadTeam">Spread Team</label>
+              <select id="spreadTeam">
+                <option value="">-- Select team --</option>
+              </select>
+              <small class="help-text">Team taking the spread</small>
             </div>
           </div>
 
-          <button onclick="addBet()" style="width: 100%; padding: 12px; background: #00d68f; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">➕ Add Bet</button>
+          <!-- TOTAL/OVER-UNDER FIELDS -->
+          <div id="totalFields" style="display: none;">
+            <div class="form-group">
+              <label for="totalLine">Total Line</label>
+              <input type="number" id="totalLine" placeholder="e.g., 45.5" step="0.5">
+              <small class="help-text">Combined points/goals/runs for both teams</small>
+            </div>
+            <div class="form-group">
+              <label for="overUnder">Over or Under?</label>
+              <select id="overUnder">
+                <option value="">-- Select --</option>
+                <option value="OVER">📈 OVER (betting total goes over)</option>
+                <option value="UNDER">📉 UNDER (betting total goes under)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- PROP-SPECIFIC FIELDS -->
+          <div id="propFields" style="display: none;">
+            <div class="form-group">
+              <label for="playerName">Player Name</label>
+              <input type="text" id="playerName" placeholder="e.g., LeBron James">
+            </div>
+            <div class="form-group">
+              <label for="propType">Prop Type</label>
+              <input type="text" id="propType" placeholder="e.g., Points Over, Rebounds Under">
+            </div>
+            <div class="form-group">
+              <label for="propLine">Prop Line</label>
+              <input type="number" id="propLine" placeholder="e.g., 25.5" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Entry Info -->
+        <div class="form-section">
+          <h4 class="section-title">💰 Entry Info</h4>
+          
+          <div class="form-group">
+            <label for="odds">Odds</label>
+            <input type="number" id="odds" placeholder="e.g., -110">
+            <small class="help-text" id="oddsHint"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="stake">Stake ($)</label>
+            <input type="number" id="stake" placeholder="e.g., 100" min="1" step="1">
+            <small class="help-text" id="stakeHint"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="edge">Edge (%)</label>
+            <input type="number" id="edge" placeholder="e.g., 3.5" step="0.1">
+            <small class="help-text">Your estimated edge on this bet</small>
+          </div>
+
+          <div class="form-group">
+            <label for="confidence">Confidence (1-10)</label>
+            <input type="number" id="confidence" placeholder="1-10" min="1" max="10" step="1">
+            <small class="help-text">How confident are you in this pick?</small>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" placeholder="Why are you making this bet? Key factors?" rows="2"></textarea>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-section">
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button id="addBetBtn" class="btn-primary" onclick="addBet()">✅ Add Bet</button>
+            <button type="button" class="btn-secondary" onclick="resetBetForm()">↻ Clear Form</button>
+          </div>
+          <div id="formValidation" class="validation-feedback"></div>
         </div>
       </div>
 
-      <div class="search-filter-bar">
+      <!-- Alert Messages -->
+      <div id="alertContainer"></div>
+
+      <!-- Statistics -->
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <!-- Advanced Analytics -->
+      <div id="analyticsPanel" class="analytics-panel"></div>
+
+      <!-- Bets Cards -->
+      <div id="betsCards" class="bets-grid"></div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <h3>No bets yet</h3>
+        <p>Add your first bet above to start tracking</p>
+      </div>
+    </div>
+
+    <!-- Bets Tab -->
+    <div id="bets" class="tab-content">
+      <div class="controls">
         <div class="form-group">
-          <label>🔍 Search Bets</label>
-          <input type="text" id="searchInput" placeholder="Search by pick, sport, or date..." onkeyup="filterBets()">
-        </div>
-        <div class="form-group">
-          <label>Filter Status</label>
+          <label for="filterStatus">Status</label>
           <select id="filterStatus" onchange="filterBets()">
-            <option value="">All Bets</option>
+            <option value="">All Statuses</option>
             <option value="PENDING">Pending</option>
             <option value="WON">Won</option>
             <option value="LOST">Lost</option>
             <option value="PUSH">Push</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="filterSport">Sport</label>
+          <select id="filterSport" onchange="filterBets()">
+            <option value="">All Sports</option>
+            <option value="NBA">NBA</option>
+            <option value="NFL">NFL</option>
+            <option value="MLB">MLB</option>
+            <option value="NHL">NHL</option>
+            <option value="EPL">EPL</option>
+            <option value="ATP">ATP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="exportBets()">📥 Export JSON</button>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="document.getElementById('importFile').click()" class="secondary">📤 Import JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importBets()">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="clearAllBets()" class="danger">🗑️ Clear All</button>
+        </div>
       </div>
 
-      <div id="betsCards" class="bets-grid">
-        <div class="empty-state">No bets yet. Add one to start tracking.</div>
-      </div>
-
-      <button class="export-btn" onclick="exportData()">📥 Export JSON</button>
+      <div id="betsTable"></div>
     </div>
 
-    <div id="live-dashboard" class="tab-content">
-      <div style="background: linear-gradient(135deg, rgba(77,159,255,0.16), rgba(0,214,143,0.12)); border: 1px solid rgba(77,159,255,0.28); border-radius: 16px; padding: 28px; margin-bottom: 24px;">
-        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #7d84a6; margin-bottom: 8px;">Pending Bets Dashboard</div>
-        <h2 style="color: #4d9fff; font-size: 28px; margin-bottom: 8px;">📡 Live Board</h2>
-        <p style="color: #b8bed6; font-size: 13px;">A cleaner live view for all pending bets, with matchup context, team graphics, scores, and bet details.</p>
+    <!-- Props Tab -->
+    <div id="props" class="tab-content">
+      <div class="controls">
+        <div class="form-group">
+          <label for="propPlayer">Player</label>
+          <input type="text" id="propPlayer" placeholder="Player name">
+        </div>
+        <div class="form-group">
+          <label for="propSport">Sport</label>
+          <select id="propSport">
+            <option value="">Select Sport</option>
+            <option value="NBA">🏀 NBA</option>
+            <option value="NFL">🏈 NFL</option>
+            <option value="MLB">⚾ MLB</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="propType">Prop Type</label>
+          <input type="text" id="propType" placeholder="e.g., Points Over">
+        </div>
+        <div class="form-group">
+          <label for="propLine">Line</label>
+          <input type="number" id="propLine" placeholder="e.g., 24.5" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="propOdds">Odds</label>
+          <input type="number" id="propOdds" placeholder="e.g., -110">
+        </div>
+        <div class="form-group">
+          <label for="propStake">Stake ($)</label>
+          <input type="number" id="propStake" placeholder="e.g., 50" min="1">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="addPropBet()">Add Prop</button>
+        </div>
       </div>
 
-      <div id="liveDashboardCards" class="live-dashboard-grid">
-        <div class="empty-state">No pending bets right now.</div>
-      </div>
+      <div id="propsContainer"></div>
     </div>
 
-    <!-- Bankroll Dashboard Tab -->
-    <div id="bankroll" class="tab-content">
-      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.16), rgba(77,159,255,0.16)); border: 1px solid rgba(0,214,143,0.3); border-radius: 16px; padding: 28px; margin-bottom: 28px; text-align: left;">
-        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #7d84a6; margin-bottom: 8px;">Bankroll Dashboard</div>
-        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 8px;">💰 Bankroll Management</h2>
-        <p style="color: #b8bed6; font-size: 13px;">Track your roll, edit your baseline, and watch drawdown and pending exposure in one place.</p>
-      </div>
-
-      <div style="background: rgba(0,214,143,0.12); border: 2px solid rgba(0,214,143,0.5); border-radius: 16px; padding: 28px; margin-bottom: 28px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
-          <div>
-            <div style="color: #aaa; font-size: 12px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em;">Current Bankroll</div>
-            <div id="currentBankroll" style="font-size: 44px; font-weight: bold; color: #00d68f; margin-bottom: 8px;">$5,000</div>
-            <div style="color: #aaa; font-size: 12px;" id="bankrollChange">Starting: $5,000</div>
-          </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="export-btn" type="button" onclick="editCurrentBankroll()">✏️ Edit current bankroll</button>
-            <button class="clv-button" type="button" onclick="editStartingBankroll()">Set starting bankroll</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats-grid" style="margin-bottom: 28px;">
-        <div class="stat-card">
-          <div class="stat-label">Starting Roll</div>
-          <div class="stat-value" id="startingBankrollCard">$5,000</div>
-          <div class="stat-detail">Editable baseline</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Peak Bankroll</div>
-          <div class="stat-value" id="peakBankrollCard">$5,000</div>
-          <div class="stat-detail">High-water mark</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pending Risk $</div>
-          <div class="stat-value" id="pendingRiskAmount">$0</div>
-          <div class="stat-detail">Open exposure</div>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 28px;">
-        <div class="stat-card">
-          <div class="stat-label">Daily P&L</div>
-          <div class="stat-value" id="dailyPnl">+$0</div>
-          <div class="stat-detail" id="dailyDetail">Today</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total P&L</div>
-          <div class="stat-value" id="totalPnlBR" style="color: #00d68f;">+$0</div>
-          <div class="stat-detail">All time</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Drawdown %</div>
-          <div class="stat-value" id="drawdownPercent">0%</div>
-          <div class="stat-detail" id="drawdownDetail">From peak</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Units at Risk</div>
-          <div class="stat-value" id="unitsRisk">0</div>
-          <div class="stat-detail">Pending bets</div>
-        </div>
-      </div>
-
-      <div id="drawdownAlert" style="display: none; background: rgba(255,100,100,0.16); border: 1px solid #ff6464; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
-        <div style="color: #ff9999; font-weight: bold; margin-bottom: 10px;">⚠️ DRAWDOWN ALERT</div>
-        <div style="color: #aaa; font-size: 12px;">Your bankroll is down <span id="alertPercent">15%</span> from peak. Be cautious with bet sizing.</div>
-      </div>
-
-      <div id="clvStreakAlert" style="display: none; background: rgba(0,214,143,0.12); border: 1px solid #00d68f; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
-        <div style="color: #00d68f; font-weight: bold; margin-bottom: 10px;">🔥 Positive CLV streak</div>
-        <div style="color: #aaa; font-size: 12px;">You have <span id="streakCount">0</span> straight settled bets with positive CLV.</div>
-      </div>
-
-      <div id="clvNegativeAlert" style="display: none; background: rgba(255,215,0,0.1); border: 1px solid #ffd700; border-radius: 14px; padding: 18px; margin-bottom: 18px;">
-        <div style="color: #ffd700; font-weight: bold; margin-bottom: 10px;">⚠️ Negative CLV warning</div>
-        <div style="color: #aaa; font-size: 12px;">Your last 10 settled bets are averaging <span id="avgClvNeg">0</span>% CLV. Consider reviewing entry timing and price quality.</div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; align-items: stretch;">
-        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 14px; padding: 22px;">
-          <h3 style="margin-bottom: 16px;">Status</h3>
-          <div id="bankrollStatus" style="font-size: 14px; line-height: 2; color: #aaa;">
-            <div style="color: #00d68f;">✅ Bankroll: Healthy</div>
-            <div style="color: #aaa;">Risk Level: Low (0% of bankroll pending)</div>
-            <div style="color: #aaa;">Safe to bet</div>
-          </div>
-        </div>
-        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px;">
-          <h3 style="margin-bottom: 16px;">Quick Tips</h3>
-          <div style="display: grid; gap: 10px; color: #b8bed6; font-size: 13px;">
-            <div>• Edit current bankroll anytime to sync the dashboard with reality.</div>
-            <div>• Watch drawdown and pending risk before increasing stake size.</div>
-            <div>• Positive CLV streaks matter more than short-term win rate swings.</div>
-          </div>
-        </div>
-      </div>
+    <!-- Analysis Tab -->
+    <div id="analysis" class="tab-content">
+      <div id="analysisContainer"></div>
     </div>
 
-    <!-- Analytics Tab -->
-    <div id="analytics" class="tab-content">
-      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
-        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 10px;">📊 Your Performance</h2>
-        <p style="color: #aaa; font-size: 13px;">Real-time bet analytics with CLV tracking</p>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Bets</div>
-          <div class="stat-value" id="totalBets">0</div>
-          <div class="stat-detail">Tracked</div>
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <div class="controls">
+        <div class="form-group">
+          <label>App Version</label>
+          <p id="appVersion">v2026.04.19</p>
         </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Win Rate</div>
-          <div class="stat-value" id="winRate">—</div>
-          <div class="stat-detail" id="winDetail"></div>
+        <div class="form-group">
+          <label>Storage Usage</label>
+          <p id="storageUsage">Calculating...</p>
         </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Avg CLV</div>
-          <div class="stat-value" id="avgCLV" style="color: #ffd700;">—</div>
-          <div class="stat-detail">Closing Line Value</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">P&L</div>
-          <div class="stat-value" id="pnl">$0</div>
-          <div class="stat-detail" id="pnlDetail"></div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Avg Edge</div>
-          <div class="stat-value" id="avgEdge">—</div>
-          <div class="stat-detail">Per Bet</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Avg Stake</div>
-          <div class="stat-value" id="avgStake">$0</div>
-          <div class="stat-detail">Per Bet</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">ROI %</div>
-          <div class="stat-value" id="roi">—</div>
-          <div class="stat-detail">Return on Investment</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Wins</div>
-          <div class="stat-value" id="totalWins" style="color: #00d68f;">0</div>
-          <div class="stat-detail" id="winsDetail">0 of 0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Losses</div>
-          <div class="stat-value" id="totalLosses" style="color: #ff6464;">0</div>
-          <div class="stat-detail" id="lossesDetail">0 of 0</div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="showSettings()" class="secondary">More Info</button>
         </div>
       </div>
+      <div id="settingsPanel"></div>
     </div>
-
-    <!-- Performance Tab (Analytics by Sport/Market) -->
-    <div id="performance" class="tab-content">
-      <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
-        <h2 style="color: #00d68f; font-size: 28px; margin-bottom: 10px;">🏆 Performance Breakdown</h2>
-        <p style="color: #aaa; font-size: 13px;">Win rate by sport, market type, and ROI analysis</p>
-      </div>
-
-      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-        <h3 style="margin-bottom: 15px;">🏀 Win Rate by Sport</h3>
-        <div id="sportBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
-      </div>
-
-      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-        <h3 style="margin-bottom: 15px;">📊 Win Rate by Market Type</h3>
-        <div id="marketBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
-      </div>
-
-      <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px;">
-        <h3 style="margin-bottom: 15px;">💰 P&L Summary</h3>
-        <div id="pnlBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
-      </div>
-    </div>
-
-    <!-- Validation Tab -->
-    <div id="validation" class="tab-content">
-      <div class="stat-card" style="max-width: 400px;">
-        <div class="stat-label">Win Rate Target</div>
-        <div class="stat-value" id="targetStatus">—</div>
-        <div class="stat-detail" style="margin-top: 15px; line-height: 1.8;">
-          🟢 56-65%: Ready to launch<br>
-          🟡 52-55%: Keep testing<br>
-          🔴 <52%: Need to improve algorithm
-        </div>
-      </div>
-
-      <div style="margin-top: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 20px;">
-        <h3 style="margin-bottom: 15px;">📋 Validation Checklist</h3>
-        <ul style="list-style: none; line-height: 2;">
-          <li>✅ Gem algorithm working</li>
-          <li>✅ Bot placing bets (manual test)</li>
-          <li>✅ Tracker logging results</li>
-          <li id="validation-wr" style="color: #888;">⏳ Win rate > 56%</li>
-          <li id="validation-sample" style="color: #888;">⏳ 30+ bets (sample size)</li>
-          <li id="validation-clv" style="color: #888;">⏳ Avg CLV > 0%</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- About Tab -->
-    <div id="about" class="tab-content">
-      <div style="max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, rgba(0,214,143,0.15), rgba(77,159,255,0.15)); border: 1px solid rgba(0,214,143,0.3); border-radius: 12px; padding: 40px; margin-bottom: 40px; text-align: center;">
-          <h2 style="color: #00d68f; font-size: 32px; margin-bottom: 15px;">⚡ AlexBET Lite</h2>
-          <p style="color: #aaa; line-height: 1.8; font-size: 14px;">Professional sports betting tracker with CLV (Closing Line Value) analysis. Test your edge detection algorithm before scaling.</p>
-          <div style="display: flex; justify-content: center; gap: 30px; margin-top: 25px; font-size: 13px;">
-            <div><div style="color: #00d68f; font-weight: 700; font-size: 18px;">CLV-Focused</div><div style="color: #888;">Line Value Tracking</div></div>
-            <div><div style="color: #ffd700; font-weight: 700; font-size: 18px;">Testing</div><div style="color: #888;">Validation Phase</div></div>
-            <div><div style="color: #00d68f; font-weight: 700; font-size: 18px;">Real Data</div><div style="color: #888;">No Demo Fills</div></div>
-          </div>
-        </div>
-
-        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-          <h3 style="margin-bottom: 15px;">🔗 Related Products</h3>
-          <ul style="list-style: none; line-height: 2.4; font-size: 13px;">
-            <li><a href="https://t.me/AlexBetSharp_Bot" target="_blank" style="color: #00d68f; text-decoration: none; font-weight: 500;">📱 @AlexBetSharp_Bot</a><br><span style="color: #666; font-size: 12px;">Real-time gem alerts</span></li>
-            <li><a href="https://github.com/oddsifylabs/alexbet-sharp-bot" target="_blank" style="color: #00d68f; text-decoration: none; font-weight: 500;">🐙 GitHub Repo</a><br><span style="color: #666; font-size: 12px;">Open source code</span></li>
-          </ul>
-        </div>
-
-        <div style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,100,100,0.3); border-radius: 12px; padding: 25px;">
-          <h3 style="color: #ff6464; margin-bottom: 15px;">⚠️ Gambling Disclaimer</h3>
-          <p style="color: #aaa; font-size: 12px; line-height: 1.7; margin-bottom: 12px;">Sports betting involves risk. Only bet what you can afford to lose. This tool is for testing purposes only and does not guarantee profits. Past results do not indicate future performance.</p>
-          <p style="color: #ff9999; font-size: 11px; font-weight: 600; margin-bottom: 10px;">Need Help?</p>
-          <p style="color: #888; font-size: 11px; line-height: 1.8;">
-            <a href="https://www.ncpg.org/" target="_blank" style="color: #ff9999;">National Council on Problem Gambling</a><br>
-            <strong>1-800-522-4700</strong>
-          </p>
-        </div>
-      </div>
-    </div>
-    <footer class="app-footer">
-      AlexBET Lite - <strong id="appVersion">v2026.04.15.5</strong> <span id="appCommit">| GitHub commit: local</span>
-    </footer>
   </div>
 
-  <script src="./version.js"></script>
-  <script src="./live-scores.js"></script>
-  <script src="./injury-tracker.js"></script>
-  <script src="./custom-edge-calculator.js"></script>
-  <script src="./competitor-tracker.js"></script>
-  <script src="./heat-map.js"></script>
-  <script src="./props-tracker.js"></script>
-  <script src="./injury-alerts-pro.js"></script>
-  <script src="./team-management.js"></script>
-  <script>
-    const BUILD_META = window.__ALEXBET_BUILD__ || {};
-    const APP_VERSION = BUILD_META.version || 'v2026.04.15.5';
-    const APP_COMMIT = BUILD_META.commit || 'local';
-    let bets = JSON.parse(localStorage.getItem('alexbet_lite_bets')) || [];
-    let archived = JSON.parse(localStorage.getItem('alexbet_lite_archived')) || [];
-
-    function calculatePerformanceStats() {
-      const settled = bets.filter(b => b.status !== 'PENDING');
-      if (settled.length === 0) return null;
-
-      const bySport = {};
-      const byMarket = {};
-      let totalPnl = 0;
-      let totalStaked = 0;
-
-      settled.forEach(b => {
-        totalPnl += b.pnl || 0;
-        totalStaked += b.stake || 0;
-        
-        if (!bySport[b.sport]) bySport[b.sport] = { won: 0, total: 0, pnl: 0 };
-        bySport[b.sport].total++;
-        bySport[b.sport].pnl += b.pnl || 0;
-        if (b.status === 'WON') bySport[b.sport].won++;
-
-        const market = b.betType || 'ML';
-        if (!byMarket[market]) byMarket[market] = { won: 0, total: 0, pnl: 0 };
-        byMarket[market].total++;
-        byMarket[market].pnl += b.pnl || 0;
-        if (b.status === 'WON') byMarket[market].won++;
-      });
-
-      return { bySport, byMarket, totalPnl, totalStaked, settled: settled.length };
-    }
-
-    function renderPerformanceTab() {
-      const stats = calculatePerformanceStats();
-      if (!stats) {
-        document.getElementById('sportBreakdown').innerHTML = '<p style="color: #888; grid-column: 1/-1;">Need settled bets to view performance</p>';
-        return;
-      }
-
-      // Sport breakdown
-      document.getElementById('sportBreakdown').innerHTML = Object.entries(stats.bySport).map(([sport, data]) => {
-        const wr = Math.round((data.won / data.total) * 100);
-        const color = wr >= 56 ? '#00d68f' : wr >= 50 ? '#ffd700' : '#ff6464';
-        return `
-          <div style="background: rgba(255,255,255,0.08); border: 1px solid ${color}; border-radius: 8px; padding: 15px; text-align: center;">
-            <div style="font-weight: bold; font-size: 22px; color: ${color};">${wr}%</div>
-            <div style="color: #aaa; font-size: 11px; margin-top: 5px;">${sport} (${data.won}/${data.total})</div>
-            <div style="color: ${data.pnl > 0 ? '#00d68f' : '#ff6464'}; font-size: 11px; margin-top: 3px;">$${data.pnl}</div>
-          </div>
-        `;
-      }).join('');
-
-      // Market breakdown
-      document.getElementById('marketBreakdown').innerHTML = Object.entries(stats.byMarket).map(([market, data]) => {
-        const wr = Math.round((data.won / data.total) * 100);
-        const color = wr >= 56 ? '#00d68f' : wr >= 50 ? '#ffd700' : '#ff6464';
-        return `
-          <div style="background: rgba(255,255,255,0.08); border: 1px solid ${color}; border-radius: 8px; padding: 15px; text-align: center;">
-            <div style="font-weight: bold; font-size: 22px; color: ${color};">${wr}%</div>
-            <div style="color: #aaa; font-size: 11px; margin-top: 5px;">${market} (${data.won}/${data.total})</div>
-            <div style="color: ${data.pnl > 0 ? '#00d68f' : '#ff6464'}; font-size: 11px; margin-top: 3px;">$${data.pnl}</div>
-          </div>
-        `;
-      }).join('');
-
-      // P&L summary
-      const roi = stats.totalStaked > 0 ? ((stats.totalPnl / stats.totalStaked) * 100).toFixed(1) : 0;
-      document.getElementById('pnlBreakdown').innerHTML = `
-        <div style="background: rgba(0,214,143,0.2); border: 1px solid #00d68f; border-radius: 8px; padding: 15px; text-align: center;">
-          <div style="font-weight: bold; font-size: 22px; color: #00d68f;">$${stats.totalPnl}</div>
-          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">Total P&L</div>
-        </div>
-        <div style="background: rgba(255,215,0,0.2); border: 1px solid #ffd700; border-radius: 8px; padding: 15px; text-align: center;">
-          <div style="font-weight: bold; font-size: 22px; color: #ffd700;">${roi > 0 ? '+' : ''}${roi}%</div>
-          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">ROI</div>
-        </div>
-        <div style="background: rgba(100,150,255,0.2); border: 1px solid #6496ff; border-radius: 8px; padding: 15px; text-align: center;">
-          <div style="font-weight: bold; font-size: 22px; color: #6496ff;">${stats.settled}</div>
-          <div style="color: #aaa; font-size: 11px; margin-top: 5px;">Settled Bets</div>
-        </div>
-      `;
-    }
-
-    function getStartingBankroll() {
-      const saved = parseFloat(localStorage.getItem('alexbet_starting_bankroll') || '5000');
-      return Number.isFinite(saved) && saved > 0 ? saved : 5000;
-    }
-
-    function setStartingBankroll(amount) {
-      localStorage.setItem('alexbet_starting_bankroll', String(Math.round(amount)));
-    }
-
-    function editStartingBankroll() {
-      const current = getStartingBankroll();
-      const next = prompt('Set your starting bankroll', current);
-      const parsed = parseFloat(next);
-      if (!Number.isFinite(parsed) || parsed <= 0) return;
-      setStartingBankroll(parsed);
-      renderBankrollTab();
-    }
-
-    function editCurrentBankroll() {
-      const stats = calculateBankrollStats();
-      const next = prompt('Set your current bankroll', stats.currentBankroll);
-      const parsed = parseFloat(next);
-      if (!Number.isFinite(parsed) || parsed <= 0) return;
-      const adjustedStart = parsed - stats.totalPnl;
-      setStartingBankroll(adjustedStart > 0 ? adjustedStart : parsed);
-      renderBankrollTab();
-    }
-
-    function calculateBankrollStats() {
-      const startingBankroll = getStartingBankroll();
-      const totalPnl = bets.reduce((sum, b) => sum + (b.pnl || 0), 0);
-      const currentBankroll = startingBankroll + totalPnl;
-      const pending = bets.filter(b => b.status === 'PENDING');
-      const pendingRisk = pending.reduce((sum, b) => sum + (b.stake || 0), 0);
-      
-      let peakBankroll = startingBankroll;
-      let runningBankroll = startingBankroll;
-      const settledBets = bets.filter(b => b.status !== 'PENDING');
-      settledBets.forEach(b => {
-        runningBankroll += b.pnl || 0;
-        peakBankroll = Math.max(peakBankroll, runningBankroll);
-      });
-      const drawdown = ((peakBankroll - runningBankroll) / peakBankroll) * 100;
-      
-      const today = new Date().toISOString().split('T')[0];
-      const todayBets = bets.filter(b => b.date === today && b.status !== 'PENDING');
-      const dailyPnl = todayBets.reduce((sum, b) => sum + (b.pnl || 0), 0);
-      
-      return {
-        startingBankroll: Math.round(startingBankroll),
-        currentBankroll: Math.round(currentBankroll),
-        totalPnl,
-        pending,
-        pendingRisk,
-        drawdown,
-        peakBankroll,
-        dailyPnl,
-        riskPercent: currentBankroll > 0 ? (pendingRisk / currentBankroll) * 100 : 0
-      };
-    }
-
-    function renderBankrollTab() {
-      const stats = calculateBankrollStats();
-      const color = stats.currentBankroll >= stats.startingBankroll ? '#00d68f' : stats.currentBankroll >= stats.startingBankroll * 0.9 ? '#ffd700' : '#ff6464';
-      document.getElementById('currentBankroll').innerHTML = `<span style="color: ${color};">$${stats.currentBankroll.toLocaleString()}</span>`;
-      const change = stats.totalPnl >= 0 ? `+$${stats.totalPnl}` : `-$${Math.abs(stats.totalPnl)}`;
-      document.getElementById('bankrollChange').textContent = `Starting: $${stats.startingBankroll.toLocaleString()} • Change: ${change}`;
-      document.getElementById('startingBankrollCard').textContent = `$${stats.startingBankroll.toLocaleString()}`;
-      document.getElementById('peakBankrollCard').textContent = `$${Math.round(stats.peakBankroll).toLocaleString()}`;
-      document.getElementById('pendingRiskAmount').textContent = `$${stats.pendingRisk.toLocaleString()}`;
-      const dailyColor = stats.dailyPnl > 0 ? '#00d68f' : stats.dailyPnl < 0 ? '#ff6464' : '#aaa';
-      document.getElementById('dailyPnl').innerHTML = `<span style="color: ${dailyColor};">${stats.dailyPnl > 0 ? '+' : ''}$${stats.dailyPnl}</span>`;
-      const totalColor = stats.totalPnl > 0 ? '#00d68f' : stats.totalPnl < 0 ? '#ff6464' : '#aaa';
-      document.getElementById('totalPnlBR').innerHTML = `<span style="color: ${totalColor};">${stats.totalPnl > 0 ? '+' : ''}$${stats.totalPnl}</span>`;
-      const ddColor = stats.drawdown < 5 ? '#00d68f' : stats.drawdown < 10 ? '#ffd700' : '#ff6464';
-      document.getElementById('drawdownPercent').innerHTML = `<span style="color: ${ddColor};">${stats.drawdown.toFixed(1)}%</span>`;
-      document.getElementById('drawdownDetail').textContent = `Peak: $${stats.peakBankroll.toLocaleString()}`;
-      document.getElementById('unitsRisk').textContent = stats.pending.length;
-      const alertDiv = document.getElementById('drawdownAlert');
-      if (stats.drawdown > 10) {
-        alertDiv.style.display = 'block';
-        document.getElementById('alertPercent').textContent = stats.drawdown.toFixed(1);
-      } else {
-        alertDiv.style.display = 'none';
-      }
-      let status = '✅ Bankroll: Healthy';
-      let riskMsg = `Low (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
-      let safeMsg = 'Safe to bet';
-      if (stats.drawdown > 10) {
-        status = '⚠️ Bankroll: Caution';
-        riskMsg = `High (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
-        safeMsg = 'Reduce bet size';
-      } else if (stats.drawdown > 5) {
-        status = '⚠️ Bankroll: Monitor';
-        riskMsg = `Medium (${stats.riskPercent.toFixed(1)}% of bankroll pending)`;
-      }
-      document.getElementById('bankrollStatus').innerHTML = `
-        <div style="${stats.drawdown > 10 ? 'color: #ff6464;' : 'color: #00d68f;'}">${status}</div>
-        <div style="color: #aaa;">Risk Level: ${riskMsg}</div>
-        <div style="color: #aaa;">${safeMsg}</div>
-      `;
-      
-      // CLV Streak detection
-      const clvStats = calculateClvStreaks();
-      const streakAlert = document.getElementById('clvStreakAlert');
-      const negAlert = document.getElementById('clvNegativeAlert');
-      
-      if (streakAlert && clvStats.currentStreak >= 5 && clvStats.direction === 'positive') {
-        streakAlert.style.display = 'block';
-        document.getElementById('streakCount').textContent = clvStats.currentStreak;
-      } else if (streakAlert) {
-        streakAlert.style.display = 'none';
-      }
-      
-      if (negAlert && clvStats.last10Count >= 10 && clvStats.avgClvLast10 < -0.5) {
-        negAlert.style.display = 'block';
-        document.getElementById('avgClvNeg').textContent = clvStats.avgClvLast10;
-      } else if (negAlert) {
-        negAlert.style.display = 'none';
-      }
-    }
-    
-    function calculateClvStreaks() {
-      const settled = bets.filter(b => b.status !== 'PENDING').sort((a, b) => new Date(b.date) - new Date(a.date));
-      if (settled.length === 0) return { currentStreak: 0, direction: 'none', avgClvLast10: 0, last10Count: 0 };
-
-      let currentStreak = 0;
-      let direction = settled[0]?.clv > 0 ? 'positive' : 'negative';
-      
-      for (let bet of settled) {
-        if ((direction === 'positive' && bet.clv > 0) || (direction === 'negative' && bet.clv < 0)) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-
-      const last10 = settled.slice(0, 10);
-      const avgClvLast10 = last10.length > 0 
-        ? (last10.reduce((sum, b) => sum + (b.clv || 0), 0) / last10.length)
-        : 0;
-
-      return {
-        currentStreak,
-        direction,
-        avgClvLast10: avgClvLast10.toFixed(2),
-        last10Count: last10.length
-      };
-    }
-
-    function checkReminders() {
-      const today = new Date().toISOString().split('T')[0];
-      const lastCheckKey = 'alexbet_last_reminder_check';
-      const lastCheck = localStorage.getItem(lastCheckKey);
-      
-      if (lastCheck === today) return;
-      
-      const settled = bets.filter(b => b.status !== 'PENDING');
-      const won = settled.filter(b => b.status === 'WON').length;
-      const total = settled.length;
-      const winRate = total > 0 ? Math.round((won / total) * 100) : 0;
-      
-      const lastBetDate = bets.length > 0
-        ? new Date(Math.max(...bets.map(b => new Date(b.date).getTime()).filter(Boolean)))
-        : null;
-      const daysSinceLastBet = lastBetDate ? Math.floor((new Date() - lastBetDate) / (1000 * 60 * 60 * 24)) : 999;
-      
-      const clvStats = calculateClvStreaks();
-      const avgClvLast10 = clvStats.avgClvLast10;
-      
-      let reminder = null;
-      
-      if (daysSinceLastBet >= 3) {
-        reminder = `📚 No bets in ${daysSinceLastBet} days. Time to get back in the game!`;
-      } else if (total >= 30 && winRate >= 56 && parseFloat(avgClvLast10) > 0) {
-        reminder = `🎉 You have 30+ bets, 56%+ win rate, and positive CLV! You're ready to launch!`;
-      } else if (total >= 20 && winRate < 50) {
-        reminder = `⚠️ Win rate is ${winRate}%, below 56% target. Keep testing and refining.`;
-      } else if (clvStats.last10Count >= 10 && parseFloat(avgClvLast10) < -0.5) {
-        reminder = `⚠️ Last 10 bets averaging ${avgClvLast10}% CLV. Consider adjusting your algorithm.`;
-      } else if (total > 0 && total < 10) {
-        reminder = `📈 You have ${total} bets logged. Keep going until 30+ for validation!`;
-      }
-      
-      if (reminder) {
-        showReminderBanner(reminder);
-      }
-      
-      localStorage.setItem(lastCheckKey, today);
-    }
-    
-    function showReminderBanner(message) {
-      const banner = document.createElement('div');
-      banner.style.background = 'rgba(0,214,143,0.2)';
-      banner.style.border = '1px solid #00d68f';
-      banner.style.borderRadius = '8px';
-      banner.style.padding = '15px 20px';
-      banner.style.marginBottom = '20px';
-      banner.style.color = '#aaa';
-      banner.style.fontSize = '13px';
-      banner.style.display = 'flex';
-      banner.style.justifyContent = 'space-between';
-      banner.style.alignItems = 'center';
-      banner.innerHTML = `
-        <div>${message}</div>
-        <button onclick="this.parentElement.style.display='none'" style="background: none; border: none; color: #888; cursor: pointer; font-size: 18px;">✕</button>
-      `;
-      const tracker = document.getElementById('tracker');
-      if (tracker) {
-        tracker.insertAdjacentElement('afterbegin', banner);
-      }
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById(tab).classList.add('active');
-      document.querySelector(`button[onclick="switchTab('${tab}')"]`)?.classList.add('active');
-      updateStats();
-      if (tab === 'bankroll') renderBankrollTab();
-      if (tab === 'performance') renderPerformanceTab();
-      if (tab === 'live-dashboard') renderLiveDashboard();
-    }
-
-    let availableGames = {};
-
-    function getLocalGameDate(dateString) {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      if (Number.isNaN(date.getTime())) return '';
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-    
-    async function loadGames() {
-      const sport = document.getElementById('sport').value;
-      if (!sport) return;
-
-      document.getElementById('gameDate').innerHTML = '<option value="">Loading...</option>';
-      document.getElementById('gameSelect').innerHTML = '<option value="">Select game...</option>';
-
-      try {
-        const liveScorer = new LiveScoreFetcher();
-        const games = await liveScorer.fetchSportGames(sport);
-        
-        console.log(`[Games] Loaded ${games.length} ${sport} games`, games.slice(0, 2));
-        
-        if (!games || games.length === 0) {
-          document.getElementById('gameDate').innerHTML = '<option value="">No games found</option>';
-          return;
-        }
-        
-        availableGames[sport] = games;
-        
-        const dates = [...new Set(games.map(g => getLocalGameDate(g.date)))].filter(d => d).sort();
-        const dateSelect = document.getElementById('gameDate');
-        dateSelect.innerHTML = '<option value="">Select date...</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        
-        if (dates.length > 0) {
-          dateSelect.value = dates[0];
-          updateGameList();
-        }
-      } catch (err) {
-        console.error('Error loading games:', err);
-        document.getElementById('gameDate').innerHTML = '<option value="">Error loading games</option>';
-      }
-    }
-    
-    function updateGameList() {
-      const sport = document.getElementById('sport').value;
-      const selectedDate = document.getElementById('gameDate').value;
-      
-      if (!sport || !selectedDate) {
-        document.getElementById('gameSelect').innerHTML = '<option value="">Select game...</option>';
-        return;
-      }
-      
-      const games = availableGames[sport] || [];
-      const filteredGames = games.filter(g => getLocalGameDate(g.date) === selectedDate);
-      const gameSelect = document.getElementById('gameSelect');
-      
-      if (filteredGames.length === 0) {
-        gameSelect.innerHTML = '<option value="">No games on this date</option>';
-        return;
-      }
-      
-      gameSelect.innerHTML = '<option value="">Select game...</option>' + 
-        filteredGames.map(g => {
-          let away = 'Away';
-          let home = 'Home';
-          
-          // Prefer explicit ESPN homeAway metadata when available
-          const comp = g.competitions?.[0]?.competitors || [];
-          if (comp.length >= 2) {
-            const awayComp = comp.find(c => c.homeAway === 'away') || comp[0];
-            const homeComp = comp.find(c => c.homeAway === 'home') || comp[1];
-            away = awayComp?.team?.displayName || awayComp?.displayName || 'Away';
-            home = homeComp?.team?.displayName || homeComp?.displayName || 'Home';
-          } else if (g.competitors && g.competitors.length >= 2) {
-            const awayComp = g.competitors.find(c => c.homeAway === 'away') || g.competitors[0];
-            const homeComp = g.competitors.find(c => c.homeAway === 'home') || g.competitors[1];
-            away = awayComp?.displayName || 'Away';
-            home = homeComp?.displayName || 'Home';
-          }
-          
-          const label = `${away} @ ${home}`;
-          return `<option value="${g.id}|${away}|${home}">${label}</option>`;
-        }).join('');
-    }
-    
-    function selectGame() {
-      const value = document.getElementById('gameSelect').value;
-      if (value) {
-        const parts = value.split('|');
-        const gameId = parts[0];
-        const away = parts[1];
-        const home = parts[2];
-        
-        // Ask user which team
-        const choice = confirm(`Which team?\n\nOK = ${home} (Home)\nCancel = ${away} (Away)`);
-        const pickField = document.getElementById('pick');
-        pickField.value = choice ? home : away;
-        pickField.focus();
-        
-        console.log(`[Game] ${away} @ ${home} - Selected: ${pickField.value}`);
-      }
-    }
-
-    function addBet() {
-      const pick = document.getElementById('pick').value;
-      const entryOdds = parseInt(document.getElementById('entryOdds').value);
-      const edge = parseFloat(document.getElementById('edge').value);
-      const stake = parseInt(document.getElementById('stake').value);
-      const betType = document.getElementById('betType').value;
-      const sport = document.getElementById('sport').value;
-      const gameDate = document.getElementById('gameDate').value;
-      const gameSelection = document.getElementById('gameSelect').value;
-
-      if (!pick || !entryOdds || !edge || !stake || !sport || !gameDate) {
-        alert('Fill in all required fields');
-        return;
-      }
-
-      let gameId = null;
-      let gameName = pick;
-      let gameTime = gameDate;
-      let awayTeam = '';
-      let homeTeam = '';
-      let awayLogo = '';
-      let homeLogo = '';
-      let leagueLogo = '';
-
-      if (gameSelection) {
-        const [selectedGameId, away, home] = gameSelection.split('|');
-        gameId = selectedGameId;
-        gameName = away && home ? `${away} @ ${home}` : pick;
-        awayTeam = away || '';
-        homeTeam = home || '';
-
-        const selectedGame = (availableGames[sport] || []).find(g => String(g.id) === String(selectedGameId));
-        if (selectedGame?.date) {
-          gameTime = selectedGame.date;
-        }
-
-        const competitors = selectedGame?.competitions?.[0]?.competitors || [];
-        const awayComp = competitors.find(c => c.homeAway === 'away') || competitors[0] || {};
-        const homeComp = competitors.find(c => c.homeAway === 'home') || competitors[1] || {};
-        awayLogo = awayComp?.team?.logo || awayComp?.team?.logos?.[0]?.href || '';
-        homeLogo = homeComp?.team?.logo || homeComp?.team?.logos?.[0]?.href || '';
-        leagueLogo = selectedGame?.leagues?.[0]?.logos?.[0]?.href || '';
-      }
-
-      const bet = {
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-        gameId,
-        gameDate: gameDate,
-        gameName,
-        gameTime,
-        awayTeam,
-        homeTeam,
-        awayLogo,
-        homeLogo,
-        leagueLogo,
-        pick,
-        entryOdds,
-        closingOdds: null,
-        clv: 0,
-        edge,
-        stake,
-        betType,
-        sport,
-        status: 'PENDING',
-        pnl: 0
-      };
-
-      bets.push(bet);
-      saveBets();
-      renderBets();
-      attachEventListeners(); // Re-attach listeners after DOM update
-      clearForm();
-    }
-
-    function updateBetStatus(id, status) {
-      try {
-        console.log(`[updateBetStatus] Called with id=${id}, status=${status}`);
-        const numId = parseInt(id);
-        console.log(`[updateBetStatus] Parsed ID: ${numId}`);
-        console.log(`[updateBetStatus] Bets array length: ${bets.length}`);
-        
-        const bet = bets.find(b => b.id === numId);
-        console.log(`[updateBetStatus] Found bet:`, bet);
-        
-        if (bet) {
-          bet.status = status;
-          if (status === 'WON') {
-            if (bet.entryOdds > 0) bet.pnl = Math.floor((bet.stake * bet.entryOdds) / 100);
-            else bet.pnl = Math.floor((bet.stake * 100) / Math.abs(bet.entryOdds));
-          } else if (status === 'LOST') {
-            bet.pnl = -bet.stake;
-          } else if (status === 'PUSH') {
-            bet.pnl = 0;
-          }
-          saveBets();
-          renderBets();
-          attachEventListeners(); // Re-attach listeners after DOM update
-          console.log(`[updateBetStatus] ✅ Updated bet ${numId} to ${status}`);
-        } else {
-          console.log(`[updateBetStatus] ❌ Bet not found! ID: ${numId}`);
-        }
-      } catch(e) {
-        console.error(`[updateBetStatus] ERROR:`, e.message);
-      }
-    }
-
-    function updateClosingOdds(id) {
-      const closingOdds = prompt('Enter closing odds (e.g., -115):');
-      if (closingOdds) {
-        const parsedOdds = parseInt(closingOdds, 10);
-        if (Number.isNaN(parsedOdds) || parsedOdds === 0) {
-          alert('Please enter valid American odds, like -115 or +120.');
-          return;
-        }
-        const bet = bets.find(b => b.id === id);
-        if (bet) {
-          bet.closingOdds = parsedOdds;
-          bet.clv = calculateCLV(bet.entryOdds, bet.closingOdds);
-          saveBets();
-          renderBets();
-        }
-      }
-    }
-
-    function americanOddsToProbability(odds) {
-      if (!odds) return 0;
-      return odds > 0
-        ? 100 / (odds + 100)
-        : Math.abs(odds) / (Math.abs(odds) + 100);
-    }
-
-    function calculateCLV(entryOdds, closingOdds) {
-      if (!entryOdds || !closingOdds) return 0;
-      
-      const entryProb = americanOddsToProbability(entryOdds);
-      const closingProb = americanOddsToProbability(closingOdds);
-      
-      const clv = (closingProb - entryProb) * 100;
-      return parseFloat(clv.toFixed(2));
-    }
-
-    function deleteBet(id) {
-      const numId = parseInt(id);
-      if (confirm(`Delete bet #${numId}?`)) {
-        bets = bets.filter(b => b.id !== numId);
-        saveBets();
-        renderBets();
-        attachEventListeners(); // Re-attach listeners after DOM update
-        console.log(`[Deleted] Bet ${numId}`);
-      }
-    }
-
-    function filterBets() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const filterStatus = document.getElementById('filterStatus').value;
-      
-      let filtered = bets;
-      
-      if (searchTerm) {
-        filtered = filtered.filter(b => 
-          b.pick.toLowerCase().includes(searchTerm) ||
-          b.sport.toLowerCase().includes(searchTerm) ||
-          b.betType.toLowerCase().includes(searchTerm) ||
-          b.date.includes(searchTerm)
-        );
-      }
-      
-      if (filterStatus) {
-        filtered = filtered.filter(b => b.status === filterStatus);
-      }
-      
-      renderBetsFiltered(filtered);
-      attachEventListeners(); // Re-attach listeners after DOM update
-    }
-
-    function renderBetsFiltered(betsToRender) {
-      const cards = document.getElementById('betsCards');
-      
-      if (betsToRender.length === 0) {
-        cards.innerHTML = '<div class="empty-state">No bets match your search.</div>';
-        return;
-      }
-
-      cards.innerHTML = betsToRender.map(bet => {
-        const clvClass = bet.clv > 0 ? 'clv-positive' : bet.clv < 0 ? 'clv-negative' : 'clv-neutral';
-        const scoreState = !bet.liveScore || bet.liveScore.status === 'not_found'
-          ? 'Waiting for matchup'
-          : bet.liveScore.status === 'pending'
-          ? 'Scheduled'
-          : bet.liveScore.status === 'live'
-          ? 'Live'
-          : bet.liveScore.status === 'final'
-          ? 'Final'
-          : 'Checking';
-        const scoreDisplay = bet.liveScore ? liveScores.formatScore(bet.liveScore) : 'Waiting for matchup';
-        const isLive = bet.liveScore && bet.liveScore.status === 'live';
-        const gameBadge = bet.liveScore?.status === 'live'
-          ? '🔵 Live'
-          : bet.liveScore?.status === 'final'
-          ? '✅ Final'
-          : bet.liveScore?.status === 'pending'
-          ? '⚪ Scheduled'
-          : '🕒 Matching';
-        const gameName = bet.gameName || bet.pick;
-        const gameTimeLabel = bet.gameTime
-          ? new Date(bet.gameTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
-          : bet.gameDate || 'Game time unavailable';
-
-        return `
-          <div class="bet-card ${isLive ? 'live' : ''}">
-            <div class="bet-card-header">
-              <div style="width: 100%;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                  <div class="bet-card-date">Logged ${bet.date}</div>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    ${bet.leagueLogo ? `<img src="${bet.leagueLogo}" alt="${bet.sport} logo" style="width: 22px; height: 22px; object-fit: contain; opacity: 0.9;">` : ''}
-                    <span style="font-size: 11px; background: rgba(0,214,143,0.2); color: #00d68f; padding: 6px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap;">${bet.betType}</span>
-                  </div>
-                </div>
-
-                <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;">
-                  <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                    ${bet.awayLogo ? `<img src="${bet.awayLogo}" alt="${bet.awayTeam || 'Away'} logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px;">` : ''}
-                    <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.awayTeam || 'Away Team'}</div>
-                  </div>
-                  <div style="font-size: 11px; color: #7d84a6; font-weight: 700;">@</div>
-                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; text-align: right;">
-                    <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${bet.homeTeam || 'Home Team'}</div>
-                    ${bet.homeLogo ? `<img src="${bet.homeLogo}" alt="${bet.homeTeam || 'Home'} logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px;">` : ''}
-                  </div>
-                </div>
-
-                <div style="margin-top: 10px; color: #7d84a6; font-size: 12px;">${gameTimeLabel}</div>
-                <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
-                  <span style="font-size: 11px; color: #7d84a6; text-transform: uppercase; letter-spacing: 0.05em;">Pick</span>
-                  <span style="font-size: 14px; font-weight: 700; color: #fff;">${bet.pick}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="bet-card-grid">
-              <div class="bet-field">
-                <div class="bet-field-label">Entry Odds</div>
-                <div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Closing Odds</div>
-                <div class="bet-field-value"><button class="clv-button" onclick="updateClosingOdds(${bet.id})">${bet.closingOdds ? (bet.closingOdds > 0 ? '+' : '') + bet.closingOdds : 'Set odds'}</button></div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">CLV</div>
-                <div class="bet-field-value ${clvClass}">${bet.clv ? bet.clv.toFixed(2) : '—'}%</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Stake / Edge</div>
-                <div class="bet-field-value">$${bet.stake} • ${bet.edge}%</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Sport</div>
-                <div class="bet-field-value">${bet.sport}</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">P&L</div>
-                <div class="bet-field-value">${bet.pnl >= 0 ? '+' : ''}$${bet.pnl}</div>
-              </div>
-            </div>
-
-            <div class="bet-card-footer">
-              <select id="status-${bet.id}" name="betStatus" class="status-select" onchange="updateBetStatus(${bet.id}, this.value)">
-                <option value="PENDING" ${bet.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-                <option value="WON" ${bet.status === 'WON' ? 'selected' : ''}>WON</option>
-                <option value="LOST" ${bet.status === 'LOST' ? 'selected' : ''}>LOST</option>
-                <option value="PUSH" ${bet.status === 'PUSH' ? 'selected' : ''}>PUSH</option>
-              </select>
-              <button class="delete-btn" type="button" onclick="deleteBet(${bet.id})">Delete</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Fetch live scores periodically
-    let scoreUpdateInterval = null;
-    let isScoreUpdateRunning = false;
-    
-    function renderLiveDashboard() {
-      const container = document.getElementById('liveDashboardCards');
-      if (!container) return;
-
-      const pendingBets = bets.filter(b => b.status === 'PENDING');
-      if (pendingBets.length === 0) {
-        container.innerHTML = '<div class="empty-state">No pending bets right now.</div>';
-        return;
-      }
-
-      container.innerHTML = pendingBets.map(bet => {
-        const scoreData = bet.liveScore;
-        const statusLabel = scoreData?.status === 'live'
-          ? 'Live now'
-          : scoreData?.status === 'final'
-          ? 'Final'
-          : scoreData?.status === 'pending'
-          ? 'Scheduled'
-          : 'Searching for game';
-        const statusBadge = scoreData?.status === 'live'
-          ? '🔵 Live'
-          : scoreData?.status === 'final'
-          ? '✅ Final'
-          : scoreData?.status === 'pending'
-          ? '⚪ Scheduled'
-          : '🕒 Matching';
-        const score = scoreData?.score || { away: 0, home: 0 };
-        const awayName = bet.awayTeam || scoreData?.awayTeam || 'Away Team';
-        const homeName = bet.homeTeam || scoreData?.homeTeam || 'Home Team';
-        const awayLogo = bet.awayLogo || scoreData?.awayLogo || '';
-        const homeLogo = bet.homeLogo || scoreData?.homeLogo || '';
-        const displayTime = bet.gameTime ? new Date(bet.gameTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : (bet.gameDate || 'Game time unavailable');
-
-        return `
-          <div class="live-game-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px;">
-              <div>
-                <div style="font-size: 12px; color: #7d84a6; text-transform: uppercase; letter-spacing: 0.08em;">Pending Bet</div>
-                <div style="font-size: 13px; color: #b8bed6; margin-top: 6px;">${displayTime}</div>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                ${bet.leagueLogo ? `<img src="${bet.leagueLogo}" alt="${bet.sport} logo" style="width: 22px; height: 22px; object-fit: contain;">` : ''}
-                <span class="bet-status-badge">${statusBadge}</span>
-              </div>
-            </div>
-
-            <div class="live-game-scoreline">
-              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                ${awayLogo ? `<img src="${awayLogo}" alt="${awayName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
-                <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${awayName}</div>
-              </div>
-              <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.away}</div>
-            </div>
-
-            <div class="live-game-scoreline">
-              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                ${homeLogo ? `<img src="${homeLogo}" alt="${homeName} logo" style="width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 4px;">` : ''}
-                <div style="font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${homeName}</div>
-              </div>
-              <div style="font-size: 30px; font-weight: 800; color: #fff;">${score.home}</div>
-            </div>
-
-            <div class="live-game-meta-grid">
-              <div class="bet-field">
-                <div class="bet-field-label">Pick</div>
-                <div class="bet-field-value">${bet.pick}</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Bet</div>
-                <div class="bet-field-value">${bet.betType}</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Odds / Stake</div>
-                <div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds} • $${bet.stake}</div>
-              </div>
-              <div class="bet-field">
-                <div class="bet-field-label">Game Status</div>
-                <div class="bet-field-value">${scoreData?.quarter ? `${scoreData.quarter} ${scoreData.timeRemaining || ''}`.trim() : statusLabel}</div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function updateLiveScores() {
-      if (isScoreUpdateRunning) return;
-      isScoreUpdateRunning = true;
-
-      try {
-        const pendingBets = bets.filter(b => b.status === 'PENDING');
-        if (pendingBets.length === 0) return;
-
-        const updates = await Promise.all(pendingBets.map(async (bet) => ({
-          id: bet.id,
-          scoreData: await liveScores.getScore(bet.pick, bet.sport, bet.gameId)
-        })));
-
-        let changed = false;
-
-        updates.forEach(({ id, scoreData }) => {
-          const bet = bets.find(b => b.id === id);
-          if (!bet) return;
-
-          bet.liveScore = scoreData;
-
-          if (scoreData?.status === 'final') {
-            if (scoreData.winner === 'won') {
-              bet.status = 'WON';
-              bet.pnl = bet.entryOdds > 0
-                ? Math.floor((bet.stake * bet.entryOdds) / 100)
-                : Math.floor((bet.stake * 100) / Math.abs(bet.entryOdds));
-              changed = true;
-            } else if (scoreData.winner === 'lost') {
-              bet.status = 'LOST';
-              bet.pnl = -bet.stake;
-              changed = true;
-            } else if (scoreData.winner === 'push') {
-              bet.status = 'PUSH';
-              bet.pnl = 0;
-              changed = true;
-            }
-          }
-        });
-
-        if (changed || updates.length > 0) {
-          saveBets();
-          renderBets();
-          renderLiveDashboard();
-        }
-      } finally {
-        isScoreUpdateRunning = false;
-      }
-    }
-
-    function startLiveScoreUpdates() {
-      if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
-      // Auto-refresh disabled - manual only
-      // scoreUpdateInterval = setInterval(updateLiveScores, 30000);
-      // Initial update disabled
-      // updateLiveScores();
-      console.log('Live score updates disabled');
-    }
-
-    function stopLiveScoreUpdates() {
-      if (scoreUpdateInterval) {
-        clearInterval(scoreUpdateInterval);
-        scoreUpdateInterval = null;
-      }
-    }
-
-    function renderBets() {
-      const cards = document.getElementById('betsCards');
-      
-      if (bets.length === 0) {
-        cards.innerHTML = '<div class="empty-state">No bets yet. Add one to start tracking.</div>';
-        renderLiveDashboard();
-        updateStats();
-        return;
-      }
-
-      renderBetsFiltered(bets);
-      renderLiveDashboard();
-      updateStats();
-      
-      // Start live score updates if we have pending bets
-      const hasPending = bets.some(b => b.status === 'PENDING');
-      if (hasPending) {
-        startLiveScoreUpdates();
-      } else {
-        stopLiveScoreUpdates();
-      }
-    }
-
-    function updateStats() {
-      const settled = bets.filter(b => b.status !== 'PENDING');
-      const won = settled.filter(b => b.status === 'WON').length;
-      const lost = settled.filter(b => b.status === 'LOST').length;
-      const total = bets.length;
-      const settled_count = settled.length;
-
-      document.getElementById('totalBets').textContent = total;
-      document.getElementById('totalWins').textContent = won;
-      document.getElementById('totalLosses').textContent = lost;
-      document.getElementById('winsDetail').textContent = `${won} of ${settled_count}`;
-      document.getElementById('lossesDetail').textContent = `${lost} of ${settled_count}`;
-
-      if (settled_count > 0) {
-        const wr = Math.round((won / settled_count) * 100);
-        document.getElementById('winRate').textContent = `${wr}%`;
-        document.getElementById('winDetail').textContent = `${won} wins out of ${settled_count}`;
-        
-        const wrElement = document.getElementById('winRate');
-        if (wr >= 56) wrElement.style.color = '#00d68f';
-        else if (wr >= 52) wrElement.style.color = '#ffd700';
-        else wrElement.style.color = '#ff6464';
-
-        document.getElementById('targetStatus').textContent = `${wr}%`;
-        document.getElementById('targetStatus').style.color = wr >= 56 ? '#00d68f' : '#ffd700';
-      }
-
-      const pnl = bets.reduce((sum, b) => sum + b.pnl, 0);
-      const pnlElement = document.getElementById('pnl');
-      pnlElement.textContent = `${pnl >= 0 ? '+' : ''}$${pnl}`;
-      pnlElement.style.color = pnl > 0 ? '#00d68f' : pnl < 0 ? '#ff6464' : '#aaa';
-      
-      if (settled_count > 0) {
-        document.getElementById('pnlDetail').textContent = `Avg: $${(pnl / settled_count).toFixed(0)}/bet`;
-      }
-
-      const avgEdge = total > 0 ? (bets.reduce((sum, b) => sum + b.edge, 0) / total).toFixed(2) : 0;
-      document.getElementById('avgEdge').textContent = avgEdge + '%';
-
-      const avgStake = total > 0 ? Math.round(bets.reduce((sum, b) => sum + b.stake, 0) / total) : 0;
-      document.getElementById('avgStake').textContent = `$${avgStake}`;
-
-      const totalStaked = bets.reduce((sum, b) => sum + b.stake, 0);
-      const roi = totalStaked > 0 ? ((pnl / totalStaked) * 100).toFixed(1) : 0;
-      document.getElementById('roi').textContent = `${roi}%`;
-
-      const avgCLV = settled_count > 0 ? (settled.reduce((sum, b) => sum + (b.clv || 0), 0) / settled_count).toFixed(2) : 0;
-      document.getElementById('avgCLV').textContent = avgCLV + '%';
-      const clvElement = document.getElementById('avgCLV');
-      if (parseFloat(avgCLV) > 0) clvElement.style.color = '#00d68f';
-      else if (parseFloat(avgCLV) < 0) clvElement.style.color = '#ff6464';
-      else clvElement.style.color = '#ffd700';
-
-      if (settled_count >= 30) document.getElementById('validation-sample').style.color = '#00d68f';
-      if (parseFloat(avgCLV) > 0) document.getElementById('validation-clv').style.color = '#00d68f';
-    }
-
-    function clearForm() {
-      document.getElementById('pick').value = '';
-      document.getElementById('entryOdds').value = '';
-      document.getElementById('edge').value = '';
-      document.getElementById('stake').value = '';
-      document.getElementById('gameDate').value = '';
-      document.getElementById('gameSelect').value = '';
-    }
-
-    function saveBets() {
-      localStorage.setItem('alexbet_lite_bets', JSON.stringify(bets));
-      localStorage.setItem('alexbet_lite_archived', JSON.stringify(archived));
-    }
-
-    function exportData() {
-      const dataStr = JSON.stringify(bets, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `alexbet-lite-${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function attachEventListeners() {
-      // Table actions use inline handlers in renderBetsFiltered for maximum reliability.
-    }
-    
-    document.getElementById('appVersion').textContent = APP_VERSION;
-    document.getElementById('headerVersion').textContent = APP_VERSION;
-    document.getElementById('appCommit').textContent = `| GitHub commit: ${APP_COMMIT}`;
-    renderBets();
-    checkReminders();
-  </script>
+  <!-- Security & Utilities Scripts -->
+  <script src="./src/classes/SecurityManager.js"></script>
+  <script src="./src/classes/SecurityAudit.js"></script>
+  <script src="./src/classes/ErrorHandler.js"></script>
+  <script src="./src/classes/HealthCheck.js"></script>
+  <script src="./src/classes/BetValidator.js"></script>
+  <script src="./src/classes/BetTracker.js"></script>
+  <script src="./src/classes/LiveScoreFetcher.js"></script>
+  <script src="./src/classes/Analytics.js"></script>
+  <script src="./src/classes/PropsTracker.js"></script>
+  <script src="./src/classes/FormManager.js"></script>
+  <script src="./src/classes/SuggestionEngine.js"></script>
+  <script src="./src/classes/Autocomplete.js"></script>
+  <script src="./src/classes/BetAnalytics.js"></script>
+  <script src="./src/app.js"></script>
 </body>
 </html>
+<!-- Deploy timestamp: Sun Apr 19 12:31:41 AM MST 2026 -->
