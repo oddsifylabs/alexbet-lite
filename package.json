@@ -1,0 +1,22 @@
+{
+  "name": "alexbet-lite",
+  "version": "1.0.0",
+  "description": "AlexBET Lite - Betting Tracker & Analytics Dashboard",
+  "main": "index.html",
+  "scripts": {
+    "start": "open index.html",
+    "test": "vitest",
+    "build": "echo 'No build needed for vanilla JS'"
+  },
+  "keywords": [
+    "betting",
+    "tracker",
+    "analytics",
+    "sports"
+  ],
+  "author": "OddSIFY Labs",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^0.34.0"
+  }
+}
