@@ -35,8 +35,8 @@ function initializeApp() {
   console.log('[AlexBET] Initializing application...');
 
   // Load version
-  document.getElementById('headerVersion').textContent = 'v2026.04.18';
-  document.getElementById('appVersion').textContent = 'v2026.04.18';
+  document.getElementById('headerVersion').textContent = 'v2026.04.19';
+  document.getElementById('appVersion').textContent = 'v2026.04.19';
 
   // Initialize UI
   renderStats();
@@ -736,7 +736,7 @@ function showSettings() {
     <p>Used: ${stats.percentUsed}% of quota</p>
 
     <h4>About</h4>
-    <p>AlexBET Lite v2026.04.18</p>
+    <p>AlexBET Lite v2026.04.19 - Phase 6 Complete ✅</p>
     <p>Standalone bet tracking & analytics app</p>
     <p>All data stored locally in your browser</p>
   `;
