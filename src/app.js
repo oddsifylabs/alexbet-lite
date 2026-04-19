@@ -10,12 +10,16 @@
 const app = {
   betTracker: new BetTracker(),
   analytics: new Analytics(),
+  betAnalytics: null,  // Initialized after BetTracker
   propsTracker: propsTracker,
   liveScores: liveScores,
   currentTab: 'dashboard',
   liveScoreInterval: null,
   isUpdating: false
 };
+
+// Initialize BetAnalytics after BetTracker is created
+app.betAnalytics = new BetAnalytics(app.betTracker);
 
 // ===================================================
 // Initialization
@@ -334,6 +338,85 @@ function renderStats() {
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('betsCards').style.display = 'grid';
   }
+
+  // Render advanced analytics if available
+  renderAdvancedAnalytics();
+}
+
+function renderAdvancedAnalytics() {
+  if (!app.betAnalytics || app.betTracker.bets.length < 3) {
+    return;
+  }
+
+  const container = document.getElementById('analyticsPanel');
+  if (!container) {
+    return;
+  }
+
+  const overallStats = app.betAnalytics.getOverallStats();
+  const streaks = app.betAnalytics.getStreaks();
+  const insights = app.betAnalytics.getInsights();
+  const statsBySport = app.betAnalytics.getStatsBySport();
+
+  let analyticsHTML = `
+    <div class="analytics-section">
+      <div class="analytics-header">📊 Advanced Analytics</div>
+      
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="analytics-label">Win Rate</div>
+          <div class="analytics-value">${overallStats.winRate}%</div>
+          <div class="analytics-detail">${overallStats.wins}W / ${overallStats.losses}L / ${overallStats.pushes}P</div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="analytics-label">Current Streak</div>
+          <div class="analytics-value">${streaks.currentStreakEmoji} ${streaks.currentStreak}</div>
+          <div class="analytics-detail">${streaks.currentStreakType} streak</div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="analytics-label">ROI</div>
+          <div class="analytics-value" style="color: ${parseFloat(overallStats.roi) > 0 ? '#00d68f' : '#ff6464'};">${overallStats.roi}%</div>
+          <div class="analytics-detail">P&L: ${overallStats.roi > 0 ? '+' : ''}$${overallStats.totalPnL}</div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="analytics-label">Avg Edge</div>
+          <div class="analytics-value">${overallStats.avgEdge}%</div>
+          <div class="analytics-detail">Confidence: ${overallStats.avgConfidence}/10</div>
+        </div>
+      </div>
+
+      ${insights.length > 0 ? `
+      <div class="insights-section">
+        <div class="insights-header">💡 Insights</div>
+        ${insights.map(insight => `
+          <div class="insight-item insight-${insight.type}">
+            ${insight.emoji} ${insight.message}
+          </div>
+        `).join('')}
+      </div>
+      ` : ''}
+
+      ${Object.keys(statsBySport).length > 1 ? `
+      <div class="sport-breakdown">
+        <div class="breakdown-header">🏟️ By Sport</div>
+        <div class="breakdown-grid">
+          ${Object.values(statsBySport).map(sport => `
+            <div class="breakdown-card">
+              <div class="breakdown-sport">${sport.sport}</div>
+              <div class="breakdown-stat">${sport.wins}/${sport.settledBets} (${sport.winRate}%)</div>
+              <div class="breakdown-stat">ROI: ${sport.roi}%</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+    </div>
+  `;
+
+  container.innerHTML = analyticsHTML;
 }
 
 function renderBets() {
