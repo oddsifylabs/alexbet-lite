@@ -41,15 +41,9 @@
 
       <!-- Add Bet Form -->
       <div class="controls">
-        <!-- Section 1: Basic Info -->
+        <!-- Section 1: Game Details -->
         <div class="form-section">
-          <h4 class="section-title">📋 Basic Info</h4>
-          
-          <div class="form-group">
-            <label for="betDate">Bet Date</label>
-            <input type="date" id="betDate">
-            <small class="help-text">When you placed this bet</small>
-          </div>
+          <h4 class="section-title">🎮 Game Details</h4>
           
           <div class="form-group">
             <label for="sport">Sport</label>
@@ -65,11 +59,24 @@
           </div>
 
           <div class="form-group">
-            <label for="event">Event (Teams/Matchup)</label>
-            <input type="text" id="event" placeholder="e.g., Lakers vs Warriors">
-            <small class="help-text">The matchup or game you're betting on</small>
+            <label for="gameDate">Game Date</label>
+            <input type="date" id="gameDate">
+            <small class="help-text">When the game is played</small>
           </div>
 
+          <div class="form-group">
+            <label for="event">Event (Teams/Matchup)</label>
+            <select id="event">
+              <option value="">-- Select game --</option>
+            </select>
+            <small class="help-text">Games for this sport + date (auto-populated)</small>
+          </div>
+        </div>
+
+        <!-- Section 2: Type-Specific Fields -->
+        <div class="form-section">
+          <h4 class="section-title">⚙️ Bet Details</h4>
+          
           <div class="form-group">
             <label for="betType">Bet Type</label>
             <select id="betType">
@@ -80,11 +87,12 @@
               <option value="PROP">Prop</option>
             </select>
           </div>
-        </div>
 
-        <!-- Section 2: Type-Specific Fields -->
-        <div class="form-section">
-          <h4 class="section-title">⚙️ Bet Details</h4>
+          <div class="form-group">
+            <label for="betDate">Bet Date</label>
+            <input type="date" id="betDate">
+            <small class="help-text">When you placed this bet</small>
+          </div>
           
           <!-- For all bet types: Pick/Team -->
           <div class="form-group">

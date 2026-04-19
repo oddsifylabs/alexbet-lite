@@ -83,8 +83,8 @@ function setupEventListeners() {
     }
   });
 
-  // Auto-populate events based on sport and date
-  document.getElementById('betDate').addEventListener('change', populateEvents);
+  // Auto-populate events based on sport and game date
+  document.getElementById('gameDate').addEventListener('change', populateEvents);
   document.getElementById('sport').addEventListener('change', populateEvents);
 
   console.log('[AlexBET] Event listeners setup complete');
@@ -96,64 +96,71 @@ function setupEventListeners() {
 
 function populateEvents() {
   const sport = document.getElementById('sport').value;
-  const betDate = document.getElementById('betDate').value;
+  const gameDate = document.getElementById('gameDate').value;
   const eventSelect = document.getElementById('event');
   
-  if (!sport || !betDate) {
-    eventSelect.innerHTML = '<option value="">Select date and sport first</option>';
+  if (!sport || !gameDate) {
+    eventSelect.innerHTML = '<option value="">Select sport and game date first</option>';
     return;
   }
   
-  // Mock data for games by sport/date
-  const games = {
-    'NBA': {
-      'Lakers': 'Lakers vs Warriors',
-      'Celtics': 'Celtics vs Bucks',
-      'Heat': 'Heat vs Nuggets',
-      'Suns': 'Suns vs Mavericks',
-      'Kings': 'Kings vs Grizzlies'
-    },
-    'NFL': {
-      'Cowboys': 'Cowboys vs 49ers',
-      'Patriots': 'Patriots vs Chiefs',
-      'Ravens': 'Ravens vs Bills',
-      'Eagles': 'Eagles vs 49ers',
-      'Mahomes': 'Chiefs vs Bills'
-    },
-    'MLB': {
-      'Yankees': 'Yankees vs Red Sox',
-      'Dodgers': 'Dodgers vs Giants',
-      'Astros': 'Astros vs Rangers',
-      'Braves': 'Braves vs Mets',
-      'Cubs': 'Cubs vs Cardinals'
-    },
-    'NHL': {
-      'Maple Leafs': 'Maple Leafs vs Canadiens',
-      'Avalanche': 'Avalanche vs Red Wings',
-      'Oilers': 'Oilers vs Flames',
-      'Rangers': 'Rangers vs Bruins',
-      'Kings': 'Kings vs Sharks'
-    },
-    'EPL': {
-      'Manchester United': 'Man United vs Liverpool',
-      'Arsenal': 'Arsenal vs Chelsea',
-      'Manchester City': 'Man City vs Tottenham',
-      'Liverpool': 'Liverpool vs Brighton',
-      'Newcastle': 'Newcastle vs Aston Villa'
-    }
+  // Show loading state
+  eventSelect.innerHTML = '<option value="">Loading games...</option>';
+  
+  // Map sport names to Odds API sport keys
+  const sportMap = {
+    'NBA': 'basketball_nba',
+    'NFL': 'americanfootball_nfl',
+    'MLB': 'baseball_mlb',
+    'NHL': 'icehockey_nhl',
+    'EPL': 'soccer_epl',
+    'ATP': 'tennis_atp'
   };
   
-  // Get games for selected sport
-  const sportGames = games[sport] || {};
+  const apiSport = sportMap[sport];
+  if (!apiSport) {
+    eventSelect.innerHTML = '<option value="">Invalid sport selected</option>';
+    return;
+  }
   
-  // Populate dropdown
-  let html = '<option value="">-- Select event --</option>';
-  Object.values(sportGames).forEach(game => {
-    html += `<option value="${game}">${game}</option>`;
-  });
+  // Fetch games from Odds API
+  const apiKey = '90679e2eb72560a221fad296e1921812';
+  const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
   
-  eventSelect.innerHTML = html;
-  console.log(`[AlexBET] Populated ${Object.keys(sportGames).length} events for ${sport}`);
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.data || data.data.length === 0) {
+        eventSelect.innerHTML = '<option value="">No games found for this date</option>';
+        return;
+      }
+      
+      // Filter games for the selected date
+      const selectedDate = new Date(gameDate).toLocaleDateString('en-US');
+      const filteredGames = data.data.filter(game => {
+        const gameTime = new Date(game.commence_time).toLocaleDateString('en-US');
+        return gameTime === selectedDate;
+      });
+      
+      if (filteredGames.length === 0) {
+        eventSelect.innerHTML = '<option value="">No games on this date</option>';
+        return;
+      }
+      
+      // Populate dropdown with games
+      let html = '<option value="">-- Select game --</option>';
+      filteredGames.forEach(game => {
+        const matchup = `${game.home_team} vs ${game.away_team}`;
+        html += `<option value="${matchup}">${matchup}</option>`;
+      });
+      
+      eventSelect.innerHTML = html;
+      console.log(`[AlexBET] Populated ${filteredGames.length} games for ${sport} on ${gameDate}`);
+    })
+    .catch(error => {
+      console.error('[AlexBET] Error fetching games:', error);
+      eventSelect.innerHTML = '<option value="">Error loading games. Try again.</option>';
+    });
 }
 
 // ===================================================
