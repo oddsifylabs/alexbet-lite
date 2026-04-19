@@ -91,83 +91,129 @@ function setupEventListeners() {
 }
 
 // ===================================================
-// Auto-populate Game Dates and Events based on Sport
+// ESPN API Fallback
 // ===================================================
 
-// Mock game data - fallback when API fails
-const MOCK_GAMES_BY_SPORT = {
-  'NBA': {
-    '2026-04-19': ['Lakers vs Warriors', 'Celtics vs Bucks', 'Heat vs Nuggets'],
-    '2026-04-20': ['Warriors vs Lakers', 'Suns vs Mavericks', 'Kings vs Grizzlies'],
-    '2026-04-21': ['Celtics vs Nets', 'Heat vs Rockets', 'Cavaliers vs Raptors'],
-    '2026-04-22': ['Lakers vs Suns', 'Bucks vs 76ers', 'Nuggets vs Warriors']
-  },
-  'NFL': {
-    '2026-04-19': ['Cowboys vs 49ers', 'Patriots vs Chiefs', 'Ravens vs Bills'],
-    '2026-04-20': ['Eagles vs Cowboys', 'Chiefs vs Ravens', 'Dolphins vs Jets'],
-    '2026-04-21': ['49ers vs Rams', 'Cardinals vs Seahawks', 'Texans vs Colts']
-  },
-  'MLB': {
-    '2026-04-19': ['Yankees vs Red Sox', 'Dodgers vs Giants', 'Cubs vs Cardinals'],
-    '2026-04-20': ['Yankees vs Astros', 'Dodgers vs Padres', 'Red Sox vs Orioles'],
-    '2026-04-21': ['Mets vs Braves', 'Rangers vs Athletics', 'Mariners vs Angels']
-  },
-  'NHL': {
-    '2026-04-19': ['Maple Leafs vs Canadiens', 'Avalanche vs Red Wings', 'Oilers vs Flames'],
-    '2026-04-20': ['Rangers vs Bruins', 'Penguins vs Flyers', 'Kings vs Sharks'],
-    '2026-04-21': ['Lightning vs Hurricanes', 'Wild vs Blues', 'Ducks vs Coyotes']
-  },
-  'EPL': {
-    '2026-04-19': ['Man United vs Liverpool', 'Arsenal vs Chelsea', 'Man City vs Tottenham'],
-    '2026-04-20': ['Brighton vs Newcastle', 'Aston Villa vs West Ham', 'Fulham vs Wolves'],
-    '2026-04-21': ['Everton vs Leicester', 'Crystal Palace vs Southampton', 'Bournemouth vs Nottingham']
+function fetchFromESPNAPI(sport, gameDate) {
+  const eventSelect = document.getElementById('event');
+  
+  // ESPN sport IDs
+  const espnSportMap = {
+    'NBA': 'basketball_nba',
+    'NFL': 'football_nfl',
+    'MLB': 'baseball_mlb',
+    'NHL': 'hockey_nhl',
+    'EPL': 'soccer_eng_premier_league',
+    'ATP': 'tennis_atp'
+  };
+  
+  const espnSport = espnSportMap[sport];
+  if (!espnSport) {
+    eventSelect.innerHTML = '<option value="">⚠️ Sport not supported</option>';
+    return;
   }
-};
+  
+  const espnUrl = `https://espn-api.herokuapp.com/games?league=${espnSport}&date=${gameDate.replace(/-/g, '')}`;
+  
+  fetch(espnUrl)
+    .then(res => res.json())
+    .then(data => {
+      const games = data || [];
+      
+      if (games.length === 0) {
+        eventSelect.innerHTML = '<option value="">⚠️ No games found</option>';
+        return;
+      }
+      
+      // Populate event dropdown
+      let html = '<option value="">-- Select game --</option>';
+      games.forEach(game => {
+        const home = game.home || game.homeTeam || 'Team A';
+        const away = game.away || game.awayTeam || 'Team B';
+        const matchup = `${away} vs ${home}`;
+        const gameTime = game.gameTime || game.date || '';
+        html += `<option value="${matchup}">${matchup} ${gameTime ? '(' + gameTime + ')' : ''}</option>`;
+      });
+      
+      eventSelect.innerHTML = html;
+      console.log(`[AlexBET] ESPN API: Populated ${games.length} games for ${sport} on ${gameDate}`);
+    })
+    .catch(error => {
+      console.error('[AlexBET] ESPN API Error:', error);
+      eventSelect.innerHTML = '<option value="">⚠️ No live data. Please try again.</option>';
+    });
+}
 
-function loadMockGameDates(sport) {
+function fetchDatesFromESPNAPI(sport) {
   const dateSelect = document.getElementById('gameDate');
   const eventSelect = document.getElementById('event');
-  const sportDates = MOCK_GAMES_BY_SPORT[sport] || {};
-  const dates = Object.keys(sportDates).sort();
   
-  if (dates.length === 0) {
-    dateSelect.innerHTML = '<option value="">No dates available</option>';
+  // ESPN sport IDs
+  const espnSportMap = {
+    'NBA': 'basketball_nba',
+    'NFL': 'football_nfl',
+    'MLB': 'baseball_mlb',
+    'NHL': 'hockey_nhl',
+    'EPL': 'soccer_eng_premier_league',
+    'ATP': 'tennis_atp'
+  };
+  
+  const espnSport = espnSportMap[sport];
+  if (!espnSport) {
+    dateSelect.innerHTML = '<option value="">⚠️ Sport not supported</option>';
     return;
   }
   
-  let html = '<option value="">-- Select date with games --</option>';
-  dates.forEach(date => {
-    const displayDate = new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+  // Try to get games from ESPN for today and next few days
+  const today = new Date();
+  const datesWithGames = [];
+  
+  // Try to fetch for each of the next 5 days
+  let datePromises = [];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().split('T')[0];
+    const dateNum = dateStr.replace(/-/g, '');
+    
+    const espnUrl = `https://espn-api.herokuapp.com/games?league=${espnSport}&date=${dateNum}`;
+    datePromises.push(
+      fetch(espnUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            datesWithGames.push({ date: dateStr, count: data.length });
+          }
+        })
+        .catch(error => console.warn(`[AlexBET] ESPN date check failed for ${dateStr}:`, error))
+    );
+  }
+  
+  Promise.all(datePromises).then(() => {
+    if (datesWithGames.length === 0) {
+      dateSelect.innerHTML = '<option value="">⚠️ No games in next 5 days</option>';
+      return;
+    }
+    
+    // Populate date dropdown
+    let html = '<option value="">-- Select date with games --</option>';
+    datesWithGames.forEach(item => {
+      const displayDate = new Date(item.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+      html += `<option value="${item.date}">${displayDate} (${item.date})</option>`;
     });
-    html += `<option value="${date}">${displayDate} (${date})</option>`;
+    
+    dateSelect.innerHTML = html;
+    eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
+    console.log(`[AlexBET] ESPN API: Found ${datesWithGames.length} dates with games for ${sport}`);
   });
-  
-  dateSelect.innerHTML = html;
-  eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
-  console.log(`[AlexBET] Loaded mock dates for ${sport}`);
 }
 
-function loadMockGameEvents(sport, gameDate) {
-  const eventSelect = document.getElementById('event');
-  const games = MOCK_GAMES_BY_SPORT[sport]?.[gameDate] || [];
-  
-  if (games.length === 0) {
-    eventSelect.innerHTML = '<option value="">No games on this date</option>';
-    return;
-  }
-  
-  let html = '<option value="">-- Select game --</option>';
-  games.forEach(game => {
-    html += `<option value="${game}">${game}</option>`;
-  });
-  
-  eventSelect.innerHTML = html;
-  console.log(`[AlexBET] Loaded ${games.length} mock events for ${sport} on ${gameDate}`);
-}
-
+// ===================================================
+// Auto-populate Game Dates and Events based on Sport
+// ===================================================
 function populateDatesByGameDates() {
   const sport = document.getElementById('sport').value;
   const dateSelect = document.getElementById('gameDate');
@@ -205,10 +251,10 @@ function populateDatesByGameDates() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      // Check for API error - fall back to mock data
+      // Check for API error - show error message
       if (data.error_code) {
-        console.warn('[AlexBET] API error, loading mock data instead');
-        loadMockGameDates(sport);
+        console.error('[AlexBET] API Error:', data.message || data.error_code);
+        dateSelect.innerHTML = `<option value="">⚠️ API Error: ${data.message || 'Unable to load games'}</option>`;
         return;
       }
       
@@ -216,7 +262,7 @@ function populateDatesByGameDates() {
       const games = Array.isArray(data) ? data : (data.data || []);
       
       if (games.length === 0) {
-        dateSelect.innerHTML = '<option value=\"\">No games found</option>';
+        dateSelect.innerHTML = '<option value="">⚠️ No games found</option>';
         return;
       }
       
@@ -234,7 +280,7 @@ function populateDatesByGameDates() {
       });
       
       if (datesWithGames.size === 0) {
-        dateSelect.innerHTML = '<option value="">No games in next 5 days</option>';
+        dateSelect.innerHTML = '<option value="">⚠️ No games in next 5 days</option>';
         return;
       }
       
@@ -254,7 +300,8 @@ function populateDatesByGameDates() {
     })
     .catch(error => {
       console.error('[AlexBET] Error fetching games:', error);
-      dateSelect.innerHTML = '<option value="">Error loading dates. Try again.</option>';
+      console.warn('[AlexBET] Trying ESPN API fallback for dates...');
+      fetchDatesFromESPNAPI(sport);
     });
 }
 
@@ -289,10 +336,10 @@ function populateEventsByDate() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      // Check for API error - fall back to mock data
+      // Check for API error - try ESPN fallback
       if (data.error_code) {
-        console.warn('[AlexBET] API error, loading mock data instead');
-        loadMockGameEvents(sport, gameDate);
+        console.warn('[AlexBET] Odds API failed, trying ESPN API fallback...');
+        fetchFromESPNAPI(sport, gameDate);
         return;
       }
       
@@ -300,7 +347,7 @@ function populateEventsByDate() {
       const games = Array.isArray(data) ? data : (data.data || []);
       
       if (games.length === 0) {
-        eventSelect.innerHTML = '<option value=\"\">No games found</option>';
+        eventSelect.innerHTML = '<option value="">⚠️ No games found</option>';
         return;
       }
       
@@ -312,7 +359,7 @@ function populateEventsByDate() {
       });
       
       if (filteredGames.length === 0) {
-        eventSelect.innerHTML = '<option value="">No games on this date</option>';
+        eventSelect.innerHTML = '<option value="">⚠️ No games on this date</option>';
         return;
       }
       
@@ -332,7 +379,8 @@ function populateEventsByDate() {
     })
     .catch(error => {
       console.error('[AlexBET] Error fetching games:', error);
-      eventSelect.innerHTML = '<option value="">Error loading games. Try again.</option>';
+      console.warn('[AlexBET] Trying ESPN API fallback...');
+      fetchFromESPNAPI(sport, gameDate);
     });
 }
 
