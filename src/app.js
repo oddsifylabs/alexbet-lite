@@ -83,7 +83,77 @@ function setupEventListeners() {
     }
   });
 
+  // Auto-populate events based on sport and date
+  document.getElementById('betDate').addEventListener('change', populateEvents);
+  document.getElementById('sport').addEventListener('change', populateEvents);
+
   console.log('[AlexBET] Event listeners setup complete');
+}
+
+// ===================================================
+// Auto-populate Events based on Sport & Date
+// ===================================================
+
+function populateEvents() {
+  const sport = document.getElementById('sport').value;
+  const betDate = document.getElementById('betDate').value;
+  const eventSelect = document.getElementById('event');
+  
+  if (!sport || !betDate) {
+    eventSelect.innerHTML = '<option value="">Select date and sport first</option>';
+    return;
+  }
+  
+  // Mock data for games by sport/date
+  const games = {
+    'NBA': {
+      'Lakers': 'Lakers vs Warriors',
+      'Celtics': 'Celtics vs Bucks',
+      'Heat': 'Heat vs Nuggets',
+      'Suns': 'Suns vs Mavericks',
+      'Kings': 'Kings vs Grizzlies'
+    },
+    'NFL': {
+      'Cowboys': 'Cowboys vs 49ers',
+      'Patriots': 'Patriots vs Chiefs',
+      'Ravens': 'Ravens vs Bills',
+      'Eagles': 'Eagles vs 49ers',
+      'Mahomes': 'Chiefs vs Bills'
+    },
+    'MLB': {
+      'Yankees': 'Yankees vs Red Sox',
+      'Dodgers': 'Dodgers vs Giants',
+      'Astros': 'Astros vs Rangers',
+      'Braves': 'Braves vs Mets',
+      'Cubs': 'Cubs vs Cardinals'
+    },
+    'NHL': {
+      'Maple Leafs': 'Maple Leafs vs Canadiens',
+      'Avalanche': 'Avalanche vs Red Wings',
+      'Oilers': 'Oilers vs Flames',
+      'Rangers': 'Rangers vs Bruins',
+      'Kings': 'Kings vs Sharks'
+    },
+    'EPL': {
+      'Manchester United': 'Man United vs Liverpool',
+      'Arsenal': 'Arsenal vs Chelsea',
+      'Manchester City': 'Man City vs Tottenham',
+      'Liverpool': 'Liverpool vs Brighton',
+      'Newcastle': 'Newcastle vs Aston Villa'
+    }
+  };
+  
+  // Get games for selected sport
+  const sportGames = games[sport] || {};
+  
+  // Populate dropdown
+  let html = '<option value="">-- Select event --</option>';
+  Object.values(sportGames).forEach(game => {
+    html += `<option value="${game}">${game}</option>`;
+  });
+  
+  eventSelect.innerHTML = html;
+  console.log(`[AlexBET] Populated ${Object.keys(sportGames).length} events for ${sport}`);
 }
 
 // ===================================================
