@@ -352,10 +352,13 @@ function populateEventsByDate() {
       }
       
       // Filter games for the selected date
+      // FIX: Convert UTC times to local date for proper matching
       const selectedDate = gameDate; // Already in YYYY-MM-DD format
       const filteredGames = games.filter(game => {
-        const gameTime = new Date(game.commence_time).toISOString().split('T')[0];
-        return gameTime === selectedDate;
+        // Convert UTC time to local date (don't use toISOString which stays in UTC)
+        const gameTime = new Date(game.commence_time);
+        const localDate = gameTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+        return localDate === selectedDate;
       });
       
       if (filteredGames.length === 0) {
