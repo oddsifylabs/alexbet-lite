@@ -98,40 +98,58 @@ function switchTab(tabName) {
 // ===================================================
 
 function addBet() {
-  const pick = document.getElementById('pick').value;
-  const sport = document.getElementById('sport').value;
-  const betType = document.getElementById('betType').value;
-  const odds = parseFloat(document.getElementById('odds').value);
-  const stake = parseFloat(document.getElementById('stake').value);
-  const edge = parseFloat(document.getElementById('edge').value) || 0;
-  const confidence = parseInt(document.getElementById('confidence').value) || 5;
-
-  // Quick validation
-  if (!pick || !sport || !betType || !odds || !stake) {
-    securityAudit.logValidationFailure('betForm', ['Missing required fields']);
-    showAlert('Please fill in all required fields', 'error');
+  // Validate form using FormManager
+  if (!formManager.validateForm()) {
+    securityAudit.logValidationFailure('betForm', ['Validation errors - see feedback below']);
     return;
   }
 
+  // Get form data
+  const betData = formManager.getFormData();
+
   // Add bet
-  const result = app.betTracker.addBet({
-    pick,
-    sport,
-    betType,
-    entryOdds: odds,
-    stake,
-    edge,
-    confidence
-  });
+  const result = app.betTracker.addBet(betData);
 
   if (result.success) {
     securityAudit.logDataAccess('bets', 'CREATE', true);
-    showAlert(`✅ Bet added: ${pick} @ ${odds > 0 ? '+' : ''}${odds}`, 'success');
-    clearBetForm();
+    
+    // Build description for alert
+    const betDescription = buildBetDescription(betData);
+    showAlert(`✅ ${betDescription}`, 'success');
+    
+    // Clear form and reset
+    resetBetForm();
     updateDisplays();
   } else {
     securityAudit.logValidationFailure('betForm', result.errors);
     showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
+  }
+}
+
+/**
+ * Build a readable description of the bet for the alert message
+ */
+function buildBetDescription(betData) {
+  const { pick, betType, spreadLine, overUnder, totalLine, entryOdds, stake } = betData;
+  
+  let desc = `Bet added: ${pick}`;
+  
+  if (betType === 'SPREAD' && spreadLine) {
+    desc += ` (${spreadLine > 0 ? '+' : ''}${spreadLine})`;
+  } else if (betType === 'TOTAL' && totalLine && overUnder) {
+    desc += ` ${overUnder} ${totalLine}`;
+  }
+  
+  desc += ` @ ${entryOdds > 0 ? '+' : ''}${entryOdds} | Stake: $${stake}`;
+  
+  return desc;
+}
+
+function resetBetForm() {
+  if (formManager) {
+    formManager.resetForm();
+  } else {
+    clearBetForm();
   }
 }
 

@@ -122,7 +122,15 @@ class BetTracker {
       clv: 0,
       gameId: betData.gameId || null,
       liveScore: null,
-      notes: BetValidator.sanitizeInput(betData.notes || '')
+      notes: BetValidator.sanitizeInput(betData.notes || ''),
+      // New fields for enhanced form
+      spreadLine: betData.spreadLine || null,
+      spreadTeam: betData.spreadTeam || null,
+      totalLine: betData.totalLine || null,
+      overUnder: betData.overUnder || null,
+      playerName: betData.playerName || null,
+      propType: betData.propType || null,
+      propLine: betData.propLine || null
     };
 
     this.bets.push(bet);
