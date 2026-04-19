@@ -206,14 +206,17 @@ function populateDatesByGameDates() {
     .then(res => res.json())
     .then(data => {
       // Check for API error - fall back to mock data
-      if (data.error_code || !data.data) {
+      if (data.error_code) {
         console.warn('[AlexBET] API error, loading mock data instead');
         loadMockGameDates(sport);
         return;
       }
       
-      if (data.data.length === 0) {
-        dateSelect.innerHTML = '<option value="">No games found</option>';
+      // Odds API returns an array directly, not wrapped in .data
+      const games = Array.isArray(data) ? data : (data.data || []);
+      
+      if (games.length === 0) {
+        dateSelect.innerHTML = '<option value=\"\">No games found</option>';
         return;
       }
       
@@ -222,7 +225,7 @@ function populateDatesByGameDates() {
       const fiveDaysLater = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
       
       const datesWithGames = new Set();
-      data.data.forEach(game => {
+      games.forEach(game => {
         const gameDate = new Date(game.commence_time);
         if (gameDate >= today && gameDate <= fiveDaysLater) {
           const dateStr = gameDate.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -287,20 +290,23 @@ function populateEventsByDate() {
     .then(res => res.json())
     .then(data => {
       // Check for API error - fall back to mock data
-      if (data.error_code || !data.data) {
+      if (data.error_code) {
         console.warn('[AlexBET] API error, loading mock data instead');
         loadMockGameEvents(sport, gameDate);
         return;
       }
       
-      if (data.data.length === 0) {
-        eventSelect.innerHTML = '<option value="">No games found</option>';
+      // Odds API returns an array directly, not wrapped in .data
+      const games = Array.isArray(data) ? data : (data.data || []);
+      
+      if (games.length === 0) {
+        eventSelect.innerHTML = '<option value=\"\">No games found</option>';
         return;
       }
       
       // Filter games for the selected date
       const selectedDate = gameDate; // Already in YYYY-MM-DD format
-      const filteredGames = data.data.filter(game => {
+      const filteredGames = games.filter(game => {
         const gameTime = new Date(game.commence_time).toISOString().split('T')[0];
         return gameTime === selectedDate;
       });
