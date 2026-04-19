@@ -94,6 +94,80 @@ function setupEventListeners() {
 // Auto-populate Game Dates and Events based on Sport
 // ===================================================
 
+// Mock game data - fallback when API fails
+const MOCK_GAMES_BY_SPORT = {
+  'NBA': {
+    '2026-04-19': ['Lakers vs Warriors', 'Celtics vs Bucks', 'Heat vs Nuggets'],
+    '2026-04-20': ['Warriors vs Lakers', 'Suns vs Mavericks', 'Kings vs Grizzlies'],
+    '2026-04-21': ['Celtics vs Nets', 'Heat vs Rockets', 'Cavaliers vs Raptors'],
+    '2026-04-22': ['Lakers vs Suns', 'Bucks vs 76ers', 'Nuggets vs Warriors']
+  },
+  'NFL': {
+    '2026-04-19': ['Cowboys vs 49ers', 'Patriots vs Chiefs', 'Ravens vs Bills'],
+    '2026-04-20': ['Eagles vs Cowboys', 'Chiefs vs Ravens', 'Dolphins vs Jets'],
+    '2026-04-21': ['49ers vs Rams', 'Cardinals vs Seahawks', 'Texans vs Colts']
+  },
+  'MLB': {
+    '2026-04-19': ['Yankees vs Red Sox', 'Dodgers vs Giants', 'Cubs vs Cardinals'],
+    '2026-04-20': ['Yankees vs Astros', 'Dodgers vs Padres', 'Red Sox vs Orioles'],
+    '2026-04-21': ['Mets vs Braves', 'Rangers vs Athletics', 'Mariners vs Angels']
+  },
+  'NHL': {
+    '2026-04-19': ['Maple Leafs vs Canadiens', 'Avalanche vs Red Wings', 'Oilers vs Flames'],
+    '2026-04-20': ['Rangers vs Bruins', 'Penguins vs Flyers', 'Kings vs Sharks'],
+    '2026-04-21': ['Lightning vs Hurricanes', 'Wild vs Blues', 'Ducks vs Coyotes']
+  },
+  'EPL': {
+    '2026-04-19': ['Man United vs Liverpool', 'Arsenal vs Chelsea', 'Man City vs Tottenham'],
+    '2026-04-20': ['Brighton vs Newcastle', 'Aston Villa vs West Ham', 'Fulham vs Wolves'],
+    '2026-04-21': ['Everton vs Leicester', 'Crystal Palace vs Southampton', 'Bournemouth vs Nottingham']
+  }
+};
+
+function loadMockGameDates(sport) {
+  const dateSelect = document.getElementById('gameDate');
+  const eventSelect = document.getElementById('event');
+  const sportDates = MOCK_GAMES_BY_SPORT[sport] || {};
+  const dates = Object.keys(sportDates).sort();
+  
+  if (dates.length === 0) {
+    dateSelect.innerHTML = '<option value="">No dates available</option>';
+    return;
+  }
+  
+  let html = '<option value="">-- Select date with games --</option>';
+  dates.forEach(date => {
+    const displayDate = new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+    html += `<option value="${date}">${displayDate} (${date})</option>`;
+  });
+  
+  dateSelect.innerHTML = html;
+  eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
+  console.log(`[AlexBET] Loaded mock dates for ${sport}`);
+}
+
+function loadMockGameEvents(sport, gameDate) {
+  const eventSelect = document.getElementById('event');
+  const games = MOCK_GAMES_BY_SPORT[sport]?.[gameDate] || [];
+  
+  if (games.length === 0) {
+    eventSelect.innerHTML = '<option value="">No games on this date</option>';
+    return;
+  }
+  
+  let html = '<option value="">-- Select game --</option>';
+  games.forEach(game => {
+    html += `<option value="${game}">${game}</option>`;
+  });
+  
+  eventSelect.innerHTML = html;
+  console.log(`[AlexBET] Loaded ${games.length} mock events for ${sport} on ${gameDate}`);
+}
+
 function populateDatesByGameDates() {
   const sport = document.getElementById('sport').value;
   const dateSelect = document.getElementById('gameDate');
@@ -131,7 +205,14 @@ function populateDatesByGameDates() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      if (!data.data || data.data.length === 0) {
+      // Check for API error - fall back to mock data
+      if (data.error_code || !data.data) {
+        console.warn('[AlexBET] API error, loading mock data instead');
+        loadMockGameDates(sport);
+        return;
+      }
+      
+      if (data.data.length === 0) {
         dateSelect.innerHTML = '<option value="">No games found</option>';
         return;
       }
@@ -205,7 +286,14 @@ function populateEventsByDate() {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      if (!data.data || data.data.length === 0) {
+      // Check for API error - fall back to mock data
+      if (data.error_code || !data.data) {
+        console.warn('[AlexBET] API error, loading mock data instead');
+        loadMockGameEvents(sport, gameDate);
+        return;
+      }
+      
+      if (data.data.length === 0) {
         eventSelect.innerHTML = '<option value="">No games found</option>';
         return;
       }
