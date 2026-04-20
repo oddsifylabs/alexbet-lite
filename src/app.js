@@ -4,6 +4,49 @@
  */
 
 // ===================================================
+// Utility Functions
+// ===================================================
+
+/**
+ * Copy text to clipboard with visual feedback
+ * @param {HTMLElement} element - The element containing text to copy
+ */
+function copyToClipboard(element) {
+  const text = element.textContent.trim();
+  
+  // Copy to clipboard
+  navigator.clipboard.writeText(text).then(() => {
+    // Show feedback
+    const originalText = element.textContent;
+    element.textContent = '✓ Copied!';
+    element.style.color = 'var(--primary)';
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      element.textContent = originalText;
+      element.style.color = '';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+    // Fallback: select and copy
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      element.textContent = '✓ Copied!';
+      setTimeout(() => {
+        element.textContent = originalText;
+      }, 2000);
+    } catch (e) {
+      console.error('Fallback copy failed:', e);
+    }
+    document.body.removeChild(textarea);
+  });
+}
+
+// ===================================================
 // Global State
 // ===================================================
 
