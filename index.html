@@ -28,6 +28,8 @@
       <button class="tab" data-tab="bets">📋 Bets</button>
       <button class="tab" data-tab="props">🏀 Props</button>
       <button class="tab" data-tab="analysis">📈 Analysis</button>
+      <button class="tab" data-tab="movers">📊 Market Movers</button>
+      <button class="tab" data-tab="calculator">🧮 Calculator</button>
       <button class="tab" data-tab="intel">🔍 Intel</button>
       <button class="tab" data-tab="settings">⚙️ Settings</button>
     </div>
@@ -384,6 +386,86 @@
       </div>
     </div>
 
+    <!-- Market Movers Tab -->
+    <div id="movers" class="tab-content">
+      <div class="controls">
+        <h3>📊 Market Movers & Line Tracking</h3>
+        <p class="subtitle">Recent line shifts and betting opportunities</p>
+      </div>
+      
+      <div id="heatMapContainer" class="analytics-panel">
+        <h4>🔥 Heat Map - Edge Distribution by Sport & Market Type</h4>
+        <div id="heatMap"></div>
+        <div id="heatMapInsights" style="margin-top: 20px; padding: 15px; background: #1a1f3a; border-radius: 8px;"></div>
+      </div>
+      
+      <div class="analytics-panel">
+        <h4>📈 Line Movement Analysis</h4>
+        <div id="lineMovementStats"></div>
+      </div>
+      
+      <div class="analytics-panel">
+        <h4>⏱️ Betting Timing Recommendations</h4>
+        <div id="bettingTimingAnalysis"></div>
+      </div>
+    </div>
+
+    <!-- Calculator Tab -->
+    <div id="calculator" class="tab-content">
+      <div class="controls">
+        <h3>🧮 Advanced Bankroll & Kelly Criterion Calculator</h3>
+        <p class="subtitle">Detailed bet sizing and strategy analysis</p>
+        
+        <div class="form-section">
+          <h4>Starting Bankroll</h4>
+          <div class="form-group">
+            <label for="calcBankroll">Bankroll ($)</label>
+            <input type="number" id="calcBankroll" placeholder="1000" min="10" step="50" value="1000">
+            <small class="help-text">Minimum $10</small>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Kelly Strategy</h4>
+          <div class="form-group">
+            <label for="kellyPercent">Kelly % (Fractional)</label>
+            <input type="number" id="kellyPercent" placeholder="25" min="5" max="100" step="5" value="25">
+            <small class="help-text">25% = 1/4 Kelly (recommended), 100% = Full Kelly (aggressive)</small>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Confidence Level Analysis</h4>
+          <div id="calculatorResults" style="margin-top: 20px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="updateCalculatorResults()" class="btn-primary">Calculate Bet Sizes</button>
+          <button onclick="clearCalculatorForm()" class="btn-secondary">Reset</button>
+        </div>
+      </div>
+
+      <div id="calculatorAdvanced" class="analytics-panel" style="margin-top: 20px;">
+        <h4>Advanced Options</h4>
+        <div class="form-section">
+          <h4>Custom Edge Formula (Optional)</h4>
+          <div class="form-group">
+            <label for="customFormula">Formula String</label>
+            <input type="text" id="customFormula" placeholder="e.g., WinProb=65, MarketProb=48">
+            <small class="help-text">Format: key=value, key=value</small>
+          </div>
+          <div class="form-group">
+            <label for="formulaWeight">Formula Weight (%)</label>
+            <input type="number" id="formulaWeight" placeholder="50" min="0" max="100" step="10" value="50">
+            <small class="help-text">Blend your model with AlexBET algorithm. 50% = equal weight</small>
+          </div>
+          <button onclick="applyCustomFormula()" class="btn-secondary">Apply Custom Formula</button>
+          <button onclick="clearCustomFormula()" class="btn-secondary">Reset to Default</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Tab -->
     <div id="settings" class="tab-content">
       <div class="controls">
@@ -404,6 +486,10 @@
     </div>
   </div>
 
+  <!-- Analysis & Visualization Components -->
+  <script src="./heat-map.js"></script>
+  <script src="./line-history.js"></script>
+  <script src="./custom-edge-calculator.js"></script>
   <!-- Security & Utilities Scripts -->
   <script src="./src/classes/SecurityManager.js"></script>
   <script src="./src/classes/SecurityAudit.js"></script>

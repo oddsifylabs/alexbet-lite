@@ -413,6 +413,8 @@ function switchTab(tabName) {
     renderBetsTable();
   } else if (tabName === 'props') {
     renderPropsAnalysis();
+  } else if (tabRefreshHandlers[tabName]) {
+    tabRefreshHandlers[tabName]();
   }
 }
 
@@ -1064,5 +1066,211 @@ function showSettings() {
 // ===================================================
 // Initialize on load
 // ===================================================
+
+// ===================================================
+// Market Movers Tab - Heat Map & Line Tracking
+// ===================================================
+
+function renderHeatMap() {
+  if (!window.heatMapGen) return;
+  
+  const bets = app.betTracker.getAllBets();
+  const heatData = heatMapGen.generateHeatMap(bets);
+  const heatHTML = heatMapGen.renderHeatMap(heatData);
+  const insights = heatMapGen.generateInsights(heatData);
+  
+  const heatContainer = document.getElementById('heatMap');
+  if (heatContainer) {
+    heatContainer.innerHTML = heatHTML;
+  }
+  
+  const insightsContainer = document.getElementById('heatMapInsights');
+  if (insightsContainer) {
+    let insightsHTML = '<h5>🎯 Key Insights</h5>';
+    if (insights.length > 0) {
+      insightsHTML += '<ul>';
+      insights.forEach(insight => {
+        insightsHTML += `<li>${insight}</li>`;
+      });
+      insightsHTML += '</ul>';
+    } else {
+      insightsHTML += '<p style="color: #888;">Add more bets to see insights</p>';
+    }
+    insightsContainer.innerHTML = insightsHTML;
+  }
+}
+
+function renderLineMovementStats() {
+  if (!window.lineHistory) return;
+  
+  const bets = app.betTracker.getAllBets();
+  const stats = lineHistory.getLineMovementStats(bets);
+  
+  const container = document.getElementById('lineMovementStats');
+  if (!container) return;
+  
+  let html = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
+        <div style="color: #aaa; font-size: 12px;">Total Tracked</div>
+        <div style="font-size: 24px; color: #00d68f; font-weight: bold;">${stats.totalBets}</div>
+      </div>
+      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
+        <div style="color: #aaa; font-size: 12px;">Avg Movement</div>
+        <div style="font-size: 24px; color: #4ddb7d; font-weight: bold;">${stats.avgMovement}</div>
+      </div>
+      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
+        <div style="color: #aaa; font-size: 12px;">Favorable / Unfavorable</div>
+        <div style="font-size: 20px; color: #99e6cc; font-weight: bold;">${stats.favorableMoves} / ${stats.unfavorableMoves}</div>
+      </div>
+    </div>
+  `;
+  
+  if (stats.movements && stats.movements.length > 0) {
+    html += `<h5 style="margin-top: 20px;">Recent Line Movements</h5>`;
+    html += '<div style="max-height: 300px; overflow-y: auto;">';
+    stats.movements.slice(-10).forEach(move => {
+      const color = move.favorable ? '#00d68f' : '#ff6464';
+      const arrow = move.favorable ? '📈' : '📉';
+      html += `
+        <div style="padding: 10px; background: #0a0e27; margin: 5px 0; border-radius: 5px; border-left: 3px solid ${color};">
+          <strong>${move.pick}</strong> ${arrow} ${move.movement > 0 ? '+' : ''}${move.movement.toFixed(1)}
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function renderBettingTimingAnalysis() {
+  if (!window.lineHistory) return;
+  
+  const bets = app.betTracker.getAllBets();
+  const timing = lineHistory.analyzeBettingTiming(bets);
+  
+  const container = document.getElementById('bettingTimingAnalysis');
+  if (!container || !timing) return;
+  
+  const timingEmoji = timing.timing === 'early' ? '⏰' : timing.timing === 'late' ? '⏱️' : '✅';
+  const colorClass = timing.timing === 'early' || timing.timing === 'late' ? '#ffb366' : '#00d68f';
+  
+  let html = `
+    <div style="background: #1a1f3a; padding: 20px; border-radius: 8px; border-left: 4px solid ${colorClass};">
+      <div style="font-size: 18px; margin-bottom: 10px;">
+        ${timingEmoji} <strong>${timing.recommendation}</strong>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+        <div>
+          <div style="color: #aaa; font-size: 12px;">Too Early</div>
+          <div style="font-size: 20px; color: #ffb366;">${timing.tooEarlyCount}</div>
+        </div>
+        <div>
+          <div style="color: #aaa; font-size: 12px;">Too Late</div>
+          <div style="font-size: 20px; color: #ffb366;">${timing.tooLateCount}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+}
+
+// ===================================================
+// Calculator Tab - Bankroll & Kelly Criterion
+// ===================================================
+
+function updateCalculatorResults() {
+  const bankroll = parseFloat(document.getElementById('calcBankroll').value) || 1000;
+  const kellyPercent = parseFloat(document.getElementById('kellyPercent').value) || 25;
+  
+  if (bankroll < 10) {
+    showAlert('Minimum bankroll is $10', 'error');
+    return;
+  }
+  
+  const confidenceLevels = [
+    { name: 'Very High (90%+)', confidence: 90 },
+    { name: 'High (75-89%)', confidence: 80 },
+    { name: 'Moderate (60-74%)', confidence: 65 },
+    { name: 'Low (45-59%)', confidence: 50 }
+  ];
+  
+  let html = '<div style="display: grid; grid-template-columns: 1fr; gap: 15px;">';
+  
+  confidenceLevels.forEach(level => {
+    const kellyFraction = kellyPercent / 100;
+    const betSize = bankroll * (level.confidence / 100) * kellyFraction;
+    const riskReward = (betSize / bankroll * 100).toFixed(2);
+    
+    html += `
+      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px; border-left: 4px solid #4ddb7d;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="color: #aaa; font-size: 12px;">${level.name}</div>
+            <div style="font-weight: bold; margin-top: 5px;">Bet Size</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 22px; color: #00d68f; font-weight: bold;">$${betSize.toFixed(2)}</div>
+            <div style="color: #888; font-size: 12px;">${riskReward}% of bankroll</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  
+  const container = document.getElementById('calculatorResults');
+  if (container) {
+    container.innerHTML = html;
+  }
+}
+
+function clearCalculatorForm() {
+  document.getElementById('calcBankroll').value = '1000';
+  document.getElementById('kellyPercent').value = '25';
+  document.getElementById('calculatorResults').innerHTML = '';
+}
+
+function applyCustomFormula() {
+  if (!window.customEdgeCalc) return;
+  
+  const formula = document.getElementById('customFormula').value;
+  const weight = parseFloat(document.getElementById('formulaWeight').value) || 50;
+  
+  if (!formula) {
+    showAlert('Please enter a formula', 'error');
+    return;
+  }
+  
+  customEdgeCalc.saveFormula(formula, weight / 100);
+  showAlert('Custom formula saved! Your model is now blended with AlexBET algorithm.', 'success');
+}
+
+function clearCustomFormula() {
+  document.getElementById('customFormula').value = '';
+  document.getElementById('formulaWeight').value = '50';
+  localStorage.removeItem('alexbet_user_formula');
+  localStorage.removeItem('alexbet_formula_weight');
+  showAlert('Custom formula cleared', 'info');
+}
+
+// ===================================================
+// Tab refresh handlers
+// ===================================================
+
+const tabRefreshHandlers = {
+  'movers': () => {
+    renderHeatMap();
+    renderLineMovementStats();
+    renderBettingTimingAnalysis();
+  },
+  'calculator': () => {
+    updateCalculatorResults();
+  }
+};
+
 
 console.log('[AlexBET] Script loaded successfully');
