@@ -133,3 +133,4 @@ class CustomEdgeCalculator {
 }
 
 const customEdgeCalc = new CustomEdgeCalculator();
+window.customEdgeCalc = customEdgeCalc;

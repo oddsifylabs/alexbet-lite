@@ -183,3 +183,4 @@ class HeatMapGenerator {
 }
 
 const heatMapGen = new HeatMapGenerator();
+window.heatMapGen = heatMapGen;

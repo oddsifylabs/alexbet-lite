@@ -99,3 +99,4 @@ class LineHistoryTracker {
 }
 
 const lineHistory = new LineHistoryTracker();
+window.lineHistory = lineHistory;
