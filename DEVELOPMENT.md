@@ -514,7 +514,8 @@ npm run test -- --reporter=verbose
 - **GitHub Issues:** Report bugs and ask questions
 - **GitHub Discussions:** General questions and ideas
 - **Telegram:** [@AlexBETBot](https://t.me/AlexBETBot)
-- **Email:** dev@alexbet.io
+- **Support:** support@oddsifylabs.com
+- **Website:** https://officiants.com/alexbetlite
 
 ---
 

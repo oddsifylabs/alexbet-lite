@@ -300,7 +300,9 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fi
 
 - **GitHub Issues:** Report bugs and request features
 - **Telegram:** Join our community at [@AlexBETBot](https://t.me/AlexBETBot)
-- **Email:** support@alexbet.io
+- **Support Email:** support@oddsifylabs.com
+- **General Inquiries:** general@oddsifylabs.com
+- **Website:** https://officiants.com/alexbetlite
 
 ## Credits 🙏
 

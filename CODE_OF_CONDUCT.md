@@ -50,7 +50,7 @@ This Code of Conduct applies to:
 
 ## Reporting Violations
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at: **conduct@alexbet.io**
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at: **conduct@oddsifylabs.com** or **support@oddsifylabs.com**
 
 All complaints will be reviewed and investigated promptly and fairly. All reporters and subjects will be treated confidentially.
 
@@ -101,7 +101,9 @@ This Code of Conduct is adapted from:
 
 ## Questions?
 
-If you have questions about this Code of Conduct, please contact: **conduct@alexbet.io**
+If you have questions about this Code of Conduct, please contact: **conduct@oddsifylabs.com** or **support@oddsifylabs.com**
+
+**Website:** https://officiants.com/alexbetlite
 
 ---
 

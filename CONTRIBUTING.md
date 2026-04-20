@@ -339,7 +339,8 @@ const SPORTS = {
 - **GitHub Discussions:** Ask questions in public
 - **GitHub Issues:** Report bugs
 - **Telegram:** [@AlexBETBot](https://t.me/AlexBETBot)
-
+- **Support:** support@oddsifylabs.com
+- **Website:** https://officiants.com/alexbetlite
 ## Recognition 🌟
 
 Contributors will be:

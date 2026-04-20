@@ -55,7 +55,7 @@ We use The Odds API for real-time sports odds data:
 If you discover a security vulnerability, **please report it responsibly**:
 
 ### DO
-- Email: **security@alexbet.io**
+- Email: **security@oddsifylabs.com** or **support@oddsifylabs.com**
 - Provide detailed description of the vulnerability
 - Include steps to reproduce
 - Allow 90 days for a fix before public disclosure
@@ -254,8 +254,9 @@ We only integrate with trusted services:
 ## Questions About Security? 🤔
 
 - **GitHub Issues:** Public security discussions (non-sensitive)
-- **Email:** security@alexbet.io (sensitive issues)
+- **Email:** security@oddsifylabs.com or support@oddsifylabs.com (sensitive issues)
 - **Telegram:** [@AlexBETBot](https://t.me/AlexBETBot) (general questions)
+- **Website:** https://officiants.com/alexbetlite
 
 ---
 
