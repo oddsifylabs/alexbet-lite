@@ -240,7 +240,10 @@ function fetchDatesFromESPNAPI(sport) {
     // Populate date dropdown
     let html = '<option value="">-- Select date with games --</option>';
     datesWithGames.forEach(item => {
-      const displayDate = new Date(item.date).toLocaleDateString('en-US', {
+      // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+      const [year, month, day] = item.date.split('-');
+      const utcDate = new Date(Date.UTC(year, month - 1, day));
+      const displayDate = utcDate.toLocaleDateString('en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric'
@@ -330,7 +333,10 @@ function populateDatesByGameDates() {
       // Populate date dropdown
       let html = '<option value="">-- Select date with games --</option>';
       Array.from(datesWithGames).sort().forEach(date => {
-        const displayDate = new Date(date).toLocaleDateString('en-US', {
+        // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+        const [year, month, day] = date.split('-');
+        const utcDate = new Date(Date.UTC(year, month - 1, day));
+        const displayDate = utcDate.toLocaleDateString('en-US', {
           weekday: 'short',
           month: 'short',
           day: 'numeric'
