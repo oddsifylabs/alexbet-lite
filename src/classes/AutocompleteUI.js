@@ -247,7 +247,7 @@ class AutocompleteUI {
 }
 
 // Create CSS styles for autocomplete
-const autocompleteSyles = `
+const autocompleteStyles = `
 .autocomplete-dropdown {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
