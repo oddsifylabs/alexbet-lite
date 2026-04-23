@@ -93,7 +93,7 @@ class IntelPage {
       const apiSport = sportMap[this.selectedSport];
       if (!apiSport) throw new Error('Sport not supported');
 
-      const apiKey = process.env.VITE_ODDS_API_KEY || 'missing_key';
+      const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
       const response = await fetch(
         `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`
       );

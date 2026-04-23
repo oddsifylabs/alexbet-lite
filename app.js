@@ -240,12 +240,12 @@ function populateDatesByGameDates() {
   
   const apiSport = sportMap[sport];
   if (!apiSport) {
-    dateSelect.innerHTML = '<option value="">Invalid sport</option>';
+    dateSelect.innerHTML = '<option value=\"\">Invalid sport</option>';
     return;
   }
   
   // Fetch games from Odds API
-  const apiKey = process.env.VITE_ODDS_API_KEY || 'missing_key';
+  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
   const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
   
   fetch(url)
@@ -330,7 +330,7 @@ function populateEventsByDate() {
   const apiSport = sportMap[sport];
   
   // Fetch games from Odds API
-  const apiKey = process.env.VITE_ODDS_API_KEY || 'missing_key';
+  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
   const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
   
   fetch(url)
@@ -352,13 +352,12 @@ function populateEventsByDate() {
       }
       
       // Filter games for the selected date
-      // FIX: Convert UTC times to local date for proper matching
-      const selectedDate = gameDate; // Already in YYYY-MM-DD format
+      // FIX: Use UTC date matching to avoid timezone issues
+      const selectedDate = gameDate; // Already in YYYY-MM-DD format from dropdown
       const filteredGames = games.filter(game => {
-        // Convert UTC time to local date (don't use toISOString which stays in UTC)
-        const gameTime = new Date(game.commence_time);
-        const localDate = gameTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
-        return localDate === selectedDate;
+        // Extract just the date part from ISO timestamp (YYYY-MM-DD)
+        const gameUTCDate = game.commence_time.split('T')[0];
+        return gameUTCDate === selectedDate;
       });
       
       if (filteredGames.length === 0) {
