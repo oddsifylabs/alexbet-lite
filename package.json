@@ -6,7 +6,7 @@
   "scripts": {
     "start": "open index.html",
     "test": "vitest",
-    "build": "echo 'No build needed for vanilla JS'"
+    "build": "echo 'Building AlexBET Lite (vanilla JS - no compilation needed)'"
   },
   "keywords": [
     "betting",
