@@ -1,54 +1,74 @@
 #!/usr/bin/env node
+/**
+ * AlexBET Lite - Express Server
+ * Minimal, bulletproof Express server for static SPA
+ */
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
 
-console.log('[AlexBET Lite] Starting server...');
-console.log(`[AlexBET Lite] PORT: ${PORT}, HOST: ${HOST}`);
-console.log(`[AlexBET Lite] CWD: ${process.cwd()}`);
+// Logging
+console.log('[SERVER] Starting AlexBET Lite...');
+console.log('[SERVER] NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('[SERVER] PORT:', PORT);
+console.log('[SERVER] CWD:', process.cwd());
 
-// Check if index.html exists
-const indexPath = path.join(__dirname, 'index.html');
-if (!fs.existsSync(indexPath)) {
-  console.error(`[ERROR] index.html not found at ${indexPath}`);
+// Verify files exist
+const indexHtmlPath = path.join(__dirname, 'index.html');
+if (!fs.existsSync(indexHtmlPath)) {
+  console.error('[FATAL] index.html not found at:', indexHtmlPath);
   process.exit(1);
 }
-console.log(`[AlexBET Lite] Found index.html at ${indexPath}`);
+console.log('[SERVER] Found index.html');
 
-// Serve static files from root
-app.use(express.static(path.join(__dirname), {
-  maxAge: '1h',
-  etag: false
+// Serve static files with aggressive caching for assets
+app.use(express.static(__dirname, {
+  maxAge: '1d',
+  etag: false,
+  setHeaders: (res, filePath) => {
+    // Don't cache HTML files
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
 }));
 
-// Health check endpoint
+// Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', app: 'AlexBET Lite' });
 });
 
-// SPA fallback - route all unmatched URLs to index.html
-app.get('*', (req, res) => {
-  console.log(`[AlexBET Lite] Routing ${req.path} → index.html`);
-  res.sendFile(indexPath);
+// Catch-all: serve index.html for SPA routing
+app.use((req, res) => {
+  res.sendFile(indexHtmlPath);
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('[ERROR]', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
-
-app.listen(PORT, HOST, () => {
-  console.log(`✅ [AlexBET Lite] Server running on http://${HOST}:${PORT}`);
-  console.log(`✅ [AlexBET Lite] Ready to receive requests`);
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[SERVER] ✅ AlexBET Lite running on port ${PORT}`);
+  console.log(`[SERVER] Ready for requests`);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('[AlexBET Lite] SIGTERM received, shutting down gracefully...');
-  process.exit(0);
+  console.log('[SERVER] SIGTERM received, shutting down...');
+  server.close(() => {
+    console.log('[SERVER] Server closed');
+    process.exit(0);
+  });
+});
+
+// Catch unhandled errors
+process.on('uncaughtException', (err) => {
+  console.error('[ERROR] Uncaught exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[ERROR] Unhandled rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
