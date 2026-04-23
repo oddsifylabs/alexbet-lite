@@ -1,0 +1,22 @@
+#!/bin/bash
+# Quick Railway Deployment Checklist
+
+echo "✅ AlexBET Lite is ready for Railway deployment!"
+echo ""
+echo "What's been configured:"
+echo "  ✓ server.js - Express server with SPA routing"
+echo "  ✓ Procfile - Railway process config"
+echo "  ✓ package.json - Node dependencies (express)"
+echo "  ✓ railway.json - Optional Railway config"
+echo ""
+echo "NEXT STEPS:"
+echo ""
+echo "1. Go to: https://railway.app/dashboard"
+echo "2. Click 'New Project' → 'Deploy from GitHub'"
+echo "3. Select: oddsifylabs/alexbet-lite"
+echo "4. Click 'Deploy Now'"
+echo ""
+echo "⏱️  Deploy time: ~60 seconds"
+echo "🌐 Live URL: https://alexbet-lite.railway.app"
+echo ""
+echo "Questions? See RAILWAY_DEPLOYMENT.md for full guide"
