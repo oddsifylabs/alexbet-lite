@@ -538,6 +538,9 @@ function switchTab(tabName) {
 
   // Refresh data when switching tabs
   if (tabName === 'analysis') {
+    // Initialize and render the analytics dashboard
+    const dashboard = new AnalyticsDashboard(app.betTracker, 'analyticsDashboardContainer');
+    dashboard.render();
     renderAnalysis();
   } else if (tabName === 'bets') {
     renderBetsTable();
