@@ -45,6 +45,28 @@ app.get('/health', (req, res) => {
 // Commit info endpoint
 app.get('/api/commit', (req, res) => {
   try {
+    // Try to read from file created during build
+    const commitInfoPath = path.join(__dirname, '.commit-info.txt');
+    if (fs.existsSync(commitInfoPath)) {
+      const info = fs.readFileSync(commitInfoPath, 'utf8').trim();
+      const parts = info.split(' ');
+      if (parts.length >= 4) {
+        const hash = parts[0];
+        const dateTime = parts[1]; // ISO format
+        const message = parts.slice(3).join(' '); // Everything after the date
+        const author = parts[parts.length - 1]; // Last part is author
+        
+        res.json({
+          hash,
+          date: dateTime.split('T')[0],
+          message,
+          author
+        });
+        return;
+      }
+    }
+    
+    // Fallback: try git commands
     const { execSync } = require('child_process');
     const hash = execSync('git rev-parse --short HEAD', { cwd: __dirname }).toString().trim();
     const date = execSync('git log -1 --format=%ai', { cwd: __dirname }).toString().trim();
@@ -53,7 +75,7 @@ app.get('/api/commit', (req, res) => {
     
     res.json({
       hash,
-      date: date.split(' ')[0], // Just the date part
+      date: date.split(' ')[0],
       message,
       author
     });
