@@ -78,8 +78,8 @@ function initializeApp() {
   console.log('[AlexBET] Initializing application...');
 
   // Load version
-  document.getElementById('headerVersion').textContent = 'v2026.04.19';
-  document.getElementById('appVersion').textContent = 'v2026.04.19';
+  document.getElementById('headerVersion').textContent = 'v2026.04.23';
+  document.getElementById('appVersion').textContent = 'v2026.04.23';
 
   // Initialize UI
   renderStats();
@@ -315,11 +315,14 @@ function populateDatesByGameDates() {
       // Extract unique dates from ALL games (not filtered by time)
       // Users want to see all games including past/in-progress to add to bet tracker
       const datesWithGames = new Set();
+      console.log(`[AlexBET] Total games received: ${games.length}`);
       games.forEach(game => {
         // Extract UTC date directly from timestamp (YYYY-MM-DD) without timezone conversion
         const dateStr = game.commence_time.split('T')[0];
+        console.log(`[AlexBET] Game date: ${dateStr} (full: ${game.commence_time})`);
         datesWithGames.add(dateStr);
       });
+      console.log(`[AlexBET] Unique dates extracted: ${Array.from(datesWithGames).sort().join(', ')}`);
       
       if (datesWithGames.size === 0) {
         dateSelect.innerHTML = '<option value="">⚠️ No games in next 5 days</option>';
@@ -1100,7 +1103,7 @@ function showSettings() {
     <p>Used: ${stats.percentUsed}% of quota</p>
 
     <h4>About</h4>
-    <p>AlexBET Lite v2026.04.19 - Phase 6 Complete ✅</p>
+    <p>AlexBET Lite v2026.04.23 - Phase 6 Complete ✅</p>
     <p>Standalone bet tracking & analytics app</p>
     <p>All data stored locally in your browser</p>
   `;
