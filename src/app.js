@@ -266,93 +266,17 @@ function populateDatesByGameDates() {
   const eventSelect = document.getElementById('event');
   
   // Reset dropdowns
-  dateSelect.innerHTML = '<option value="">-- Loading dates with games... --</option>';
-  eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
+  dateSelect.innerHTML = '<option value=\"\">-- Loading dates with games... --</option>';
+  eventSelect.innerHTML = '<option value=\"\">-- Select date first --</option>';
   
   if (!sport) {
-    dateSelect.innerHTML = '<option value="">Select sport first</option>';
+    dateSelect.innerHTML = '<option value=\"\">Select sport first</option>';
     return;
   }
   
-  // Map sport names to Odds API sport keys
-  const sportMap = {
-    'NBA': 'basketball_nba',
-    'NFL': 'americanfootball_nfl',
-    'MLB': 'baseball_mlb',
-    'NHL': 'icehockey_nhl',
-    'EPL': 'soccer_epl',
-    'ATP': 'tennis_atp'
-  };
-  
-  const apiSport = sportMap[sport];
-  if (!apiSport) {
-    dateSelect.innerHTML = '<option value="">Invalid sport</option>';
-    return;
-  }
-  
-  // Fetch games from Odds API
-  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
-  const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
-  
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      // Check for API error - show error message
-      if (data.error_code) {
-        console.error('[AlexBET] API Error:', data.message || data.error_code);
-        dateSelect.innerHTML = `<option value="">⚠️ API Error: ${data.message || 'Unable to load games'}</option>`;
-        return;
-      }
-      
-      // Odds API returns an array directly, not wrapped in .data
-      const games = Array.isArray(data) ? data : (data.data || []);
-      
-      if (games.length === 0) {
-        dateSelect.innerHTML = '<option value="">⚠️ No games found</option>';
-        return;
-      }
-      
-      // Extract unique dates from ALL games (not filtered by time)
-      // Users want to see all games including past/in-progress to add to bet tracker
-      const datesWithGames = new Set();
-      console.log(`[AlexBET] Total games received: ${games.length}`);
-      games.forEach(game => {
-        // Extract UTC date directly from timestamp (YYYY-MM-DD) without timezone conversion
-        const dateStr = game.commence_time.split('T')[0];
-        console.log(`[AlexBET] Game date: ${dateStr} (full: ${game.commence_time})`);
-        datesWithGames.add(dateStr);
-      });
-      console.log(`[AlexBET] Unique dates extracted: ${Array.from(datesWithGames).sort().join(', ')}`);
-      
-      if (datesWithGames.size === 0) {
-        dateSelect.innerHTML = '<option value="">⚠️ No games in next 5 days</option>';
-        return;
-      }
-      
-      // Populate date dropdown
-      let html = '<option value="">-- Select date with games --</option>';
-      Array.from(datesWithGames).sort().forEach(date => {
-        // Parse UTC date string (YYYY-MM-DD) without timezone conversion
-        const [year, month, day] = date.split('-');
-        const utcDate = new Date(Date.UTC(year, month - 1, day));
-        const displayDate = utcDate.toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        });
-        // value stays as YYYY-MM-DD for matching, but display as MM-DD-YYYY
-        html += `<option value="${date}">${displayDate}</option>`;
-      });
-      
-      dateSelect.innerHTML = html;
-      console.log(`[AlexBET] Found ${datesWithGames.size} dates with games for ${sport}`);
-    })
-    .catch(error => {
-      console.error('[AlexBET] Error fetching games:', error);
-      console.warn('[AlexBET] Trying ESPN API fallback for dates...');
-      fetchDatesFromESPNAPI(sport);
-    });
+  console.log(`[AlexBET] === Fetching dates for ${sport} using ESPN API (PRIMARY) ===`);
+  // Use ESPN API as PRIMARY source for real game schedules
+  fetchDatesFromESPNAPI(sport);
 }
 
 function populateEventsByDate() {
@@ -365,87 +289,15 @@ function populateEventsByDate() {
   console.log(`[AlexBET] Game date selected: ${gameDate}`);
   
   if (!sport || !gameDate) {
-    eventSelect.innerHTML = '<option value="">Select sport and date first</option>';
+    eventSelect.innerHTML = '<option value=\"\">Select sport and date first</option>';
     return;
   }
   
-  eventSelect.innerHTML = '<option value="">-- Loading games... --</option>';
+  eventSelect.innerHTML = '<option value=\"\">-- Loading games... --</option>';
   
-  // Map sport names to Odds API sport keys
-  const sportMap = {
-    'NBA': 'basketball_nba',
-    'NFL': 'americanfootball_nfl',
-    'MLB': 'baseball_mlb',
-    'NHL': 'icehockey_nhl',
-    'EPL': 'soccer_epl',
-    'ATP': 'tennis_atp'
-  };
-  
-  const apiSport = sportMap[sport];
-  
-  // Fetch games from Odds API
-  const apiKey = '6f46bbb3b2fb69b5e14980a57e9909da';
-  const url = `https://api.the-odds-api.com/v4/sports/${apiSport}/events?apiKey=${apiKey}`;
-  
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      // Check for API error - try ESPN fallback
-      if (data.error_code) {
-        console.warn('[AlexBET] Odds API failed, trying ESPN API fallback...');
-        fetchFromESPNAPI(sport, gameDate);
-        return;
-      }
-      
-      // Odds API returns an array directly, not wrapped in .data
-      const games = Array.isArray(data) ? data : (data.data || []);
-      
-      if (games.length === 0) {
-        eventSelect.innerHTML = '<option value="">⚠️ No games found</option>';
-        return;
-      }
-      
-      // Filter games for the selected date
-      // FIX: Compare UTC dates directly from the API timestamp
-      const selectedDate = gameDate; // Already in YYYY-MM-DD format (UTC)
-      console.log(`[AlexBET] Filtering games for date: ${selectedDate}`);
-      console.log(`[AlexBET] Total games to filter: ${games.length}`);
-      
-      const filteredGames = games.filter(game => {
-        // Extract UTC date directly from timestamp (don't convert to local timezone)
-        const gameDate = game.commence_time.split('T')[0]; // YYYY-MM-DD in UTC
-        const teams = `${game.home_team} vs ${game.away_team}`;
-        const matches = gameDate === selectedDate;
-        console.log(`[AlexBET] Game: ${teams} | Time: ${game.commence_time} | Extracted date: ${gameDate} | Match: ${matches ? '✅' : '❌'}`);
-        return matches;
-      });
-      
-      console.log(`[AlexBET] === FINAL RESULT: ${filteredGames.length} games matched for ${selectedDate} ===`);
-      
-      if (filteredGames.length === 0) {
-        eventSelect.innerHTML = '<option value="">⚠️ No games on this date</option>';
-        return;
-      }
-      
-      // Populate event dropdown
-      let html = '<option value="">-- Select game --</option>';
-      filteredGames.forEach(game => {
-        const matchup = `${game.home_team} vs ${game.away_team}`;
-        const gameTime = new Date(game.commence_time).toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        html += `<option value="${matchup}">${matchup} (${gameTime})</option>`;
-      });
-      
-      eventSelect.innerHTML = html;
-      console.log(`[AlexBET] Populated ${filteredGames.length} games for ${sport} on ${gameDate}`);
-    })
-    .catch(error => {
-      console.error('[AlexBET] Error fetching games:', error);
-      console.warn('[AlexBET] Trying ESPN API fallback...');
-      fetchFromESPNAPI(sport, gameDate);
-    });
+  console.log(`[AlexBET] === Fetching events for ${sport} on ${gameDate} using ESPN API (PRIMARY) ===`);
+  // Use ESPN API as PRIMARY source for real game data
+  fetchFromESPNAPI(sport, gameDate);
 }
 
 // ===================================================
