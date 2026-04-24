@@ -49,16 +49,19 @@ app.get('/api/commit', (req, res) => {
     const commitInfoPath = path.join(__dirname, '.commit-info.txt');
     if (fs.existsSync(commitInfoPath)) {
       const info = fs.readFileSync(commitInfoPath, 'utf8').trim();
+      // Format: HASH DATE MESSAGE AUTHOR
       const parts = info.split(' ');
-      if (parts.length >= 4) {
+      if (parts.length >= 3) {
         const hash = parts[0];
-        const dateTime = parts[1]; // ISO format
-        const message = parts.slice(3).join(' '); // Everything after the date
-        const author = parts[parts.length - 1]; // Last part is author
+        const date = parts[1];
+        // Everything from part 2 to the last part is the message
+        // The last part after splitting by space should be author
+        const author = parts[parts.length - 1];
+        const message = parts.slice(2, -1).join(' ');
         
         res.json({
           hash,
-          date: dateTime.split('T')[0],
+          date,
           message,
           author
         });
