@@ -1,0 +1,1 @@
+0c833e8 2026-04-23 🏗️ Add build.sh to write commit info during deployment Jesse Collins
