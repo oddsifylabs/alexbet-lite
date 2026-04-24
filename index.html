@@ -253,6 +253,60 @@
           </div>
         </div>
 
+        <!-- Pre-Bet Analysis Panel -->
+        <div id="analysisPanelContainer" class="form-section" style="display: none;">
+          <h4 style="margin-top: 0; color: #00d68f;">📊 Pre-Bet Analysis</h4>
+          
+          <div class="analysis-grid">
+            <!-- CLV Projection -->
+            <div class="analysis-card">
+              <div class="analysis-label">Expected CLV</div>
+              <div class="analysis-value" id="projectedCLV" style="color: #00d68f;">+$0.00</div>
+              <small>(Stake × Edge%) / 100</small>
+            </div>
+
+            <!-- Edge Assessment -->
+            <div class="analysis-card">
+              <div class="analysis-label">Edge Assessment</div>
+              <div class="analysis-value" id="edgeAssessment" style="color: #fff;">0%</div>
+              <small id="edgeMessage" style="color: var(--text-tertiary);">Enter edge to analyze</small>
+            </div>
+
+            <!-- Win Rate Required -->
+            <div class="analysis-card">
+              <div class="analysis-label">Required Win Rate</div>
+              <div class="analysis-value" id="requiredWinRate">--</div>
+              <small>Break-even probability</small>
+            </div>
+
+            <!-- Kelly Fraction -->
+            <div class="analysis-card">
+              <div class="analysis-label">Kelly Fraction (25%)</div>
+              <div class="analysis-value" id="kellyFraction" style="color: #888;">$0.00</div>
+              <small>Recommended stake (conservative)</small>
+            </div>
+
+            <!-- Confidence Impact -->
+            <div class="analysis-card">
+              <div class="analysis-label">Confidence Adjusted</div>
+              <div class="analysis-value" id="confidenceAdjusted" style="color: #fff;">0%</div>
+              <small id="confidenceMessage" style="color: var(--text-tertiary);">Sets position sizing</small>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="analysis-card">
+              <div class="analysis-label">Risk Level</div>
+              <div class="analysis-value" id="riskLevel" style="color: #888;">LOW</div>
+              <small id="riskMessage" style="color: var(--text-tertiary);">Based on edge & confidence</small>
+            </div>
+          </div>
+
+          <!-- Analysis Insights -->
+          <div id="analysisInsights" style="margin-top: 20px; padding: 15px; background: rgba(0,214,143,0.05); border-left: 4px solid #00d68f; border-radius: 4px; display: none;">
+            <div id="insightsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          </div>
+        </div>
+
         <!-- Form Actions -->
         <div class="form-section">
           <div class="form-group">
@@ -612,6 +666,7 @@
   <script src="./src/classes/SuggestionEngine.js"></script>
   <script src="./src/classes/AutocompleteUI.js"></script>
   <script src="./src/classes/BetAnalytics.js"></script>
+  <script src="./src/classes/PreBetAnalysis.js"></script>
   <script src="./src/classes/IntelPage.js"></script>
   <script src="./src/app.js"></script>
 </body>

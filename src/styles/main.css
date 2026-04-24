@@ -1598,3 +1598,52 @@ footer {
     color: black;
   }
 }
+
+/* ===================================================
+   Pre-Bet Analysis Panel
+   =================================================== */
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.analysis-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 214, 143, 0.15);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.analysis-card:hover {
+  background: rgba(0, 214, 143, 0.05);
+  border-color: rgba(0, 214, 143, 0.3);
+  transform: translateY(-1px);
+}
+
+.analysis-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.analysis-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.analysis-card small {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}

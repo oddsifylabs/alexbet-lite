@@ -158,6 +158,16 @@ function setupEventListeners() {
   document.getElementById('sport').addEventListener('change', populateDatesByGameDates);
   document.getElementById('gameDate').addEventListener('change', populateEventsByDate);
 
+  // Pre-Bet Analysis - update on form field changes
+  const analysisFields = ['stake', 'entryOdds', 'edge', 'confidence'];
+  analysisFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener('input', () => updatePreBetAnalysis());
+      field.addEventListener('change', () => updatePreBetAnalysis());
+    }
+  });
+
   console.log('[AlexBET] Event listeners setup complete');
 }
 
@@ -605,6 +615,28 @@ function clearBetForm() {
   document.getElementById('edge').value = '';
   document.getElementById('confidence').value = '';
   document.getElementById('pick').focus();
+}
+
+/**
+ * Update pre-bet analysis panel with current form values
+ * Called on every form field change (stake, odds, edge, confidence)
+ */
+function updatePreBetAnalysis() {
+  if (typeof preBetAnalysis === 'undefined') {
+    console.warn('[PreBetAnalysis] Not loaded yet');
+    return;
+  }
+
+  // Collect current form data
+  const formData = {
+    stake: document.getElementById('stake').value,
+    entryOdds: document.getElementById('entryOdds')?.value || document.getElementById('odds')?.value || 0,
+    edge: document.getElementById('edge').value,
+    confidence: document.getElementById('confidence').value
+  };
+
+  // Update analysis panel
+  preBetAnalysis.update(formData);
 }
 
 function updateBetStatus(betId, newStatus) {
