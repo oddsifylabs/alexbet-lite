@@ -320,7 +320,8 @@ function populateDatesByGameDates() {
       games.forEach(game => {
         const gameDate = new Date(game.commence_time);
         if (gameDate >= today && gameDate <= fiveDaysLater) {
-          const dateStr = gameDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          // Extract UTC date directly from timestamp (YYYY-MM-DD) without timezone conversion
+          const dateStr = game.commence_time.split('T')[0];
           datesWithGames.add(dateStr);
         }
       });
