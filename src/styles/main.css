@@ -853,6 +853,7 @@ button.btn-secondary:hover {
   }
 }
 
+/* Tablet & Larger Mobile (768px-1024px) */
 @media (max-width: 768px) {
   body {
     padding: var(--spacing-sm);
@@ -865,8 +866,29 @@ button.btn-secondary:hover {
     padding: var(--spacing-md);
   }
 
+  .header-title {
+    width: 100%;
+  }
+
+  .header-subtitle {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+  }
+
   h1 {
     font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  h4 {
+    font-size: 14px;
   }
 
   .controls {
@@ -877,10 +899,15 @@ button.btn-secondary:hover {
   .form-section {
     grid-template-columns: 1fr;
     gap: var(--spacing-sm);
+    padding: var(--spacing-md);
   }
 
   .form-group {
     width: 100%;
+  }
+
+  label {
+    font-size: 13px;
   }
 
   button.btn-primary,
@@ -888,13 +915,15 @@ button.btn-secondary:hover {
     width: 100%;
     padding: 12px 16px;
     font-size: 14px;
+    min-height: 44px; /* iOS touch target */
   }
 
   input,
   select,
   textarea {
-    padding: 10px 12px;
+    padding: 12px; /* Better touch targets */
     font-size: 16px; /* Prevents auto-zoom on iOS */
+    min-height: 44px; /* iOS touch target */
   }
 
   .stats-grid,
@@ -904,11 +933,25 @@ button.btn-secondary:hover {
     grid-template-columns: 1fr;
   }
 
+  .tabs {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 12px;
+    width: 100%;
+    text-align: left;
+    white-space: normal;
+  }
+
   .bet-card-header,
   .bet-card-footer {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+    gap: var(--spacing-sm);
   }
 
   .bet-card-pick {
@@ -925,13 +968,12 @@ button.btn-secondary:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .breakdown-grid {
+  .analysis-grid {
     grid-template-columns: 1fr;
   }
 
-  .tab {
-    padding: 8px 14px;
-    font-size: 12px;
+  .breakdown-grid {
+    grid-template-columns: 1fr;
   }
 
   .section-title {
@@ -943,24 +985,337 @@ button.btn-secondary:hover {
   .help-text {
     font-size: 10px;
   }
-}
 
-@media (max-width: 480px) {
-  .header {
+  .stat-card {
     padding: var(--spacing-sm);
   }
 
-  h1 {
+  .stat-value {
     font-size: 20px;
   }
 
+  .stat-label {
+    font-size: 10px;
+  }
+
+  /* Pre-Bet Analysis Panel on Mobile */
+  #analysisPanelContainer {
+    padding: var(--spacing-md);
+  }
+
+  .analysis-card {
+    padding: var(--spacing-sm);
+  }
+
+  .analysis-label {
+    font-size: 10px;
+  }
+
+  .analysis-value {
+    font-size: 18px;
+  }
+
+  .analysis-card small {
+    font-size: 10px;
+  }
+
+  #analysisInsights {
+    padding: 12px;
+    margin-top: 12px;
+  }
+
+  #insightsList {
+    gap: 6px;
+  }
+
+  /* Bet Cards Optimization */
+  .bet-card {
+    padding: var(--spacing-md);
+  }
+
+  .bet-card-stat {
+    font-size: 12px;
+  }
+
+  .bet-card-value {
+    font-size: 16px;
+  }
+}
+
+/* Mobile Phones (480px-768px) */
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+
+  .header {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .header-title {
+    margin-bottom: 0;
+  }
+
+  h1 {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 14px;
+  }
+
+  h4 {
+    font-size: 12px;
+  }
+
   .stat-value {
-    font-size: 24px;
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 9px;
   }
 
   button {
-    padding: 10px 16px;
+    padding: 11px 14px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  /* Form Optimization for Small Screens */
+  .form-section {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .form-group {
+    gap: 4px;
+  }
+
+  label {
     font-size: 12px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 11px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+
+  /* Analysis Panel - Optimized for Small Screens */
+  .analysis-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .analysis-card {
+    padding: 10px;
+    gap: 3px;
+  }
+
+  .analysis-label {
+    font-size: 9px;
+    letter-spacing: 0.02em;
+  }
+
+  .analysis-value {
+    font-size: 16px;
+  }
+
+  .analysis-card small {
+    font-size: 9px;
+    margin-top: 2px;
+  }
+
+  #analysisInsights {
+    padding: 10px;
+    margin-top: 8px;
+  }
+
+  #insightsList {
+    gap: 4px;
+  }
+
+  #insightsList > div {
+    gap: 8px;
+    padding: 6px 0 !important;
+  }
+
+  #insightsList span:first-child {
+    font-size: 14px;
+    min-width: 20px;
+  }
+
+  #insightsList span:last-child {
+    font-size: 12px;
+  }
+
+  /* Tabs on Mobile */
+  .tabs {
+    gap: 4px;
+    padding: 6px;
+    border-radius: var(--radius-md);
+  }
+
+  .tab {
+    padding: 8px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tab.active {
+    box-shadow: 0 4px 12px rgba(0, 214, 143, 0.2);
+  }
+
+  /* Bet Cards */
+  .bet-card {
+    padding: var(--spacing-sm);
+  }
+
+  .bet-card-stat {
+    font-size: 11px;
+  }
+
+  .bet-card-value {
+    font-size: 14px;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .stat-card {
+    padding: var(--spacing-sm);
+    gap: 4px;
+  }
+
+  .help-text {
+    font-size: 9px;
+    margin-top: 2px;
+  }
+
+  /* Validation Feedback */
+  .validation-feedback {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  /* Improve readability of nested lists */
+  ul, ol {
+    margin-left: 12px;
+  }
+
+  li {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+/* Extra Small Phones (< 360px) */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 16px;
+  }
+
+  h2 {
+    font-size: 14px;
+  }
+
+  button {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .form-section {
+    padding: 8px;
+  }
+
+  .stat-card {
+    padding: 8px;
+  }
+
+  .tab {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .analysis-card {
+    padding: 8px;
+  }
+
+  .analysis-label {
+    font-size: 8px;
+  }
+
+  .analysis-value {
+    font-size: 14px;
+  }
+}
+
+/* ===================================================
+   Touch & Mobile Interaction Enhancements
+   =================================================== */
+
+/* Improve button interactions on mobile */
+@media (hover: none) and (pointer: coarse) {
+  button {
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Improve form input focus on touch devices */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    box-shadow: 0 0 0 3px rgba(0, 214, 143, 0.2);
+  }
+
+  /* Reduce animations on low-end devices */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports(padding: max(0px)) {
+  body {
+    padding-left: max(var(--spacing-sm), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), env(safe-area-inset-right));
+  }
+
+  .header {
+    padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+  }
+
+  .footer {
+    padding-bottom: max(var(--spacing-lg), env(safe-area-inset-bottom));
   }
 }
 
