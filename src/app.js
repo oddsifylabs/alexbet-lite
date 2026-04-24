@@ -314,12 +314,18 @@ function populateDatesByGameDates() {
       
       // Extract unique dates from games (next 5 days)
       const today = new Date();
+      // Set to start of today (midnight)
+      today.setHours(0, 0, 0, 0);
       const fiveDaysLater = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
       
       const datesWithGames = new Set();
       games.forEach(game => {
         const gameDate = new Date(game.commence_time);
-        if (gameDate >= today && gameDate <= fiveDaysLater) {
+        // Compare dates at midnight level (ignore time of day)
+        const gameDateAtMidnight = new Date(gameDate);
+        gameDateAtMidnight.setHours(0, 0, 0, 0);
+        
+        if (gameDateAtMidnight >= today && gameDateAtMidnight <= fiveDaysLater) {
           // Extract UTC date directly from timestamp (YYYY-MM-DD) without timezone conversion
           const dateStr = game.commence_time.split('T')[0];
           datesWithGames.add(dateStr);
