@@ -358,6 +358,10 @@ function populateEventsByDate() {
   const gameDate = document.getElementById('gameDate').value;
   const eventSelect = document.getElementById('event');
   
+  console.log(`[AlexBET] === populateEventsByDate called ===`);
+  console.log(`[AlexBET] Sport selected: ${sport}`);
+  console.log(`[AlexBET] Game date selected: ${gameDate}`);
+  
   if (!sport || !gameDate) {
     eventSelect.innerHTML = '<option value="">Select sport and date first</option>';
     return;
@@ -402,11 +406,19 @@ function populateEventsByDate() {
       // Filter games for the selected date
       // FIX: Compare UTC dates directly from the API timestamp
       const selectedDate = gameDate; // Already in YYYY-MM-DD format (UTC)
+      console.log(`[AlexBET] Filtering games for date: ${selectedDate}`);
+      console.log(`[AlexBET] Total games to filter: ${games.length}`);
+      
       const filteredGames = games.filter(game => {
         // Extract UTC date directly from timestamp (don't convert to local timezone)
         const gameDate = game.commence_time.split('T')[0]; // YYYY-MM-DD in UTC
-        return gameDate === selectedDate;
+        const teams = `${game.home_team} vs ${game.away_team}`;
+        const matches = gameDate === selectedDate;
+        console.log(`[AlexBET] Game: ${teams} | Time: ${game.commence_time} | Extracted date: ${gameDate} | Match: ${matches ? '✅' : '❌'}`);
+        return matches;
       });
+      
+      console.log(`[AlexBET] === FINAL RESULT: ${filteredGames.length} games matched for ${selectedDate} ===`);
       
       if (filteredGames.length === 0) {
         eventSelect.innerHTML = '<option value="">⚠️ No games on this date</option>';
