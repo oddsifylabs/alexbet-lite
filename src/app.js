@@ -137,6 +137,71 @@ function setupEventListeners() {
 // ESPN API Fallback
 // ===================================================
 
+function fetchFromSportsDataIO(sport, gameDate) {
+  const eventSelect = document.getElementById('event');
+  
+  // SportsDataIO sport IDs
+  const sportDataIOMap = {
+    'NBA': 'nba',
+    'NFL': 'nfl',
+    'MLB': 'mlb',
+    'NHL': 'nhl',
+    'EPL': 'soccer',
+    'ATP': 'tennis'
+  };
+  
+  const sdioSport = sportDataIOMap[sport];
+  if (!sdioSport) {
+    eventSelect.innerHTML = '<option value=\"\">⚠️ Sport not supported</option>';
+    return;
+  }
+  
+  // Use SportsDataIO API endpoint
+  const apiKey = 'acdea7c8923843c4a1a00d1a0cde9adf';
+  const dateFormatted = gameDate; // Already in YYYY-MM-DD format
+  const sdioUrl = `https://api.sportsdata.io/v3/${sdioSport}/scores/json/GamesByDate/${dateFormatted}?key=${apiKey}`;
+  
+  console.log(`[AlexBET] Fetching games from SportsDataIO for ${sport} on ${gameDate}: ${sdioUrl}`);
+  
+  fetch(sdioUrl, { method: 'GET' })
+    .then(res => res.json())
+    .then(data => {
+      console.log(`[AlexBET] SportsDataIO API response:`, data);
+      
+      // Navigate through SportsDataIO's response structure
+      const games = Array.isArray(data) ? data : [];
+      
+      if (games.length === 0) {
+        console.warn(`[AlexBET] No games found for ${sport} on ${gameDate}, trying ESPN fallback...`);
+        fetchFromESPNAPI(sport, gameDate);
+        return;
+      }
+      
+      // Populate event dropdown
+      let html = '<option value=\"\">-- Select game --</option>';
+      games.forEach(game => {
+        const homeTeam = game.HomeTeam || game.home_team || 'Team A';
+        const awayTeam = game.AwayTeam || game.away_team || 'Team B';
+        const matchup = `${awayTeam} vs ${homeTeam}`;
+        
+        const gameTime = game.DateTime ? new Date(game.DateTime).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : '';
+        
+        html += `<option value=\"${matchup}\">${matchup} ${gameTime ? '(' + gameTime + ')' : ''}</option>`;
+      });
+      
+      eventSelect.innerHTML = html;
+      console.log(`[AlexBET] SportsDataIO: Populated ${games.length} games for ${sport} on ${gameDate}`);
+    })
+    .catch(error => {
+      console.error('[AlexBET] SportsDataIO API Error:', error);
+      console.warn('[AlexBET] Trying ESPN fallback...');
+      fetchFromESPNAPI(sport, gameDate);
+    });
+}
+
 function fetchFromESPNAPI(sport, gameDate) {
   const eventSelect = document.getElementById('event');
   
@@ -202,6 +267,83 @@ function fetchFromESPNAPI(sport, gameDate) {
       console.error('[AlexBET] ESPN API Error:', error);
       eventSelect.innerHTML = '<option value=\"\">⚠️ No live data. Please try again.</option>';
     });
+}
+
+function fetchDatesFromSportsDataIO(sport) {
+  const dateSelect = document.getElementById('gameDate');
+  const eventSelect = document.getElementById('event');
+  
+  // SportsDataIO sport IDs
+  const sportDataIOMap = {
+    'NBA': 'nba',
+    'NFL': 'nfl',
+    'MLB': 'mlb',
+    'NHL': 'nhl',
+    'EPL': 'soccer',
+    'ATP': 'tennis'
+  };
+  
+  const sdioSport = sportDataIOMap[sport];
+  if (!sdioSport) {
+    dateSelect.innerHTML = '<option value=\"\">⚠️ Sport not supported</option>';
+    return;
+  }
+  
+  // Try to get games from SportsDataIO for today and next few days
+  const today = new Date();
+  const datesWithGames = [];
+  const apiKey = 'acdea7c8923843c4a1a00d1a0cde9adf';
+  
+  // Try to fetch for each of the next 5 days using SportsDataIO API
+  let datePromises = [];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    const sdioUrl = `https://api.sportsdata.io/v3/${sdioSport}/scores/json/GamesByDate/${dateStr}?key=${apiKey}`;
+    
+    datePromises.push(
+      fetch(sdioUrl, { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+          const games = Array.isArray(data) ? data : [];
+          console.log(`[AlexBET] SportsDataIO check for ${sport} on ${dateStr}:`, games.length, 'games');
+          if (games && games.length > 0) {
+            datesWithGames.push({ date: dateStr, count: games.length });
+          }
+        })
+        .catch(error => {
+          console.warn(`[AlexBET] SportsDataIO date check failed for ${dateStr}:`, error);
+          // Fall back to ESPN if SportsDataIO fails
+        })
+    );
+  }
+  
+  Promise.all(datePromises).then(() => {
+    if (datesWithGames.length === 0) {
+      console.warn(`[AlexBET] No games found in next 5 days for ${sport} via SportsDataIO, trying ESPN...`);
+      fetchDatesFromESPNAPI(sport);
+      return;
+    }
+    
+    // Populate date dropdown
+    let html = '<option value=\"\">-- Select date with games --</option>';
+    datesWithGames.forEach(item => {
+      // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+      const [year, month, day] = item.date.split('-');
+      const utcDate = new Date(Date.UTC(year, month - 1, day));
+      const displayDate = utcDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      });
+      html += `<option value=\"${item.date}\">${displayDate} (${item.count} games)</option>`;
+    });
+    
+    dateSelect.innerHTML = html;
+    eventSelect.innerHTML = '<option value=\"\">-- Select date first --</option>';
+    console.log(`[AlexBET] SportsDataIO: Found ${datesWithGames.length} dates with games for ${sport}`);
+  });
 }
 
 function fetchDatesFromESPNAPI(sport) {
@@ -295,9 +437,9 @@ function populateDatesByGameDates() {
     return;
   }
   
-  console.log(`[AlexBET] === Fetching dates for ${sport} using ESPN API (PRIMARY) ===`);
-  // Use ESPN API as PRIMARY source for real game schedules
-  fetchDatesFromESPNAPI(sport);
+  console.log(`[AlexBET] === Fetching dates for ${sport} using SportsDataIO API (PRIMARY) ===`);
+  // Use SportsDataIO API as PRIMARY source for real game schedules (most reliable)
+  fetchDatesFromSportsDataIO(sport);
 }
 
 function populateEventsByDate() {
@@ -316,9 +458,9 @@ function populateEventsByDate() {
   
   eventSelect.innerHTML = '<option value=\"\">-- Loading games... --</option>';
   
-  console.log(`[AlexBET] === Fetching events for ${sport} on ${gameDate} using ESPN API (PRIMARY) ===`);
-  // Use ESPN API as PRIMARY source for real game data
-  fetchFromESPNAPI(sport, gameDate);
+  console.log(`[AlexBET] === Fetching events for ${sport} on ${gameDate} using SportsDataIO API (PRIMARY) ===`);
+  // Use SportsDataIO API as PRIMARY source for real game data (most reliable)
+  fetchFromSportsDataIO(sport, gameDate);
 }
 
 // ===================================================
