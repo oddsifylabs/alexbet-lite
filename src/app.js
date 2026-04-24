@@ -74,12 +74,40 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDisplays();
 });
 
+/**
+ * Load commit info from server and update footer
+ */
+async function loadCommitInfo() {
+  try {
+    const response = await fetch('/api/commit');
+    const data = await response.json();
+    
+    // Update footer with commit info
+    const commitHash = document.querySelector('[data-commit-hash]');
+    const commitDate = document.querySelector('[data-commit-date]');
+    const commitMessage = document.querySelector('[data-commit-message]');
+    const commitAuthor = document.querySelector('[data-commit-author]');
+    
+    if (commitHash) commitHash.textContent = data.hash;
+    if (commitDate) commitDate.textContent = data.date;
+    if (commitMessage) commitMessage.textContent = data.message;
+    if (commitAuthor) commitAuthor.textContent = data.author;
+    
+    console.log('[AlexBET] Commit info loaded:', data.hash, data.date);
+  } catch (error) {
+    console.warn('[AlexBET] Failed to load commit info:', error);
+  }
+}
+
 function initializeApp() {
   console.log('[AlexBET] Initializing application...');
 
   // Load version
   document.getElementById('headerVersion').textContent = 'v2026.04.23';
   document.getElementById('appVersion').textContent = 'v2026.04.23';
+
+  // Load and display commit info
+  loadCommitInfo();
 
   // Initialize UI
   renderStats();

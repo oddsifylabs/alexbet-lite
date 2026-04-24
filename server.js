@@ -42,6 +42,32 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', app: 'AlexBET Lite' });
 });
 
+// Commit info endpoint
+app.get('/api/commit', (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const hash = execSync('git rev-parse --short HEAD', { cwd: __dirname }).toString().trim();
+    const date = execSync('git log -1 --format=%ai', { cwd: __dirname }).toString().trim();
+    const message = execSync('git log -1 --format=%s', { cwd: __dirname }).toString().trim();
+    const author = execSync('git log -1 --format=%an', { cwd: __dirname }).toString().trim();
+    
+    res.json({
+      hash,
+      date: date.split(' ')[0], // Just the date part
+      message,
+      author
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to fetch commit info',
+      hash: '(unknown)',
+      date: '(unknown)',
+      message: '(unavailable)',
+      author: 'Unknown'
+    });
+  }
+});
+
 // Catch-all: serve index.html for SPA routing
 app.use((req, res) => {
   res.sendFile(indexHtmlPath);
