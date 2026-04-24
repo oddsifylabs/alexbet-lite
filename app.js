@@ -4,6 +4,49 @@
  */
 
 // ===================================================
+// Utility Functions
+// ===================================================
+
+/**
+ * Copy text to clipboard with visual feedback
+ * @param {HTMLElement} element - The element containing text to copy
+ */
+function copyToClipboard(element) {
+  const text = element.textContent.trim();
+  
+  // Copy to clipboard
+  navigator.clipboard.writeText(text).then(() => {
+    // Show feedback
+    const originalText = element.textContent;
+    element.textContent = '✓ Copied!';
+    element.style.color = 'var(--primary)';
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      element.textContent = originalText;
+      element.style.color = '';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+    // Fallback: select and copy
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      element.textContent = '✓ Copied!';
+      setTimeout(() => {
+        element.textContent = originalText;
+      }, 2000);
+    } catch (e) {
+      console.error('Fallback copy failed:', e);
+    }
+    document.body.removeChild(textarea);
+  });
+}
+
+// ===================================================
 // Global State
 // ===================================================
 
@@ -197,7 +240,10 @@ function fetchDatesFromESPNAPI(sport) {
     // Populate date dropdown
     let html = '<option value="">-- Select date with games --</option>';
     datesWithGames.forEach(item => {
-      const displayDate = new Date(item.date).toLocaleDateString('en-US', {
+      // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+      const [year, month, day] = item.date.split('-');
+      const utcDate = new Date(Date.UTC(year, month - 1, day));
+      const displayDate = utcDate.toLocaleDateString('en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric'
@@ -240,7 +286,7 @@ function populateDatesByGameDates() {
   
   const apiSport = sportMap[sport];
   if (!apiSport) {
-    dateSelect.innerHTML = '<option value=\"\">Invalid sport</option>';
+    dateSelect.innerHTML = '<option value="">Invalid sport</option>';
     return;
   }
   
@@ -266,17 +312,13 @@ function populateDatesByGameDates() {
         return;
       }
       
-      // Extract unique dates from games (next 5 days)
-      const today = new Date();
-      const fiveDaysLater = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
-      
+      // Extract unique dates from ALL games (not filtered by time)
+      // Users want to see all games including past/in-progress to add to bet tracker
       const datesWithGames = new Set();
       games.forEach(game => {
-        const gameDate = new Date(game.commence_time);
-        if (gameDate >= today && gameDate <= fiveDaysLater) {
-          const dateStr = gameDate.toISOString().split('T')[0]; // YYYY-MM-DD
-          datesWithGames.add(dateStr);
-        }
+        // Extract UTC date directly from timestamp (YYYY-MM-DD) without timezone conversion
+        const dateStr = game.commence_time.split('T')[0];
+        datesWithGames.add(dateStr);
       });
       
       if (datesWithGames.size === 0) {
@@ -287,7 +329,10 @@ function populateDatesByGameDates() {
       // Populate date dropdown
       let html = '<option value="">-- Select date with games --</option>';
       Array.from(datesWithGames).sort().forEach(date => {
-        const displayDate = new Date(date).toLocaleDateString('en-US', {
+        // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+        const [year, month, day] = date.split('-');
+        const utcDate = new Date(Date.UTC(year, month - 1, day));
+        const displayDate = utcDate.toLocaleDateString('en-US', {
           weekday: 'short',
           month: 'short',
           day: 'numeric'
@@ -352,12 +397,13 @@ function populateEventsByDate() {
       }
       
       // Filter games for the selected date
-      // FIX: Use UTC date matching to avoid timezone issues
-      const selectedDate = gameDate; // Already in YYYY-MM-DD format from dropdown
+      // FIX: Convert UTC times to local date for proper matching
+      const selectedDate = gameDate; // Already in YYYY-MM-DD format
       const filteredGames = games.filter(game => {
-        // Extract just the date part from ISO timestamp (YYYY-MM-DD)
-        const gameUTCDate = game.commence_time.split('T')[0];
-        return gameUTCDate === selectedDate;
+        // Convert UTC time to local date (don't use toISOString which stays in UTC)
+        const gameTime = new Date(game.commence_time);
+        const localDate = gameTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+        return localDate === selectedDate;
       });
       
       if (filteredGames.length === 0) {
@@ -412,8 +458,6 @@ function switchTab(tabName) {
     renderBetsTable();
   } else if (tabName === 'props') {
     renderPropsAnalysis();
-  } else if (tabRefreshHandlers[tabName]) {
-    tabRefreshHandlers[tabName]();
   }
 }
 
@@ -1065,211 +1109,5 @@ function showSettings() {
 // ===================================================
 // Initialize on load
 // ===================================================
-
-// ===================================================
-// Market Movers Tab - Heat Map & Line Tracking
-// ===================================================
-
-function renderHeatMap() {
-  if (!window.heatMapGen) return;
-  
-  const bets = app.betTracker.getAllBets();
-  const heatData = heatMapGen.generateHeatMap(bets);
-  const heatHTML = heatMapGen.renderHeatMap(heatData);
-  const insights = heatMapGen.generateInsights(heatData);
-  
-  const heatContainer = document.getElementById('heatMap');
-  if (heatContainer) {
-    heatContainer.innerHTML = heatHTML;
-  }
-  
-  const insightsContainer = document.getElementById('heatMapInsights');
-  if (insightsContainer) {
-    let insightsHTML = '<h5>🎯 Key Insights</h5>';
-    if (insights.length > 0) {
-      insightsHTML += '<ul>';
-      insights.forEach(insight => {
-        insightsHTML += `<li>${insight}</li>`;
-      });
-      insightsHTML += '</ul>';
-    } else {
-      insightsHTML += '<p style="color: #888;">Add more bets to see insights</p>';
-    }
-    insightsContainer.innerHTML = insightsHTML;
-  }
-}
-
-function renderLineMovementStats() {
-  if (!window.lineHistory) return;
-  
-  const bets = app.betTracker.getAllBets();
-  const stats = lineHistory.getLineMovementStats(bets);
-  
-  const container = document.getElementById('lineMovementStats');
-  if (!container) return;
-  
-  let html = `
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
-        <div style="color: #aaa; font-size: 12px;">Total Tracked</div>
-        <div style="font-size: 24px; color: #00d68f; font-weight: bold;">${stats.totalBets}</div>
-      </div>
-      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
-        <div style="color: #aaa; font-size: 12px;">Avg Movement</div>
-        <div style="font-size: 24px; color: #4ddb7d; font-weight: bold;">${stats.avgMovement}</div>
-      </div>
-      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px;">
-        <div style="color: #aaa; font-size: 12px;">Favorable / Unfavorable</div>
-        <div style="font-size: 20px; color: #99e6cc; font-weight: bold;">${stats.favorableMoves} / ${stats.unfavorableMoves}</div>
-      </div>
-    </div>
-  `;
-  
-  if (stats.movements && stats.movements.length > 0) {
-    html += `<h5 style="margin-top: 20px;">Recent Line Movements</h5>`;
-    html += '<div style="max-height: 300px; overflow-y: auto;">';
-    stats.movements.slice(-10).forEach(move => {
-      const color = move.favorable ? '#00d68f' : '#ff6464';
-      const arrow = move.favorable ? '📈' : '📉';
-      html += `
-        <div style="padding: 10px; background: #0a0e27; margin: 5px 0; border-radius: 5px; border-left: 3px solid ${color};">
-          <strong>${move.pick}</strong> ${arrow} ${move.movement > 0 ? '+' : ''}${move.movement.toFixed(1)}
-        </div>
-      `;
-    });
-    html += '</div>';
-  }
-  
-  container.innerHTML = html;
-}
-
-function renderBettingTimingAnalysis() {
-  if (!window.lineHistory) return;
-  
-  const bets = app.betTracker.getAllBets();
-  const timing = lineHistory.analyzeBettingTiming(bets);
-  
-  const container = document.getElementById('bettingTimingAnalysis');
-  if (!container || !timing) return;
-  
-  const timingEmoji = timing.timing === 'early' ? '⏰' : timing.timing === 'late' ? '⏱️' : '✅';
-  const colorClass = timing.timing === 'early' || timing.timing === 'late' ? '#ffb366' : '#00d68f';
-  
-  let html = `
-    <div style="background: #1a1f3a; padding: 20px; border-radius: 8px; border-left: 4px solid ${colorClass};">
-      <div style="font-size: 18px; margin-bottom: 10px;">
-        ${timingEmoji} <strong>${timing.recommendation}</strong>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-        <div>
-          <div style="color: #aaa; font-size: 12px;">Too Early</div>
-          <div style="font-size: 20px; color: #ffb366;">${timing.tooEarlyCount}</div>
-        </div>
-        <div>
-          <div style="color: #aaa; font-size: 12px;">Too Late</div>
-          <div style="font-size: 20px; color: #ffb366;">${timing.tooLateCount}</div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  container.innerHTML = html;
-}
-
-// ===================================================
-// Calculator Tab - Bankroll & Kelly Criterion
-// ===================================================
-
-function updateCalculatorResults() {
-  const bankroll = parseFloat(document.getElementById('calcBankroll').value) || 1000;
-  const kellyPercent = parseFloat(document.getElementById('kellyPercent').value) || 25;
-  
-  if (bankroll < 10) {
-    showAlert('Minimum bankroll is $10', 'error');
-    return;
-  }
-  
-  const confidenceLevels = [
-    { name: 'Very High (90%+)', confidence: 90 },
-    { name: 'High (75-89%)', confidence: 80 },
-    { name: 'Moderate (60-74%)', confidence: 65 },
-    { name: 'Low (45-59%)', confidence: 50 }
-  ];
-  
-  let html = '<div style="display: grid; grid-template-columns: 1fr; gap: 15px;">';
-  
-  confidenceLevels.forEach(level => {
-    const kellyFraction = kellyPercent / 100;
-    const betSize = bankroll * (level.confidence / 100) * kellyFraction;
-    const riskReward = (betSize / bankroll * 100).toFixed(2);
-    
-    html += `
-      <div style="background: #1a1f3a; padding: 15px; border-radius: 8px; border-left: 4px solid #4ddb7d;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="color: #aaa; font-size: 12px;">${level.name}</div>
-            <div style="font-weight: bold; margin-top: 5px;">Bet Size</div>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 22px; color: #00d68f; font-weight: bold;">$${betSize.toFixed(2)}</div>
-            <div style="color: #888; font-size: 12px;">${riskReward}% of bankroll</div>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-  
-  html += '</div>';
-  
-  const container = document.getElementById('calculatorResults');
-  if (container) {
-    container.innerHTML = html;
-  }
-}
-
-function clearCalculatorForm() {
-  document.getElementById('calcBankroll').value = '1000';
-  document.getElementById('kellyPercent').value = '25';
-  document.getElementById('calculatorResults').innerHTML = '';
-}
-
-function applyCustomFormula() {
-  if (!window.customEdgeCalc) return;
-  
-  const formula = document.getElementById('customFormula').value;
-  const weight = parseFloat(document.getElementById('formulaWeight').value) || 50;
-  
-  if (!formula) {
-    showAlert('Please enter a formula', 'error');
-    return;
-  }
-  
-  customEdgeCalc.saveFormula(formula, weight / 100);
-  showAlert('Custom formula saved! Your model is now blended with AlexBET algorithm.', 'success');
-}
-
-function clearCustomFormula() {
-  document.getElementById('customFormula').value = '';
-  document.getElementById('formulaWeight').value = '50';
-  localStorage.removeItem('alexbet_user_formula');
-  localStorage.removeItem('alexbet_formula_weight');
-  showAlert('Custom formula cleared', 'info');
-}
-
-// ===================================================
-// Tab refresh handlers
-// ===================================================
-
-const tabRefreshHandlers = {
-  'movers': () => {
-    renderHeatMap();
-    renderLineMovementStats();
-    renderBettingTimingAnalysis();
-  },
-  'calculator': () => {
-    updateCalculatorResults();
-  }
-};
-
 
 console.log('[AlexBET] Script loaded successfully');
