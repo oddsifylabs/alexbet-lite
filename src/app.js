@@ -244,11 +244,11 @@ function fetchDatesFromESPNAPI(sport) {
       const [year, month, day] = item.date.split('-');
       const utcDate = new Date(Date.UTC(year, month - 1, day));
       const displayDate = utcDate.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
       });
-      html += `<option value="${item.date}">${displayDate} (${item.date})</option>`;
+      html += `<option value="${item.date}">${displayDate}</option>`;
     });
     
     dateSelect.innerHTML = html;
