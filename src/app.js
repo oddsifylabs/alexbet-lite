@@ -143,11 +143,13 @@ function fetchFromSportsDataIO(sport, gameDate) {
   // SportsDataIO sport IDs
   const sportDataIOMap = {
     'NBA': 'nba',
+    'NCAAB': 'ncaab',
     'NFL': 'nfl',
+    'NCAAF': 'ncaaf',
     'MLB': 'mlb',
     'NHL': 'nhl',
-    'EPL': 'soccer',
-    'ATP': 'tennis'
+    'MMA': 'mma',
+    'EPL': 'soccer'
   };
   
   const sdioSport = sportDataIOMap[sport];
@@ -208,11 +210,13 @@ function fetchFromESPNAPI(sport, gameDate) {
   // ESPN sport IDs for the official API
   const espnSportMap = {
     'NBA': 'nba',
+    'NCAAB': 'college-basketball',
     'NFL': 'nfl',
+    'NCAAF': 'college-football',
     'MLB': 'mlb',
     'NHL': 'nhl',
-    'EPL': 'soccer',
-    'ATP': 'tennis'
+    'MMA': 'mma',
+    'EPL': 'soccer'
   };
   
   const espnSport = espnSportMap[sport];
@@ -276,11 +280,13 @@ function fetchDatesFromSportsDataIO(sport) {
   // SportsDataIO sport IDs
   const sportDataIOMap = {
     'NBA': 'nba',
+    'NCAAB': 'ncaab',
     'NFL': 'nfl',
+    'NCAAF': 'ncaaf',
     'MLB': 'mlb',
     'NHL': 'nhl',
-    'EPL': 'soccer',
-    'ATP': 'tennis'
+    'MMA': 'mma',
+    'EPL': 'soccer'
   };
   
   const sdioSport = sportDataIOMap[sport];
@@ -353,11 +359,13 @@ function fetchDatesFromESPNAPI(sport) {
   // ESPN sport IDs for the official API
   const espnSportMap = {
     'NBA': 'nba',
+    'NCAAB': 'college-basketball',
     'NFL': 'nfl',
+    'NCAAF': 'college-football',
     'MLB': 'mlb',
     'NHL': 'nhl',
-    'EPL': 'soccer',
-    'ATP': 'tennis'
+    'MMA': 'mma',
+    'EPL': 'soccer'
   };
   
   const espnSport = espnSportMap[sport];
