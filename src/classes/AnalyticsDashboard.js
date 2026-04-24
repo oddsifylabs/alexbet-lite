@@ -115,28 +115,28 @@ class AnalyticsDashboard {
 
         <div class="summary-card">
           <div class="card-label">Win Rate</div>
-          <div class="card-value" style="color: ${summary.winRate >= 52 ? '#00d68f' : '#ff6464'}">${summary.winRate}%</div>
+          <div class="card-value" style="color: ${summary.winRate >= 52 ? '#00d68f' : '#ff6464'}">${summary.winRate || 0}%</div>
           <div class="card-detail">${summary.wins}W - ${summary.losses}L</div>
         </div>
 
         <div class="summary-card">
           <div class="card-label">Cumulative CLV</div>
-          <div class="card-value" style="color: ${summary.cumulativeCLV >= 0 ? '#00d68f' : '#ff6464'}">
-            $${Math.abs(summary.cumulativeCLV).toFixed(2)}
+          <div class="card-value" style="color: ${(summary.cumulativeCLV || 0) >= 0 ? '#00d68f' : '#ff6464'}">
+            $${Math.abs(summary.cumulativeCLV || 0).toFixed(2)}
           </div>
-          <div class="card-detail">Avg: $${summary.avgDailyClv.toFixed(2)}/day</div>
+          <div class="card-detail">Avg: $${(summary.avgDailyClv || 0).toFixed(2)}/day</div>
         </div>
 
         <div class="summary-card">
           <div class="card-label">Best Edge Range</div>
           <div class="card-value">${summary.bestEdgeRange || 'N/A'}</div>
-          <div class="card-detail">ROI: ${summary.bestEdgeRangeROI ? summary.bestEdgeRangeROI + '%' : 'N/A'}</div>
+          <div class="card-detail">ROI: ${summary.bestEdgeRangeROI !== -Infinity ? summary.bestEdgeRangeROI + '%' : 'N/A'}</div>
         </div>
 
         <div class="summary-card">
           <div class="card-label">Best Sportsbook</div>
-          <div class="card-value">${summary.bestSportsbook}</div>
-          <div class="card-detail">ROI: ${summary.bestSportsbookROI ? summary.bestSportsbookROI + '%' : 'N/A'}</div>
+          <div class="card-value">${summary.bestSportsbook || 'N/A'}</div>
+          <div class="card-detail">ROI: ${summary.bestSportsbookROI !== -Infinity ? summary.bestSportsbookROI + '%' : 'N/A'}</div>
         </div>
 
         <div class="summary-card">

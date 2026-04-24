@@ -16,7 +16,7 @@ class AdvancedAnalytics {
    */
   getCLVTrends(timeWindow = 'all') {
     const bets = this.betTracker.bets.filter(b => b.status !== 'PENDING');
-    if (bets.length === 0) return { data: [], cumulativeCLV: 0 };
+    if (bets.length === 0) return { data: [], cumulativeCLV: 0, avgDailyClv: 0, peakDay: null };
 
     // Sort bets by entry time
     const sortedBets = [...bets].sort((a, b) => 
@@ -271,14 +271,18 @@ class AdvancedAnalytics {
     const winRateCI = this.getWinRateConfidenceInterval();
 
     // Calculate best edge range
-    const bestEdgeRange = Object.entries(edgeDistribution).reduce((best, [key, range]) => {
-      return (range.roi > best.roi) ? { ...range, key } : best;
-    }, { roi: -Infinity });
+    const bestEdgeRange = Object.entries(edgeDistribution).length > 0 
+      ? Object.entries(edgeDistribution).reduce((best, [key, range]) => {
+          return (parseFloat(range.roi) > parseFloat(best.roi)) ? { ...range, key } : best;
+        }, { roi: -Infinity })
+      : { roi: -Infinity, key: null };
 
     // Calculate best sportsbook
-    const bestSportsbook = Object.values(roiBySportsbook).reduce((best, book) => {
-      return book.roi > best.roi ? book : best;
-    }, { roi: -Infinity, sportsbook: 'N/A' });
+    const bestSportsbook = Object.values(roiBySportsbook).length > 0
+      ? Object.values(roiBySportsbook).reduce((best, book) => {
+          return parseFloat(book.roi) > parseFloat(best.roi) ? book : best;
+        }, { roi: -Infinity, sportsbook: 'N/A' })
+      : { roi: -Infinity, sportsbook: 'N/A' };
 
     return {
       totalBets: bets.length,
