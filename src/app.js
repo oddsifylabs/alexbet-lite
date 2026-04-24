@@ -304,7 +304,11 @@ function fetchDatesFromSportsDataIO(sport) {
   let datePromises = [];
   for (let i = 0; i < 5; i++) {
     const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
-    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    // Use local date format (not UTC) to avoid timezone shift
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`; // YYYY-MM-DD in local time
     
     const sdioUrl = `https://api.sportsdata.io/v3/${sdioSport}/scores/json/GamesByDate/${dateStr}?key=${apiKey}`;
     
