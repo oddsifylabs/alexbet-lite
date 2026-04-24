@@ -881,7 +881,10 @@ function renderBets() {
       <div class="bet-card ${statusClass}">
         <div class="bet-card-header">
           <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
-          <span class="bet-card-date">${time}</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="bet-card-date">${time}</span>
+            <span style="font-size: 11px; padding: 3px 8px; border-radius: 4px; background: ${bet.betStatus === 'REAL' ? '#ff6464' : '#888'}; color: #fff;">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
+          </div>
         </div>
 
         <div class="bet-card-grid">
@@ -949,10 +952,12 @@ function renderBets() {
 function renderBetsTable() {
   const status = document.getElementById('filterStatus').value;
   const sport = document.getElementById('filterSport').value;
+  const betType = document.getElementById('filterBetType').value;
 
   const filters = {};
   if (status) filters.status = status;
   if (sport) filters.sport = sport;
+  if (betType) filters.betStatus = betType;
 
   const bets = app.betTracker.getBets(filters);
   const container = document.getElementById('betsTable');
@@ -971,6 +976,7 @@ function renderBetsTable() {
           <th style="padding: 12px; text-align: center;">Odds</th>
           <th style="padding: 12px; text-align: center;">Stake</th>
           <th style="padding: 12px; text-align: center;">P&L</th>
+          <th style="padding: 12px; text-align: center;">Type</th>
           <th style="padding: 12px; text-align: center;">Status</th>
           <th style="padding: 12px; text-align: center;">Date</th>
         </tr>
@@ -995,6 +1001,11 @@ function renderBetsTable() {
         <td style="padding: 12px; text-align: center;">$${bet.stake}</td>
         <td style="padding: 12px; text-align: center; color: ${bet.pnl > 0 ? '#00d68f' : bet.pnl < 0 ? '#ff6464' : '#fff'}">
           ${bet.pnl > 0 ? '+' : ''}$${bet.pnl}
+        </td>
+        <td style="padding: 12px; text-align: center; font-size: 12px;">
+          <span style="padding: 2px 6px; border-radius: 3px; background: ${bet.betStatus === 'REAL' ? '#ff6464' : '#888'}; color: #fff;">
+            ${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}
+          </span>
         </td>
         <td style="padding: 12px; text-align: center;">${statusEmoji} ${bet.status}</td>
         <td style="padding: 12px; text-align: center;">${time}</td>

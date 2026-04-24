@@ -8,6 +8,7 @@ class FormManager {
     this.betForm = {
       sport: document.getElementById('sport'),
       betType: document.getElementById('betType'),
+      betStatus: document.querySelector('input[name="betStatus"]'),
       pick: document.getElementById('pick'),
       odds: document.getElementById('odds'),
       stake: document.getElementById('stake'),
@@ -401,10 +402,15 @@ class FormManager {
    */
   getFormData() {
     const betType = this.betForm.betType.value;
+    
+    // Get the selected radio button value for bet status
+    const betStatusRadio = document.querySelector('input[name="betStatus"]:checked');
+    const betStatus = betStatusRadio ? betStatusRadio.value : 'PAPER';
 
     const data = {
       sport: this.betForm.sport.value,
       betType: betType,
+      betStatus: betStatus,
       pick: this.betForm.pick.value.trim(),
       entryOdds: parseInt(this.betForm.odds.value) || 0,
       stake: parseFloat(this.betForm.stake.value) || 0,
