@@ -332,8 +332,11 @@ function fetchDatesFromSportsDataIO(sport) {
       return;
     }
     
+    // Sort dates chronologically (YYYY-MM-DD format sorts naturally)
+    datesWithGames.sort((a, b) => a.date.localeCompare(b.date));
+    
     // Populate date dropdown
-    let html = '<option value=\"\">-- Select date with games --</option>';
+    let html = '<option value="">-- Select date with games --</option>';
     datesWithGames.forEach(item => {
       // Parse UTC date string (YYYY-MM-DD) without timezone conversion
       const [year, month, day] = item.date.split('-');
@@ -343,11 +346,11 @@ function fetchDatesFromSportsDataIO(sport) {
         day: '2-digit',
         year: 'numeric'
       });
-      html += `<option value=\"${item.date}\">${displayDate} (${item.count} games)</option>`;
+      html += `<option value="${item.date}">${displayDate} (${item.count} games)</option>`;
     });
     
     dateSelect.innerHTML = html;
-    eventSelect.innerHTML = '<option value=\"\">-- Select date first --</option>';
+    eventSelect.innerHTML = '<option value="">-- Select date first --</option>';
     console.log(`[AlexBET] SportsDataIO: Found ${datesWithGames.length} dates with games for ${sport}`);
   });
 }
