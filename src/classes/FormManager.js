@@ -416,6 +416,7 @@ class FormManager {
       stake: parseFloat(this.betForm.stake.value) || 0,
       edge: parseFloat(this.betForm.edge.value) || 0,
       confidence: parseInt(this.betForm.confidence.value) || 5,
+      sportsbook: document.getElementById('sportsbook').value || 'Unknown',
       notes: this.betForm.notes.value.trim()
     };
 

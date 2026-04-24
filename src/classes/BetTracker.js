@@ -119,7 +119,7 @@ class BetTracker {
       status: 'PENDING',
       result: null,
       pnl: 0,
-      clv: 0,
+      clv: this._calculateCLV(betData.stake, betData.edge || 0),
       gameId: betData.gameId || null,
       liveScore: null,
       notes: BetValidator.sanitizeInput(betData.notes || ''),
@@ -130,7 +130,9 @@ class BetTracker {
       overUnder: betData.overUnder || null,
       playerName: betData.playerName || null,
       propType: betData.propType || null,
-      propLine: betData.propLine || null
+      propLine: betData.propLine || null,
+      // Sportsbook tracking for CLV breakdown
+      sportsbook: betData.sportsbook || 'Unknown'
     };
 
     this.bets.push(bet);
@@ -414,5 +416,68 @@ class BetTracker {
       console.error('[BetTracker] Error calculating storage:', err);
       return null;
     }
+  }
+
+  /**
+   * Calculate Cumulative Live Value (CLV)
+   * Formula: CLV = (stake × edge%) / 100
+   * Represents expected value gained from positive edge
+   */
+  _calculateCLV(stake, edge) {
+    if (!stake || !edge) return 0;
+    const clv = (stake * edge) / 100;
+    return parseFloat(clv.toFixed(2));
+  }
+
+  /**
+   * Get CLV metrics for dashboard
+   */
+  getCLVMetrics() {
+    const pendingBets = this.bets.filter(b => b.status === 'PENDING');
+    const allBets = this.bets.filter(b => b.clv);
+
+    if (allBets.length === 0) {
+      return {
+        totalCLV: 0,
+        pendingCLV: 0,
+        averageCLV: 0,
+        bySportsbook: {},
+        byStatus: {}
+      };
+    }
+
+    const totalCLV = allBets.reduce((sum, b) => sum + (b.clv || 0), 0);
+    const pendingCLV = pendingBets.reduce((sum, b) => sum + (b.clv || 0), 0);
+    const averageCLV = totalCLV / allBets.length;
+
+    // Group by sportsbook
+    const bySportsbook = {};
+    allBets.forEach(bet => {
+      const book = bet.sportsbook || 'Unknown';
+      if (!bySportsbook[book]) {
+        bySportsbook[book] = { clv: 0, bets: 0 };
+      }
+      bySportsbook[book].clv += bet.clv || 0;
+      bySportsbook[book].bets += 1;
+    });
+
+    // Group by status
+    const byStatus = {};
+    this.bets.filter(b => b.clv).forEach(bet => {
+      const status = bet.status || 'UNKNOWN';
+      if (!byStatus[status]) {
+        byStatus[status] = { clv: 0, bets: 0 };
+      }
+      byStatus[status].clv += bet.clv || 0;
+      byStatus[status].bets += 1;
+    });
+
+    return {
+      totalCLV: parseFloat(totalCLV.toFixed(2)),
+      pendingCLV: parseFloat(pendingCLV.toFixed(2)),
+      averageCLV: parseFloat(averageCLV.toFixed(2)),
+      bySportsbook,
+      byStatus
+    };
   }
 }

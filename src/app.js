@@ -795,6 +795,7 @@ function renderAdvancedAnalytics() {
   const overallStats = app.betAnalytics.getOverallStats();
   const streaks = app.betAnalytics.getStreaks();
   const insights = app.betAnalytics.getInsights();
+  const clvMetrics = app.betAnalytics.getCLVMetrics();
   const statsBySport = app.betAnalytics.getStatsBySport();
 
   let analyticsHTML = `
@@ -825,6 +826,18 @@ function renderAdvancedAnalytics() {
           <div class="analytics-value">${overallStats.avgEdge}%</div>
           <div class="analytics-detail">Confidence: ${overallStats.avgConfidence}/10</div>
         </div>
+
+        <div class="analytics-card">
+          <div class="analytics-label">💰 Total CLV</div>
+          <div class="analytics-value" style="color: ${clvMetrics.totalCLV > 0 ? '#00d68f' : clvMetrics.totalCLV < 0 ? '#ff6464' : '#fff'};\">${clvMetrics.totalCLV > 0 ? '+' : ''}$${clvMetrics.totalCLV}</div>
+          <div class="analytics-detail">Pending: ${clvMetrics.pendingCLV > 0 ? '+' : ''}$${clvMetrics.pendingCLV}</div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="analytics-label">Avg CLV per Bet</div>
+          <div class="analytics-value" style="color: ${clvMetrics.averageCLV > 0 ? '#00d68f' : clvMetrics.averageCLV < 0 ? '#ff6464' : '#fff'};\">${clvMetrics.averageCLV > 0 ? '+' : ''}$${clvMetrics.averageCLV}</div>
+          <div class="analytics-detail">Expected value per bet</div>
+        </div>
       </div>
 
       ${insights.length > 0 ? `
@@ -847,6 +860,21 @@ function renderAdvancedAnalytics() {
               <div class="breakdown-sport">${sport.sport}</div>
               <div class="breakdown-stat">${sport.wins}/${sport.settledBets} (${sport.winRate}%)</div>
               <div class="breakdown-stat">ROI: ${sport.roi}%</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      ${Object.keys(clvMetrics.bySportsbook).length > 0 ? `
+      <div class="clv-breakdown">
+        <div class="breakdown-header">💰 CLV by Sportsbook</div>
+        <div class="breakdown-grid">
+          ${Object.entries(clvMetrics.bySportsbook).map(([book, data]) => `
+            <div class="breakdown-card">
+              <div class="breakdown-sport">${book}</div>
+              <div class="breakdown-stat" style="color: ${data.clv > 0 ? '#00d68f' : data.clv < 0 ? '#ff6464' : '#fff'};">CLV: ${data.clv > 0 ? '+' : ''}$${data.clv}</div>
+              <div class="breakdown-stat">${data.bets} bets</div>
             </div>
           `).join('')}
         </div>
@@ -909,6 +937,12 @@ function renderBets() {
             <div class="bet-field-value">${bet.edge > 0 ? '+' : ''}${bet.edge}%</div>
           </div>
           <div class="bet-field">
+            <div class="bet-field-label">CLV</div>
+            <div class="bet-field-value" style="color: ${bet.clv > 0 ? '#00d68f' : bet.clv < 0 ? '#ff6464' : '#fff'};">
+              ${bet.clv > 0 ? '+' : ''}$${bet.clv}
+            </div>
+          </div>
+          <div class="bet-field">
             <div class="bet-field-label">Confidence</div>
             <div class="bet-field-value">${bet.confidence}/10</div>
           </div>
@@ -918,6 +952,12 @@ function renderBets() {
               ${bet.pnl > 0 ? '+' : ''}$${bet.pnl}
             </div>
           </div>
+          ${bet.sportsbook && bet.sportsbook !== 'Unknown' ? `
+          <div class="bet-field">
+            <div class="bet-field-label">Book</div>
+            <div class="bet-field-value">${bet.sportsbook}</div>
+          </div>
+          ` : ''}
           ${bet.notes ? `
           <div class="bet-field" style="grid-column: 1 / -1;">
             <div class="bet-field-label">Notes</div>

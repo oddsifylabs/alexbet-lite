@@ -222,6 +222,7 @@ class BetAnalytics {
     const stats = this.getOverallStats();
     const byConfidence = this.getPerformanceByConfidence();
     const streaks = this.getStreaks();
+    const clvMetrics = this.getCLVMetrics();
     const insights = [];
 
     // Check win rate
@@ -258,6 +259,21 @@ class BetAnalytics {
       });
     }
 
+    // Check CLV (expected value)
+    if (clvMetrics.pendingCLV > 0) {
+      insights.push({
+        type: 'positive',
+        emoji: '💰',
+        message: `Pending bets have ${clvMetrics.pendingCLV > 0 ? '+' : ''}$${clvMetrics.pendingCLV} expected CLV - Your edge is quantified`
+      });
+    } else if (clvMetrics.totalCLV < 0) {
+      insights.push({
+        type: 'warning',
+        emoji: '⚠️',
+        message: `Total CLV is ${clvMetrics.totalCLV} - Focus on higher-edge opportunities`
+      });
+    }
+
     // Check confidence alignment
     const veryHighConf = byConfidence['Very High (9-10)'];
     if (veryHighConf && parseFloat(veryHighConf.winRate) > 60) {
@@ -286,6 +302,13 @@ class BetAnalytics {
     }
 
     return insights;
+  }
+
+  /**
+   * Get CLV metrics (delegates to betTracker)
+   */
+  getCLVMetrics() {
+    return this.betTracker.getCLVMetrics();
   }
 
   // Helper methods
