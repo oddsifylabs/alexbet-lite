@@ -143,9 +143,9 @@ function fetchFromSportsDataIO(sport, gameDate) {
   // SportsDataIO sport IDs
   const sportDataIOMap = {
     'NBA': 'nba',
-    'NCAAB': 'ncaab',
+    'College Basketball': 'collegebasketball',
     'NFL': 'nfl',
-    'NCAAF': 'ncaaf',
+    'College Football': 'collegefootball',
     'MLB': 'mlb',
     'NHL': 'nhl',
     'MMA': 'mma',
@@ -280,9 +280,9 @@ function fetchDatesFromSportsDataIO(sport) {
   // SportsDataIO sport IDs
   const sportDataIOMap = {
     'NBA': 'nba',
-    'NCAAB': 'ncaab',
+    'College Basketball': 'collegebasketball',
     'NFL': 'nfl',
-    'NCAAF': 'ncaaf',
+    'College Football': 'collegefootball',
     'MLB': 'mlb',
     'NHL': 'nhl',
     'MMA': 'mma',
