@@ -338,10 +338,11 @@ function fetchDatesFromSportsDataIO(sport) {
     // Populate date dropdown
     let html = '<option value="">-- Select date with games --</option>';
     datesWithGames.forEach(item => {
-      // Parse UTC date string (YYYY-MM-DD) without timezone conversion
+      // Parse date string directly without timezone conversion
       const [year, month, day] = item.date.split('-');
-      const utcDate = new Date(Date.UTC(year, month - 1, day));
-      const displayDate = utcDate.toLocaleDateString('en-US', {
+      // Use local date to avoid UTC timezone shift
+      const localDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const displayDate = localDate.toLocaleDateString('en-US', {
         month: '2-digit',
         day: '2-digit',
         year: 'numeric'
