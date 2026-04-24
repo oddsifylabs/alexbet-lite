@@ -337,10 +337,12 @@ function populateDatesByGameDates() {
         const utcDate = new Date(Date.UTC(year, month - 1, day));
         const displayDate = utcDate.toLocaleDateString('en-US', {
           weekday: 'short',
-          month: 'short',
-          day: 'numeric'
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
         });
-        html += `<option value="${date}">${displayDate} (${date})</option>`;
+        // value stays as YYYY-MM-DD for matching, but display as MM-DD-YYYY
+        html += `<option value="${date}">${displayDate}</option>`;
       });
       
       dateSelect.innerHTML = html;
