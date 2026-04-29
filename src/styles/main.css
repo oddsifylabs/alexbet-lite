@@ -39,6 +39,20 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.35s ease;
+
+  /* Card Shadow System (for Phase 6a redesign) */
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* Semantic card backgrounds */
+  --card-success-bg: rgba(0, 214, 143, 0.08);
+  --card-success-border: rgba(0, 214, 143, 0.3);
+  --card-error-bg: rgba(255, 100, 100, 0.08);
+  --card-error-border: rgba(255, 100, 100, 0.3);
+  --card-warning-bg: rgba(255, 167, 38, 0.08);
+  --card-warning-border: rgba(255, 167, 38, 0.3);
+  --card-info-bg: rgba(77, 159, 255, 0.08);
+  --card-info-border: rgba(77, 159, 255, 0.3);
 }
 
 /* ===================================================
@@ -440,39 +454,41 @@ button.btn-secondary:hover {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
 }
 
 .stat-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--border-light);
+  border-left: 4px solid transparent;
   border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   text-align: center;
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: all var(--transition-normal);
+  box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 214, 143, 0.4);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-sm);
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 8px;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .stat-detail {
@@ -480,17 +496,66 @@ button.btn-secondary:hover {
   color: var(--text-tertiary);
 }
 
-/* Stat card variants */
+/* ===== Stat card color variants (Phase 6a) ===== */
+
+/* Success variant (green) - for wins, positive metrics */
+.stat-card--success {
+  background: var(--card-success-bg);
+  border-color: var(--card-success-border);
+  border-left-color: var(--success);
+}
+
+.stat-card--success .stat-value {
+  color: var(--success);
+}
+
+/* Error variant (red) - for losses, negative metrics */
+.stat-card--error {
+  background: var(--card-error-bg);
+  border-color: var(--card-error-border);
+  border-left-color: var(--error);
+}
+
+.stat-card--error .stat-value {
+  color: var(--error);
+}
+
+/* Warning variant (orange) - for neutral/money metrics */
+.stat-card--warning {
+  background: var(--card-warning-bg);
+  border-color: var(--card-warning-border);
+  border-left-color: var(--warning);
+}
+
+.stat-card--warning .stat-value {
+  color: var(--warning);
+}
+
+/* Info variant (blue) - for analytical metrics */
+.stat-card--info {
+  background: var(--card-info-bg);
+  border-color: var(--card-info-border);
+  border-left-color: var(--info);
+}
+
+.stat-card--info .stat-value {
+  color: var(--info);
+}
+
+/* Legacy variant classes (backward compatibility) */
 .stat-card.positive {
-  border-color: rgba(0, 214, 143, 0.3);
+  border-left-color: var(--success);
+  background: var(--card-success-bg);
 }
 
 .stat-card.negative {
-  border-color: rgba(255, 100, 100, 0.3);
+  border-left-color: var(--error);
+  background: var(--card-error-bg);
 }
 
 .stat-card.warning {
-  border-color: rgba(255, 167, 38, 0.3);
+  border-left-color: var(--warning);
+  background: var(--card-warning-bg);
 }
 
 /* ===================================================

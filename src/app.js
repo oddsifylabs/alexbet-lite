@@ -4,13 +4,40 @@
  */
 
 // ===================================================
-// Utility Functions
+// Utility: Stat Card Type Mapping (Phase 6a)
 // ===================================================
 
 /**
- * Copy text to clipboard with visual feedback
- * @param {HTMLElement} element - The element containing text to copy
+ * Get the semantic card type for a stat metric
+ * Used to apply color-coded styling (success/error/warning/info)
+ * @param {string} metricKey - The metric key (e.g., 'roi', 'totalLosses')
+ * @returns {string} - The card type: 'success', 'error', 'warning', or 'info'
  */
+function getStatCardType(metricKey) {
+  const typeMap = {
+    'winRate': 'success',        // Green for positive performance metrics
+    'wins': 'success',
+    'totalPnL': (value) => value > 0 ? 'success' : value < 0 ? 'error' : 'info',
+    'roi': (value) => value > 0 ? 'success' : value < 0 ? 'error' : 'info',
+    'avgEdge': (value) => value > 0 ? 'success' : value < 0 ? 'error' : 'info',
+    'totalLosses': 'error',      // Red for loss metrics
+    'losses': 'error',
+    'totalWagered': 'warning',   // Orange for neutral/money metrics
+    'totalWins': 'success',
+    'clv': 'info',               // Blue for analysis metrics
+    'confidence': 'info',
+    'status': (status) => {
+      if (status.includes('✅') || status.includes('ON TRACK')) return 'success';
+      if (status.includes('⚠️') || status.includes('BELOW')) return 'error';
+      return 'info';
+    }
+  };
+  
+  return typeMap[metricKey] || 'info';
+}
+
+// ===================================================
+// Copy text to clipboard with visual feedback
 function copyToClipboard(element) {
   const text = element.textContent.trim();
   
@@ -769,34 +796,39 @@ function renderStats() {
 
   const statsGrid = document.getElementById('statsGrid');
 
+  // Build stat cards with color-coded classes (Phase 6a)
+  const winRateType = getStatCardType('winRate');
+  const pnlType = stats.totalPnL > 0 ? 'success' : stats.totalPnL < 0 ? 'error' : 'info';
+  const roiType = stats.roi > 0 ? 'success' : stats.roi < 0 ? 'error' : 'info';
+  const edgeType = parseFloat(stats.avgEdge) > 0 ? 'success' : parseFloat(stats.avgEdge) < 0 ? 'error' : 'info';
+  const statusType = winRateStatus.onTrack ? 'success' : 'error';
+
   statsGrid.innerHTML = `
-    <div class="stat-card">
+    <div class="stat-card stat-card--${winRateType}">
       <div class="stat-label">Win Rate</div>
       <div class="stat-value">${stats.winRate.toFixed(1)}%</div>
       <div class="stat-detail">${stats.wins}W - ${stats.losses}L - ${stats.pushes}P</div>
     </div>
 
-    <div class="stat-card ${stats.totalPnL > 0 ? 'positive' : stats.totalPnL < 0 ? 'negative' : ''}">
+    <div class="stat-card stat-card--${pnlType}">
       <div class="stat-label">P&L</div>
-      <div class="stat-value" style="color: ${stats.totalPnL > 0 ? '#00d68f' : stats.totalPnL < 0 ? '#ff6464' : '#fff'}">
-        ${stats.totalPnL > 0 ? '+' : ''}$${stats.totalPnL}
-      </div>
+      <div class="stat-value">${stats.totalPnL > 0 ? '+' : ''}$${stats.totalPnL}</div>
       <div class="stat-detail">ROI: ${stats.roi}%</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card stat-card--warning">
       <div class="stat-label">Wagered</div>
       <div class="stat-value">$${stats.totalWagered}</div>
       <div class="stat-detail">${stats.settledBets} settled, ${stats.pendingBets} pending</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card stat-card--${edgeType}">
       <div class="stat-label">Avg Edge</div>
       <div class="stat-value">${parseFloat(stats.avgEdge) > 0 ? '+' : ''}${stats.avgEdge}%</div>
       <div class="stat-detail">Target: 56-65%</div>
     </div>
 
-    <div class="stat-card ${winRateStatus.onTrack ? 'positive' : 'negative'}">
+    <div class="stat-card stat-card--${statusType}">
       <div class="stat-label">Status</div>
       <div class="stat-value" style="font-size: 16px;">${winRateStatus.status}</div>
       <div class="stat-detail">${winRateStatus.message}</div>
