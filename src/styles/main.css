@@ -44,6 +44,23 @@
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.3);
 
+  /* Enhanced Shadow System (Phase 6d: Shadows & Depth) */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.4);
+  --shadow-2xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+  
+  /* Colored Glowing Shadows */
+  --shadow-success: 0 8px 24px rgba(0, 214, 143, 0.2);
+  --shadow-success-hover: 0 12px 36px rgba(0, 214, 143, 0.35);
+  --shadow-error: 0 8px 24px rgba(255, 100, 100, 0.2);
+  --shadow-error-hover: 0 12px 36px rgba(255, 100, 100, 0.35);
+  --shadow-warning: 0 8px 24px rgba(255, 167, 38, 0.2);
+  --shadow-warning-hover: 0 12px 36px rgba(255, 167, 38, 0.35);
+  --shadow-info: 0 8px 24px rgba(77, 159, 255, 0.2);
+  --shadow-info-hover: 0 12px 36px rgba(77, 159, 255, 0.35);
+
   /* Semantic card backgrounds */
   --card-success-bg: rgba(0, 214, 143, 0.08);
   --card-success-border: rgba(0, 214, 143, 0.3);
@@ -142,6 +159,17 @@ a:hover {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
   backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
 }
 
 .header-title {
@@ -174,6 +202,17 @@ a:hover {
   background: var(--bg-card);
   flex-wrap: wrap;
   backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.tabs::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
 }
 
 .tab {
@@ -187,19 +226,23 @@ a:hover {
   border-radius: 999px;
   font-size: 13px;
   white-space: nowrap;
+  position: relative;
+  z-index: 1;
 }
 
 .tab:hover {
   color: var(--text-primary);
   border-color: var(--border-light);
   background: rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .tab.active {
   color: var(--bg-dark);
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 22px rgba(0, 214, 143, 0.22);
+  box-shadow: var(--shadow-success);
+  transform: translateY(-1px);
 }
 
 .tab-content {
@@ -257,8 +300,26 @@ textarea {
   color: var(--text-primary);
   font-size: 13px;
   width: 100%;
-  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   font-family: inherit;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: rgba(0, 214, 143, 0.3);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 214, 143, 0.1);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 12px rgba(0, 214, 143, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Select dropdown styling */
@@ -313,16 +374,27 @@ button {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 0 10px 24px rgba(0, 214, 143, 0.16);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  pointer-events: none;
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(0, 214, 143, 0.24);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 button:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
 }
 
 button:disabled {
@@ -405,11 +477,24 @@ button.btn-secondary:hover {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-lg);
   transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent);
+  pointer-events: none;
 }
 
 .form-section:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: var(--border-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .form-section:last-child {
@@ -497,10 +582,20 @@ button.btn-secondary:hover {
   transition: all var(--transition-normal);
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   box-shadow: var(--card-shadow-hover);
 }
 
@@ -532,10 +627,15 @@ button.btn-secondary:hover {
   background: var(--card-success-bg);
   border-color: var(--card-success-border);
   border-left-color: var(--success);
+  box-shadow: var(--shadow-success);
 }
 
 .stat-card--success .stat-value {
   color: var(--success);
+}
+
+.stat-card--success:hover {
+  box-shadow: var(--shadow-success-hover);
 }
 
 /* Error variant (red) - for losses, negative metrics */
@@ -543,10 +643,15 @@ button.btn-secondary:hover {
   background: var(--card-error-bg);
   border-color: var(--card-error-border);
   border-left-color: var(--error);
+  box-shadow: var(--shadow-error);
 }
 
 .stat-card--error .stat-value {
   color: var(--error);
+}
+
+.stat-card--error:hover {
+  box-shadow: var(--shadow-error-hover);
 }
 
 /* Warning variant (orange) - for neutral/money metrics */
@@ -554,10 +659,15 @@ button.btn-secondary:hover {
   background: var(--card-warning-bg);
   border-color: var(--card-warning-border);
   border-left-color: var(--warning);
+  box-shadow: var(--shadow-warning);
 }
 
 .stat-card--warning .stat-value {
   color: var(--warning);
+}
+
+.stat-card--warning:hover {
+  box-shadow: var(--shadow-warning-hover);
 }
 
 /* Info variant (blue) - for analytical metrics */
@@ -565,10 +675,15 @@ button.btn-secondary:hover {
   background: var(--card-info-bg);
   border-color: var(--card-info-border);
   border-left-color: var(--info);
+  box-shadow: var(--shadow-info);
 }
 
 .stat-card--info .stat-value {
   color: var(--info);
+}
+
+.stat-card--info:hover {
+  box-shadow: var(--shadow-info-hover);
 }
 
 /* Legacy variant classes (backward compatibility) */
@@ -606,34 +721,62 @@ button.btn-secondary:hover {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.bet-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
 }
 
 .bet-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: rgba(0, 214, 143, 0.35);
+  box-shadow: var(--shadow-lg);
 }
 
 .bet-card.live {
   border-color: rgba(77, 159, 255, 0.55);
-  box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.25);
+  box-shadow: var(--shadow-info);
+}
+
+.bet-card.live:hover {
+  box-shadow: var(--shadow-info-hover);
 }
 
 .bet-card.won {
   border-left: 3px solid var(--success);
+  box-shadow: var(--shadow-success);
+}
+
+.bet-card.won:hover {
+  box-shadow: var(--shadow-success-hover);
 }
 
 .bet-card.lost {
   border-left: 3px solid var(--error);
+  box-shadow: var(--shadow-error);
+}
+
+.bet-card.lost:hover {
+  box-shadow: var(--shadow-error-hover);
 }
 
 .bet-card.pending {
   border-left: 3px solid var(--info);
+  box-shadow: var(--shadow-warning);
 }
 
 .bet-card.push {
   border-left: 3px solid var(--warning);
+  box-shadow: var(--shadow-warning);
 }
 
 .bet-card-header,
@@ -2094,19 +2237,31 @@ footer {
   gap: 4px;
   text-align: center;
   transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.analysis-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
 }
 
 .analysis-card:hover {
   background: rgba(0, 214, 143, 0.05);
   border-color: rgba(0, 214, 143, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 214, 143, 0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .analysis-card:first-child:hover {
   background: linear-gradient(135deg, rgba(0, 214, 143, 0.18), rgba(0, 214, 143, 0.08));
   border-color: rgba(0, 214, 143, 0.5);
-  box-shadow: 0 8px 24px rgba(0, 214, 143, 0.25);
+  box-shadow: var(--shadow-success-hover);
+  transform: translateY(-6px);
 }
 
 .analysis-label {
