@@ -6,7 +6,7 @@
   <meta name="description" content="AlexBET Lite - Bet tracker & analytics app for testing AlexBOT Sharp recommendations">
   <meta name="theme-color" content="#0a0a12">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.sportsdata.io https://espn-api.herokuapp.com https://api.espn.com https://site.api.espn.com https://api.the-odds-api.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.sportsdata.io https://espn-api.herokuapp.com https://api.espn.com https://site.api.espn.com https://api.the-odds-api.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>AlexBET Lite — Bet Tracker & Analytics</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -20,7 +20,7 @@
         <h1><svg class="icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> AlexBET Lite <span class="version" id="headerVersion">v2026.04.23</span></h1>
         <p class="subtitle">Validate gem algorithm | Track CLV & edge | Target: 56-65% win rate | Phase 6 Complete <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></p>
       </div>
-      <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode" onclick="toggleTheme()">
+      <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
         <span id="themeIcon">&#9728;&#65039;</span>
       </button>
     </div>
@@ -498,7 +498,7 @@
   </footer>
 
   <!-- Scroll to Top -->
-  <button id="scrollTopBtn" class="scroll-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Scroll to top">
+  <button id="scrollTopBtn" class="scroll-top hidden" aria-label="Scroll to top">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
   </button>
 

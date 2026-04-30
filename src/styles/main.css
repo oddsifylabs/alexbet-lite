@@ -1113,6 +1113,18 @@ button.small,
   height: 18px;
 }
 
+.scroll-top.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.scroll-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 /* ===================================================
    SVG Icon System
    =================================================== */

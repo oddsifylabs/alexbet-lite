@@ -311,7 +311,42 @@ function setupEventListeners() {
     }
   });
 
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+
+  // Scroll to top
+  initScrollTop();
+
   console.log('[AlexBET] Event listeners setup complete');
+}
+
+// ===================================================
+// Scroll to Top
+// ===================================================
+
+function initScrollTop() {
+  const btn = document.getElementById('scrollTopBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  const toggleVisibility = () => {
+    if (window.scrollY > 300) {
+      btn.classList.remove('hidden');
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+      btn.classList.add('hidden');
+    }
+  };
+
+  window.addEventListener('scroll', toggleVisibility, { passive: true });
+  toggleVisibility();
 }
 
 // ===================================================
