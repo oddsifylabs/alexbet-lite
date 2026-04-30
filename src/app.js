@@ -37,6 +37,119 @@ function getStatCardType(metricKey) {
 }
 
 // ===================================================
+// Theme Toggle
+// ===================================================
+
+function initTheme() {
+  const saved = localStorage.getItem('alexbet-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon(theme);
+  const iconEl = document.getElementById('themeIcon');
+  if (iconEl) iconEl.textContent = theme === 'dark' ? '\u2600\ufe0f' : '\ud83c\udf19';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('alexbet-theme', next);
+  updateThemeIcon(next);
+}
+
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.textContent = theme === 'dark' ? '\u2600\ufe0f' : '\ud83c\udf19';
+  }
+}
+
+// ===================================================
+// Activity Log
+// ===================================================
+
+function logActivity(type, message) {
+  const logs = JSON.parse(localStorage.getItem('alexbet-activity') || '[]');
+  const entry = {
+    time: new Date().toISOString(),
+    type: type,
+    message: message
+  };
+  logs.unshift(entry);
+  if (logs.length > 100) logs.pop();
+  localStorage.setItem('alexbet-activity', JSON.stringify(logs));
+  refreshActivityLog();
+}
+
+function refreshActivityLog() {
+  const container = document.getElementById('activityLog');
+  if (!container) return;
+  const logs = JSON.parse(localStorage.getItem('alexbet-activity') || '[]');
+  if (logs.length === 0) {
+    container.innerHTML = '<div class="intel-empty">No activity recorded yet</div>';
+    return;
+  }
+  container.innerHTML = logs.map(log => {
+    const time = new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `<div class="activity-log-entry">
+      <span class="activity-time">${time}</span>
+      <span class="activity-type ${log.type}">${log.type}</span>
+      <span class="activity-msg">${log.message}</span>
+    </div>`;
+  }).join('');
+}
+
+function clearActivityLog() {
+  if (!confirm('Clear all activity logs?')) return;
+  localStorage.removeItem('alexbet-activity');
+  refreshActivityLog();
+}
+
+// ===================================================
+// Calculator helpers
+// ===================================================
+
+function updateCalculatorResults() {
+  const bankroll = parseFloat(document.getElementById('calcBankroll').value) || 0;
+  const kellyPct = parseFloat(document.getElementById('kellyPercent').value) || 25;
+  const container = document.getElementById('calculatorResults');
+  if (bankroll < 10) {
+    container.innerHTML = '<p style="color: var(--loss); font-size: 12px;">Bankroll must be at least $10</p>';
+    return;
+  }
+  const kelly = bankroll * (kellyPct / 100);
+  const low = kelly * 0.5;
+  const mid = kelly;
+  const high = kelly * 1.5;
+  container.innerHTML = `
+    <div class="analytics-grid" style="margin-bottom: 0;">
+      <div class="analytics-card">
+        <div class="analytics-label">Conservative (${kellyPct/2}%)</div>
+        <div class="analytics-value">$${low.toFixed(2)}</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-label">Standard (${kellyPct}%)</div>
+        <div class="analytics-value">$${mid.toFixed(2)}</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-label">Aggressive (${kellyPct*1.5}%)</div>
+        <div class="analytics-value">$${high.toFixed(2)}</div>
+      </div>
+    </div>
+  `;
+  logActivity('system', `Ran Kelly calculator: bankroll $${bankroll}, fraction ${kellyPct}%`);
+}
+
+function clearCalculatorForm() {
+  document.getElementById('calcBankroll').value = 1000;
+  document.getElementById('kellyPercent').value = 25;
+  document.getElementById('calculatorResults').innerHTML = '';
+}
+
+
+
+// ===================================================
 // Copy text to clipboard with visual feedback
 function copyToClipboard(element) {
   const text = element.textContent.trim();
@@ -129,6 +242,9 @@ async function loadCommitInfo() {
 function initializeApp() {
   console.log('[AlexBET] Initializing application...');
 
+  // Initialize theme
+  initTheme();
+
   // Load version
   document.getElementById('headerVersion').textContent = 'v2026.04.23';
   document.getElementById('appVersion').textContent = 'v2026.04.23';
@@ -139,8 +255,8 @@ function initializeApp() {
   // Initialize UI
   renderStats();
   renderBets();
-  renderProps();
   updateStorageInfo();
+  refreshActivityLog();
 
   // Start live score updates
   startLiveScoreUpdates();
@@ -565,14 +681,11 @@ function switchTab(tabName) {
 
   // Refresh data when switching tabs
   if (tabName === 'analysis') {
-    // Initialize and render the analytics dashboard
     const dashboard = new AnalyticsDashboard(app.betTracker, 'analyticsDashboardContainer');
     dashboard.render();
     renderAnalysis();
   } else if (tabName === 'bets') {
-    renderBetsTable();
-  } else if (tabName === 'props') {
-    renderPropsAnalysis();
+    renderBets();
   }
 }
 
@@ -599,6 +712,7 @@ function addBet() {
     // Build description for alert
     const betDescription = buildBetDescription(betData);
     showAlert(`✅ ${betDescription}`, 'success');
+    logActivity('create', betDescription);
     
     // Clear form and reset
     resetBetForm();
@@ -615,7 +729,7 @@ function addBet() {
 function buildBetDescription(betData) {
   const { pick, betType, spreadLine, overUnder, totalLine, entryOdds, stake } = betData;
   
-  let desc = `Bet added: ${pick}`;
+  let desc = `Signal added: ${pick}`;
   
   if (betType === 'SPREAD' && spreadLine) {
     desc += ` (${spreadLine > 0 ? '+' : ''}${spreadLine})`;
@@ -673,7 +787,8 @@ function updateBetStatus(betId, newStatus) {
   const result = app.betTracker.updateBetStatus(betId, newStatus);
 
   if (result.success) {
-    showAlert(`✅ Bet status updated to ${newStatus}`, 'success');
+    showAlert(`✅ Signal status updated to ${newStatus}`, 'success');
+    logActivity('update', `Signal ${betId} marked as ${newStatus}`);
     updateDisplays();
   } else {
     showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
@@ -688,7 +803,8 @@ function deleteBet(betId) {
   const result = app.betTracker.deleteBet(betId);
 
   if (result.success) {
-    showAlert('✅ Bet deleted', 'success');
+    showAlert('✅ Signal deleted', 'success');
+    logActivity('delete', 'Deleted signal ' + betId);
     updateDisplays();
   } else {
     showAlert('❌ Error deleting bet', 'error');
@@ -696,14 +812,23 @@ function deleteBet(betId) {
 }
 
 function filterBets() {
-  renderBetsTable();
+  const status = document.getElementById('filterStatus').value;
+  const sport = document.getElementById('filterSport').value;
+  const betType = document.getElementById('filterBetType').value;
+  const filters = {};
+  if (status) filters.status = status;
+  if (sport) filters.sport = sport;
+  if (betType) filters.betStatus = betType;
+  const bets = app.betTracker.getBets(filters);
+  renderBets(bets);
 }
 
 function exportBets() {
   const result = app.betTracker.exportAsJSON();
 
   if (result.success) {
-    showAlert('✅ Bets exported successfully', 'success');
+    showAlert('✅ Signals exported successfully', 'success');
+    logActivity('system', 'Exported signals to JSON');
   } else {
     showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
   }
@@ -718,7 +843,8 @@ async function importBets() {
   const result = await app.betTracker.importFromJSON(file);
 
   if (result.success) {
-    showAlert(`✅ Imported ${result.imported} bets`, 'success');
+    showAlert(`✅ Imported ${result.imported} signals`, 'success');
+    logActivity('create', `Imported ${result.imported} signals`);
     updateDisplays();
   } else {
     showAlert(`❌ Error: ${result.errors[0]}`, 'error');
@@ -737,7 +863,8 @@ function clearAllBets() {
   const result = app.betTracker.clearAllBets(true);
 
   if (result.success) {
-    showAlert('✅ All bets cleared', 'success');
+    showAlert('✅ All signals cleared', 'success');
+    logActivity('delete', 'Cleared all signals');
     updateDisplays();
   }
 }
@@ -835,16 +962,6 @@ function renderStats() {
     </div>
   `;
 
-  // Show/hide empty state
-  const bets = app.betTracker.bets;
-  if (bets.length === 0) {
-    document.getElementById('emptyState').style.display = 'block';
-    document.getElementById('betsCards').style.display = 'none';
-  } else {
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('betsCards').style.display = 'grid';
-  }
-
   // Render advanced analytics if available
   renderAdvancedAnalytics();
 }
@@ -884,7 +1001,7 @@ function renderAdvancedAnalytics() {
 
         <div class="analytics-card">
           <div class="analytics-label">ROI</div>
-          <div class="analytics-value" style="color: ${parseFloat(overallStats.roi) > 0 ? '#00d68f' : '#ff6464'};">${overallStats.roi}%</div>
+          <div class="analytics-value" style="color: ${parseFloat(overallStats.roi) > 0 ? 'var(--win)' : 'var(--loss)'};">${overallStats.roi}%</div>
           <div class="analytics-detail">P&L: ${overallStats.roi > 0 ? '+' : ''}$${overallStats.totalPnL}</div>
         </div>
 
@@ -896,13 +1013,13 @@ function renderAdvancedAnalytics() {
 
         <div class="analytics-card">
           <div class="analytics-label">💰 Total CLV</div>
-          <div class="analytics-value" style="color: ${clvMetrics.totalCLV > 0 ? '#00d68f' : clvMetrics.totalCLV < 0 ? '#ff6464' : '#fff'};\">${clvMetrics.totalCLV > 0 ? '+' : ''}$${clvMetrics.totalCLV}</div>
+          <div class="analytics-value" style="color: ${clvMetrics.totalCLV > 0 ? 'var(--win)' : clvMetrics.totalCLV < 0 ? 'var(--loss)' : 'var(--text)'};\">${clvMetrics.totalCLV > 0 ? '+' : ''}$${clvMetrics.totalCLV}</div>
           <div class="analytics-detail">Pending: ${clvMetrics.pendingCLV > 0 ? '+' : ''}$${clvMetrics.pendingCLV}</div>
         </div>
 
         <div class="analytics-card">
           <div class="analytics-label">Avg CLV per Bet</div>
-          <div class="analytics-value" style="color: ${clvMetrics.averageCLV > 0 ? '#00d68f' : clvMetrics.averageCLV < 0 ? '#ff6464' : '#fff'};\">${clvMetrics.averageCLV > 0 ? '+' : ''}$${clvMetrics.averageCLV}</div>
+          <div class="analytics-value" style="color: ${clvMetrics.averageCLV > 0 ? 'var(--win)' : clvMetrics.averageCLV < 0 ? 'var(--loss)' : 'var(--text)'};\">${clvMetrics.averageCLV > 0 ? '+' : ''}$${clvMetrics.averageCLV}</div>
           <div class="analytics-detail">Expected value per bet</div>
         </div>
       </div>
@@ -940,7 +1057,7 @@ function renderAdvancedAnalytics() {
           ${Object.entries(clvMetrics.bySportsbook).map(([book, data]) => `
             <div class="breakdown-card">
               <div class="breakdown-sport">${book}</div>
-              <div class="breakdown-stat" style="color: ${data.clv > 0 ? '#00d68f' : data.clv < 0 ? '#ff6464' : '#fff'};">CLV: ${data.clv > 0 ? '+' : ''}$${data.clv}</div>
+              <div class="breakdown-stat" style="color: ${data.clv > 0 ? 'var(--win)' : data.clv < 0 ? 'var(--loss)' : 'var(--text)'};">CLV: ${data.clv > 0 ? '+' : ''}$${data.clv}</div>
               <div class="breakdown-stat">${data.bets} bets</div>
             </div>
           `).join('')}
@@ -953,12 +1070,14 @@ function renderAdvancedAnalytics() {
   container.innerHTML = analyticsHTML;
 }
 
-function renderBets() {
-  const bets = app.betTracker.bets.sort((a, b) => new Date(b.entryTime) - new Date(a.entryTime));
+function renderBets(betsList) {
+  const bets = (betsList || app.betTracker.bets).sort((a, b) => new Date(b.entryTime) - new Date(a.entryTime));
   const container = document.getElementById('betsCards');
 
+  if (!container) return;
+
   if (bets.length === 0) {
-    container.innerHTML = '';
+    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg><p>No signals match your filters.</p></div>';
     return;
   }
 
@@ -971,14 +1090,16 @@ function renderBets() {
       'lost': '❌',
       'push': '➖'
     }[statusClass] || '❓';
+    const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
+    const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
 
     return `
       <div class="bet-card ${statusClass}">
         <div class="bet-card-header">
           <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
-          <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="bet-card-meta">
             <span class="bet-card-date">${time}</span>
-            <span style="font-size: 11px; padding: 3px 8px; border-radius: 4px; background: ${bet.betStatus === 'REAL' ? '#ff6464' : '#888'}; color: #fff;">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
+            <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
           </div>
         </div>
 
@@ -1005,7 +1126,7 @@ function renderBets() {
           </div>
           <div class="bet-field">
             <div class="bet-field-label">CLV</div>
-            <div class="bet-field-value" style="color: ${bet.clv > 0 ? '#00d68f' : bet.clv < 0 ? '#ff6464' : '#fff'};">
+            <div class="bet-field-value" style="color: ${clvColor};">
               ${bet.clv > 0 ? '+' : ''}$${bet.clv}
             </div>
           </div>
@@ -1015,7 +1136,7 @@ function renderBets() {
           </div>
           <div class="bet-field">
             <div class="bet-field-label">P&L</div>
-            <div class="bet-field-value" style="color: ${bet.pnl > 0 ? '#00d68f' : bet.pnl < 0 ? '#ff6464' : '#fff'}">
+            <div class="bet-field-value" style="color: ${pnlColor}">
               ${bet.pnl > 0 ? '+' : ''}$${bet.pnl}
             </div>
           </div>
@@ -1026,7 +1147,7 @@ function renderBets() {
           </div>
           ` : ''}
           ${bet.notes ? `
-          <div class="bet-field" style="grid-column: 1 / -1;">
+          <div class="bet-field full-width">
             <div class="bet-field-label">Notes</div>
             <div class="bet-field-value" style="font-size: 12px; color: var(--text-tertiary); font-style: italic;">${bet.notes}</div>
           </div>
@@ -1038,17 +1159,19 @@ function renderBets() {
             ${statusEmoji} ${bet.status}
           </span>
           ${bet.status === 'PENDING' ? `
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <select onchange="updateBetStatus('${bet.id}', this.value)" style="font-size: 12px; padding: 6px 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; cursor: pointer;">
+            <div class="bet-card-actions">
+              <select onchange="updateBetStatus('${bet.id}', this.value)">
                 <option value="">Mark as...</option>
                 <option value="WON">✅ Won</option>
                 <option value="LOST">❌ Lost</option>
                 <option value="PUSH">➖ Push</option>
               </select>
-              <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 6px 8px; font-size: 12px; cursor: pointer;">🗑️ Delete</button>
+              <button onclick="deleteBet('${bet.id}')" class="danger">🗑️ Delete</button>
             </div>
           ` : `
-            <button onclick="deleteBet('${bet.id}')" class="danger" style="padding: 6px 8px; font-size: 12px; cursor: pointer;">🗑️ Delete</button>
+            <div class="bet-card-actions">
+              <button onclick="deleteBet('${bet.id}')" class="danger">🗑️ Delete</button>
+            </div>
           `}
         </div>
       </div>
@@ -1075,17 +1198,17 @@ function renderBetsTable() {
   }
 
   let html = `
-    <table style="width: 100%; border-collapse: collapse; color: #fff;">
+    <table class="bets-table">
       <thead>
-        <tr style="border-bottom: 1px solid #333; background: rgba(0,214,143,0.05);">
-          <th style="padding: 12px; text-align: left;">Pick</th>
-          <th style="padding: 12px; text-align: left;">Sport</th>
-          <th style="padding: 12px; text-align: center;">Odds</th>
-          <th style="padding: 12px; text-align: center;">Stake</th>
-          <th style="padding: 12px; text-align: center;">P&L</th>
-          <th style="padding: 12px; text-align: center;">Type</th>
-          <th style="padding: 12px; text-align: center;">Status</th>
-          <th style="padding: 12px; text-align: center;">Date</th>
+        <tr>
+          <th>Signal</th>
+          <th>Sport</th>
+          <th style="text-align: center;">Odds</th>
+          <th style="text-align: center;">Stake</th>
+          <th style="text-align: center;">P&L</th>
+          <th style="text-align: center;">Type</th>
+          <th style="text-align: center;">Status</th>
+          <th style="text-align: center;">Date</th>
         </tr>
       </thead>
       <tbody>
@@ -1099,23 +1222,24 @@ function renderBetsTable() {
       'lost': '❌',
       'push': '➖'
     }[bet.status.toLowerCase()] || '❓';
+    const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
 
     html += `
-      <tr style="border-bottom: 1px solid #222;">
-        <td style="padding: 12px;">${bet.pick}</td>
-        <td style="padding: 12px;">${bet.sport}</td>
-        <td style="padding: 12px; text-align: center;">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</td>
-        <td style="padding: 12px; text-align: center;">$${bet.stake}</td>
-        <td style="padding: 12px; text-align: center; color: ${bet.pnl > 0 ? '#00d68f' : bet.pnl < 0 ? '#ff6464' : '#fff'}">
+      <tr>
+        <td>${bet.pick}</td>
+        <td>${bet.sport}</td>
+        <td style="text-align: center;">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</td>
+        <td style="text-align: center;">$${bet.stake}</td>
+        <td style="text-align: center; color: ${pnlColor}">
           ${bet.pnl > 0 ? '+' : ''}$${bet.pnl}
         </td>
-        <td style="padding: 12px; text-align: center; font-size: 12px;">
-          <span style="padding: 2px 6px; border-radius: 3px; background: ${bet.betStatus === 'REAL' ? '#ff6464' : '#888'}; color: #fff;">
+        <td style="text-align: center; font-size: 12px;">
+          <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">
             ${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}
           </span>
         </td>
-        <td style="padding: 12px; text-align: center;">${statusEmoji} ${bet.status}</td>
-        <td style="padding: 12px; text-align: center;">${time}</td>
+        <td style="text-align: center;">${statusEmoji} ${bet.status}</td>
+        <td style="text-align: center;">${time}</td>
       </tr>
     `;
   });
@@ -1146,7 +1270,7 @@ function renderProps() {
         </div>
         <div class="stat-card">
           <div class="stat-label">P&L</div>
-          <div class="stat-value" style="color: ${summary.totalPnL > 0 ? '#00d68f' : summary.totalPnL < 0 ? '#ff6464' : '#fff'}">
+          <div class="stat-value" style="color: ${summary.totalPnL > 0 ? 'var(--win)' : summary.totalPnL < 0 ? 'var(--loss)' : 'var(--text)'}">
             ${summary.totalPnL > 0 ? '+' : ''}$${summary.totalPnL}
           </div>
         </div>

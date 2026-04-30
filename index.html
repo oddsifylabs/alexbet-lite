@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-  <!-- Cache Buster: 2026-04-23T23:50:00Z -->
   <meta name="description" content="AlexBET Lite - Bet tracker & analytics app for testing AlexBOT Sharp recommendations">
-  <meta name="theme-color" content="#030305">
+  <meta name="theme-color" content="#0a0a12">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.sportsdata.io https://espn-api.herokuapp.com https://api.espn.com https://site.api.espn.com https://api.the-odds-api.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -21,70 +20,58 @@
         <h1><svg class="icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> AlexBET Lite <span class="version" id="headerVersion">v2026.04.23</span></h1>
         <p class="subtitle">Validate gem algorithm | Track CLV & edge | Target: 56-65% win rate | Phase 6 Complete <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></p>
       </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode" onclick="toggleTheme()">
+        <span id="themeIcon">&#9728;&#65039;</span>
+      </button>
     </div>
 
     <!-- Tab Navigation -->
     <div class="tabs">
       <button class="tab active" data-tab="dashboard"><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Dashboard</button>
-      <button class="tab" data-tab="bets"><svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Bets</button>
-      <button class="tab" data-tab="props"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2.05 12h19.9M12 2.05c4.05 3.15 6.5 8.05 6.5 9.95s-2.45 6.8-6.5 9.95"/></svg> Props</button>
+      <button class="tab" data-tab="bets"><svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Signals</button>
       <button class="tab" data-tab="analysis"><svg class="icon" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/></svg> Analysis</button>
-      <button class="tab" data-tab="movers"><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Market Movers</button>
-      <button class="tab" data-tab="calculator"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h8M8 18h5"/></svg> Calculator</button>
       <button class="tab" data-tab="intel"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Intel</button>
       <button class="tab" data-tab="settings"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Settings</button>
     </div>
 
     <!-- Dashboard Tab -->
     <div id="dashboard" class="tab-content active">
-      <!-- Statistics at the TOP -->
       <div class="stats-grid" id="statsGrid"></div>
-
-      <!-- Advanced Analytics -->
       <div id="analyticsPanel" class="analytics-panel"></div>
 
-      <!-- Add Bet Form -->
+      <!-- Add Signal Form -->
       <div class="controls">
         <!-- Section 1: Game Details -->
         <div class="form-section">
           <h4 class="section-title"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 12h.01M18 12h.01"/></svg> Game Details</h4>
-          
           <div class="form-group">
             <label for="sport">Sport</label>
             <select id="sport">
               <option value="">Select Sport</option>
-              <option value="NBA"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2.05 12h19.9M12 2.05c4.05 3.15 6.5 8.05 6.5 9.95s-2.45 6.8-6.5 9.95"/></svg> NBA</option>
-              <option value="College Basketball"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2.05 12h19.9M12 2.05c4.05 3.15 6.5 8.05 6.5 9.95s-2.45 6.8-6.5 9.95"/></svg> College Basketball</option>
-              <option value="NFL"><svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-45 12 12)"/><path d="M12 2v20M2 12h20"/></svg> NFL</option>
-              <option value="College Football"><svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-45 12 12)"/><path d="M12 2v20M2 12h20"/></svg> College Football</option>
-              <option value="MLB"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 6c1.5 3 1.5 9 0 12M16 6c-1.5 3-1.5 9 0 12"/></svg> MLB</option>
-              <option value="NHL"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19l4-10 3 3 6-6M10 19h10"/></svg> NHL</option>
-              <option value="MMA"><svg class="icon" viewBox="0 0 24 24"><path d="M18 9l-6-6-6 6M6 9v8a2 2 0 002 2h8a2 2 0 002-2V9"/></svg> MMA</option>
-              <option value="EPL"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z"/></svg> EPL</option>
+              <option value="NBA">NBA</option>
+              <option value="College Basketball">College Basketball</option>
+              <option value="NFL">NFL</option>
+              <option value="College Football">College Football</option>
+              <option value="MLB">MLB</option>
+              <option value="NHL">NHL</option>
+              <option value="MMA">MMA</option>
+              <option value="EPL">EPL</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="gameDate">Game Date</label>
-            <select id="gameDate">
-              <option value="">-- Select date with games --</option>
-            </select>
+            <select id="gameDate"><option value="">-- Select date with games --</option></select>
             <small class="help-text">Dates with games in the next 5 days (auto-populated)</small>
           </div>
-
           <div class="form-group">
             <label for="event">Event (Teams/Matchup)</label>
-            <select id="event">
-              <option value="">-- Select game --</option>
-            </select>
+            <select id="event"><option value="">-- Select game --</option></select>
             <small class="help-text">Games for this sport + date (auto-populated)</small>
           </div>
         </div>
-
         <!-- Section 2: Type-Specific Fields -->
         <div class="form-section">
-          <h4 class="section-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Bet Details</h4>
-          
+          <h4 class="section-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09A1.65 1.65 0 0019.4 13z"/></svg> Bet Details</h4>
           <div class="form-group">
             <label for="betType">Bet Type</label>
             <select id="betType">
@@ -95,38 +82,32 @@
               <option value="PROP">Prop</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="betStatus">Bet Status</label>
             <div style="display: flex; gap: 15px; margin-top: 8px;">
               <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; margin: 0;">
                 <input type="radio" name="betStatus" id="betStatusPaper" value="PAPER" checked>
-                <span style="font-size: 14px;"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Paper Bet</span>
+                <span style="font-size: 14px;">Paper Bet</span>
                 <span style="font-size: 12px; color: #888;">(Practice)</span>
               </label>
               <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; margin: 0;">
                 <input type="radio" name="betStatus" id="betStatusReal" value="REAL">
-                <span style="font-size: 14px;"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5c-1.5-1-4.5-1-4.5 1.5s3 1.5 3 4-3 2.5-4.5 1.5"/></svg> Real Money</span>
+                <span style="font-size: 14px;">Real Money</span>
                 <span style="font-size: 12px; color: #888;">(Live)</span>
               </label>
             </div>
             <small class="help-text">Choose whether this is a practice or real money bet</small>
           </div>
-
           <div class="form-group">
             <label for="betDate">Bet Date</label>
             <input type="date" id="betDate">
             <small class="help-text">When you placed this bet</small>
           </div>
-          
-          <!-- For all bet types: Pick/Team -->
           <div class="form-group">
-            <label for="pick">Team / Player / Pick</label>
+            <label for="pick">Signal (Team / Player)</label>
             <input type="text" id="pick" placeholder="e.g., Lakers, Mahomes, Warriors -7">
             <small class="help-text" id="pickHint"></small>
           </div>
-
-          <!-- SPREAD-SPECIFIC FIELDS -->
           <div id="spreadFields" style="display: none;">
             <div class="form-group">
               <label for="spreadLine">Spread Line</label>
@@ -135,14 +116,10 @@
             </div>
             <div class="form-group">
               <label for="spreadTeam">Spread Team</label>
-              <select id="spreadTeam">
-                <option value="">-- Select team --</option>
-              </select>
+              <select id="spreadTeam"><option value="">-- Select team --</option></select>
               <small class="help-text">Team taking the spread</small>
             </div>
           </div>
-
-          <!-- TOTAL/OVER-UNDER FIELDS -->
           <div id="totalFields" style="display: none;">
             <div class="form-group">
               <label for="totalLine">Total Line</label>
@@ -153,13 +130,11 @@
               <label for="overUnder">Over or Under?</label>
               <select id="overUnder">
                 <option value="">-- Select --</option>
-                <option value="OVER"><svg class="icon" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/></svg> OVER (betting total goes over)</option>
-                <option value="UNDER"><svg class="icon" viewBox="0 0 24 24"><path d="M23 18l-9.5-9.5-5 5L1 6M17 18h6v-6"/></svg> UNDER (betting total goes under)</option>
+                <option value="OVER">OVER (betting total goes over)</option>
+                <option value="UNDER">UNDER (betting total goes under)</option>
               </select>
             </div>
           </div>
-
-          <!-- PROP-SPECIFIC FIELDS -->
           <div id="propFields" style="display: none;">
             <div class="form-group">
               <label for="playerName">Player Name</label>
@@ -175,11 +150,9 @@
             </div>
           </div>
         </div>
-
         <!-- Section 3: Entry Info -->
         <div class="form-section">
           <h4 class="section-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5c-1.5-1-4.5-1-4.5 1.5s3 1.5 3 4-3 2.5-4.5 1.5"/></svg> Entry Info</h4>
-          
           <div class="form-group">
             <label for="sportsbook">Sportsbook</label>
             <select id="sportsbook">
@@ -195,146 +168,100 @@
             </select>
             <small class="help-text">Where you placed this bet</small>
           </div>
-          
           <div class="form-group">
             <label for="odds">Odds</label>
             <input type="number" id="odds" placeholder="e.g., -110">
             <small class="help-text" id="oddsHint"></small>
           </div>
-
           <div class="form-group">
             <label for="stake">Stake ($)</label>
             <input type="number" id="stake" placeholder="e.g., 100" min="1" step="1">
             <small class="help-text" id="stakeHint"></small>
           </div>
-
           <div class="form-group">
             <label for="edge">Edge (%)</label>
             <input type="number" id="edge" placeholder="e.g., 3.5" step="0.1">
             <small class="help-text">Your estimated edge on this bet</small>
           </div>
-
           <div class="form-group">
             <label for="confidence">Confidence (1-10)</label>
             <input type="number" id="confidence" placeholder="1-10" min="1" max="10" step="1">
-            <small class="help-text">How confident are you in this pick?</small>
+            <small class="help-text">How confident are you in this signal?</small>
           </div>
-
-          <div class="form-group">
-            <label for="sportsbook">Sportsbook</label>
-            <select id="sportsbook">
-              <option value="">-- Select sportsbook --</option>
-              <option value="DraftKings">DraftKings</option>
-              <option value="FanDuel">FanDuel</option>
-              <option value="BetMGM">BetMGM</option>
-              <option value="Caesars">Caesars</option>
-              <option value="BetRivers">BetRivers</option>
-              <option value="Pointsbet">Pointsbet</option>
-              <option value="Other">Other</option>
-            </select>
-            <small class="help-text">Which sportsbook are you betting on?</small>
-          </div>
-
           <div class="form-group">
             <label for="result">Result</label>
             <select id="result">
               <option value="">-- Select result --</option>
-              <option value="PENDING">⏳ Pending</option>
-              <option value="WON"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Won</option>
-              <option value="LOST"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Lost</option>
-              <option value="PUSH"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Push (Tie)</option>
+              <option value="PENDING">Pending</option>
+              <option value="WON">Won</option>
+              <option value="LOST">Lost</option>
+              <option value="PUSH">Push (Tie)</option>
             </select>
             <small class="help-text">Outcome of the bet</small>
           </div>
-
           <div class="form-group">
             <label for="notes">Notes (optional)</label>
             <textarea id="notes" placeholder="Why are you making this bet? Key factors?" rows="2"></textarea>
           </div>
         </div>
-
         <!-- Pre-Bet Analysis Panel -->
         <div id="analysisPanelContainer" class="form-section hidden">
           <h4 class="section-title">Pre-Bet Analysis</h4>
-          
           <div class="analysis-grid">
-            <!-- CLV Projection -->
             <div class="analysis-card">
               <div class="analysis-label">Expected CLV</div>
               <div class="analysis-value text-success" id="projectedCLV">+$0.00</div>
               <small class="text-tertiary">(Stake × Edge%) / 100</small>
             </div>
-
-            <!-- Edge Assessment -->
             <div class="analysis-card">
               <div class="analysis-label">Edge Assessment</div>
               <div class="analysis-value" id="edgeAssessment">0%</div>
               <small id="edgeMessage" class="text-tertiary">Enter edge to analyze</small>
             </div>
-
-            <!-- Win Rate Required -->
             <div class="analysis-card">
               <div class="analysis-label">Required Win Rate</div>
               <div class="analysis-value" id="requiredWinRate">--</div>
               <small class="text-tertiary">Break-even probability</small>
             </div>
-
-            <!-- Kelly Fraction -->
             <div class="analysis-card">
               <div class="analysis-label">Kelly Fraction (25%)</div>
               <div class="analysis-value text-secondary" id="kellyFraction">$0.00</div>
               <small class="text-tertiary">Recommended stake (conservative)</small>
             </div>
-
-            <!-- Confidence Impact -->
             <div class="analysis-card">
               <div class="analysis-label">Confidence Adjusted</div>
               <div class="analysis-value" id="confidenceAdjusted">0%</div>
               <small id="confidenceMessage" class="text-tertiary">Sets position sizing</small>
             </div>
-
-            <!-- Risk Assessment -->
             <div class="analysis-card">
               <div class="analysis-label">Risk Level</div>
               <div class="analysis-value text-secondary" id="riskLevel">LOW</div>
               <small id="riskMessage" class="text-tertiary">Based on edge & confidence</small>
             </div>
           </div>
-
-          <!-- Analysis Insights -->
           <div id="analysisInsights" class="hidden" style="margin-top: 20px; padding: 16px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: var(--radius-sm);">
             <div id="insightsList" class="flex-col gap-2"></div>
           </div>
         </div>
-
         <!-- Form Actions -->
         <div class="form-section">
           <div class="form-group">
             <label>&nbsp;</label>
-            <button id="addBetBtn" class="btn-primary" onclick="addBet()"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Add Bet</button>
-            <button type="button" class="btn-secondary" onclick="resetBetForm()">↻ Clear Form</button>
+            <button id="addBetBtn" class="btn-primary" onclick="addBet()">Add Signal</button>
+            <button type="button" class="btn-secondary" onclick="resetBetForm()">Clear Form</button>
           </div>
           <div id="formValidation" class="validation-feedback"></div>
         </div>
       </div>
 
-      <!-- Alert Messages -->
       <div id="alertContainer"></div>
-
-      <!-- Bets Cards -->
-      <div id="betsCards" class="bets-grid"></div>
-
-      <!-- Empty State -->
-      <div id="emptyState" class="empty-state" style="display: none;">
-        <h3>No bets yet</h3>
-        <p>Add your first bet above to start tracking</p>
-      </div>
     </div>
 
-    <!-- Bets Tab -->
+    <!-- Signals Tab -->
     <div id="bets" class="tab-content">
-      <div class="controls">
-        <div class="form-group">
+      <!-- Inline Filter Toolbar -->
+      <div class="filter-toolbar">
+        <div class="filter-group">
           <label for="filterStatus">Status</label>
           <select id="filterStatus" onchange="filterBets()">
             <option value="">All Statuses</option>
@@ -344,16 +271,15 @@
             <option value="PUSH">Push</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label for="filterBetType">Bet Type</label>
+        <div class="filter-group">
+          <label for="filterBetType">Type</label>
           <select id="filterBetType" onchange="filterBets()">
-            <option value="">All Bets</option>
-            <option value="PAPER"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Paper Bets Only</option>
-            <option value="REAL"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5c-1.5-1-4.5-1-4.5 1.5s3 1.5 3 4-3 2.5-4.5 1.5"/></svg> Real Money Only</option>
+            <option value="">All Types</option>
+            <option value="PAPER">Paper Only</option>
+            <option value="REAL">Real Money Only</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="filter-group">
           <label for="filterSport">Sport</label>
           <select id="filterSport" onchange="filterBets()">
             <option value="">All Sports</option>
@@ -365,63 +291,43 @@
             <option value="ATP">ATP</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="exportBets()"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export JSON</button>
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="document.getElementById('importFile').click()" class="secondary"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import JSON</button>
+        <div class="filter-actions">
+          <button onclick="exportBets()" class="btn" title="Export JSON">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export
+          </button>
+          <button onclick="document.getElementById('importFile').click()" class="btn" title="Import JSON">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import
+          </button>
           <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importBets()">
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="clearAllBets()" class="danger"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>️ Clear All</button>
-        </div>
-      </div>
-
-      <div id="betsTable"></div>
-    </div>
-
-    <!-- Props Tab -->
-    <div id="props" class="tab-content">
-      <div class="controls">
-        <div class="form-group">
-          <label for="propPlayer">Player</label>
-          <input type="text" id="propPlayer" placeholder="Player name">
-        </div>
-        <div class="form-group">
-          <label for="propSport">Sport</label>
-          <select id="propSport">
-            <option value="">Select Sport</option>
-            <option value="NBA"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2.05 12h19.9M12 2.05c4.05 3.15 6.5 8.05 6.5 9.95s-2.45 6.8-6.5 9.95"/></svg> NBA</option>
-            <option value="NFL"><svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-45 12 12)"/><path d="M12 2v20M2 12h20"/></svg> NFL</option>
-            <option value="MLB"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 6c1.5 3 1.5 9 0 12M16 6c-1.5 3-1.5 9 0 12"/></svg> MLB</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="propType">Prop Type</label>
-          <input type="text" id="propType" placeholder="e.g., Points Over">
-        </div>
-        <div class="form-group">
-          <label for="propLine">Line</label>
-          <input type="number" id="propLine" placeholder="e.g., 24.5" step="0.5">
-        </div>
-        <div class="form-group">
-          <label for="propOdds">Odds</label>
-          <input type="number" id="propOdds" placeholder="e.g., -110">
-        </div>
-        <div class="form-group">
-          <label for="propStake">Stake ($)</label>
-          <input type="number" id="propStake" placeholder="e.g., 50" min="1">
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="addPropBet()">Add Prop</button>
+          <button onclick="clearAllBets()" class="danger" title="Clear All">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Clear
+          </button>
         </div>
       </div>
 
-      <div id="propsContainer"></div>
+      <div id="betsCards" class="bets-grid"></div>
+
+      <!-- Calculator Section inside Signals tab -->
+      <div class="calculator-section">
+        <h4><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h8M8 18h5"/></svg> Advanced Bankroll & Kelly Criterion Calculator</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="calcBankroll">Bankroll ($)</label>
+            <input type="number" id="calcBankroll" placeholder="1000" min="10" step="50" value="1000">
+            <small class="help-text">Minimum $10</small>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="kellyPercent">Kelly % (Fractional)</label>
+            <input type="number" id="kellyPercent" placeholder="25" min="5" max="100" step="5" value="25">
+            <small class="help-text">25% = 1/4 Kelly (recommended)</small>
+          </div>
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button onclick="updateCalculatorResults()" class="btn primary">Calculate Bet Sizes</button>
+          <button onclick="clearCalculatorForm()" class="btn secondary">Reset</button>
+        </div>
+        <div id="calculatorResults" style="margin-top: 20px;"></div>
+      </div>
     </div>
 
     <!-- Analysis Tab -->
@@ -430,162 +336,100 @@
       <div id="analysisContainer"></div>
     </div>
 
-    <!-- Intel Tab -->
+    <!-- Intel Tab — Modern Redesign -->
     <div id="intel" class="tab-content">
-      <div class="intel-container">
-        <!-- Beta Info Section -->
-        <div class="intel-section">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v8M5 10h14l-2 7H7z"/></svg> Current Beta</h3>
-          <div id="betaInfo" class="info-card">
-            <p>Phase 6 Complete <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></p>
-            <p>v2026.04.23 - Production Ready</p>
-            <p>Features: Enhanced Forms, Smart Suggestions, Analytics Dashboard</p>
-          </div>
-        </div>
-
-        <!-- Live Games Scores -->
-        <div class="intel-section">
+      <div class="intel-grid">
+        <!-- Live Game Scores -->
+        <div class="intel-card">
           <h3><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 12h.01M18 12h.01"/></svg> Live Game Scores</h3>
-          <div id="liveGamesContainer" class="games-grid">
-            <p style="text-align: center; color: #888;">Select a sport above to load live scores</p>
+          <div id="liveGamesContainer">
+            <div class="intel-empty">Select a sport on the Dashboard to load live scores</div>
           </div>
         </div>
 
-        <!-- News Feed -->
-        <div class="intel-section">
+        <!-- Sports News Feed -->
+        <div class="intel-card">
           <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-4 0v-9a2 2 0 012-2h2"/><path d="M10 6h6M10 10h6M10 14h4"/></svg> Sports News Feed</h3>
-          <div id="newsFeedContainer" class="news-feed">
-            <p style="text-align: center; color: #888;">Loading sports news...</p>
+          <div id="newsFeedContainer">
+            <div class="intel-empty">Loading sports news...</div>
           </div>
         </div>
 
         <!-- Injury Reports -->
-        <div class="intel-section">
+        <div class="intel-card">
           <h3><svg class="icon" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M8 10h8M12 6v8"/></svg> Injury Reports</h3>
-          <div id="injuryContainer" class="injury-list">
-            <p style="text-align: center; color: #888;">No injury updates available</p>
+          <div id="injuryContainer">
+            <div class="intel-empty">No injury updates available</div>
           </div>
         </div>
 
-        <!-- Trending Bets / Market Movers -->
-        <div class="intel-section">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Market Movers</h3>
-          <div id="marketMoversContainer" class="market-movers">
-            <p style="text-align: center; color: #888;">Tracking market movement...</p>
+        <!-- Game Conditions -->
+        <div class="intel-card">
+          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> Game Conditions</h3>
+          <div id="weatherContainer">
+            <div class="intel-empty">Weather data loading...</div>
           </div>
-        </div>
-
-        <!-- Weather & Conditions -->
-        <div class="intel-section">
-          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>️ Game Conditions</h3>
-          <div id="weatherContainer" class="weather-info">
-            <p style="text-align: center; color: #888;">Weather data loading...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Market Movers Tab -->
-    <div id="movers" class="tab-content">
-      <div class="controls">
-        <h3><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Market Movers & Line Tracking</h3>
-        <p class="subtitle">Recent line shifts and betting opportunities</p>
-      </div>
-      
-      <div id="heatMapContainer" class="analytics-panel">
-        <h4><svg class="icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg> Heat Map - Edge Distribution by Sport & Market Type</h4>
-        <div id="heatMap"></div>
-        <div id="heatMapInsights" style="margin-top: 20px; padding: 15px; background: #1a1f3a; border-radius: 8px;"></div>
-      </div>
-      
-      <div class="analytics-panel">
-        <h4><svg class="icon" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/></svg> Line Movement Analysis</h4>
-        <div id="lineMovementStats"></div>
-      </div>
-      
-      <div class="analytics-panel">
-        <h4>⏱️ Betting Timing Recommendations</h4>
-        <div id="bettingTimingAnalysis"></div>
-      </div>
-    </div>
-
-    <!-- Calculator Tab -->
-    <div id="calculator" class="tab-content">
-      <div class="controls">
-        <h3><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h8M8 18h5"/></svg> Advanced Bankroll & Kelly Criterion Calculator</h3>
-        <p class="subtitle">Detailed bet sizing and strategy analysis</p>
-        
-        <div class="form-section">
-          <h4>Starting Bankroll</h4>
-          <div class="form-group">
-            <label for="calcBankroll">Bankroll ($)</label>
-            <input type="number" id="calcBankroll" placeholder="1000" min="10" step="50" value="1000">
-            <small class="help-text">Minimum $10</small>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h4>Kelly Strategy</h4>
-          <div class="form-group">
-            <label for="kellyPercent">Kelly % (Fractional)</label>
-            <input type="number" id="kellyPercent" placeholder="25" min="5" max="100" step="5" value="25">
-            <small class="help-text">25% = 1/4 Kelly (recommended), 100% = Full Kelly (aggressive)</small>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h4>Confidence Level Analysis</h4>
-          <div id="calculatorResults" style="margin-top: 20px;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="updateCalculatorResults()" class="btn-primary">Calculate Bet Sizes</button>
-          <button onclick="clearCalculatorForm()" class="btn-secondary">Reset</button>
-        </div>
-      </div>
-
-      <div id="calculatorAdvanced" class="analytics-panel" style="margin-top: 20px;">
-        <h4>Advanced Options</h4>
-        <div class="form-section">
-          <h4>Custom Edge Formula (Optional)</h4>
-          <div class="form-group">
-            <label for="customFormula">Formula String</label>
-            <input type="text" id="customFormula" placeholder="e.g., WinProb=65, MarketProb=48">
-            <small class="help-text">Format: key=value, key=value</small>
-          </div>
-          <div class="form-group">
-            <label for="formulaWeight">Formula Weight (%)</label>
-            <input type="number" id="formulaWeight" placeholder="50" min="0" max="100" step="10" value="50">
-            <small class="help-text">Blend your model with AlexBET algorithm. 50% = equal weight</small>
-          </div>
-          <button onclick="applyCustomFormula()" class="btn-secondary">Apply Custom Formula</button>
-          <button onclick="clearCustomFormula()" class="btn-secondary">Reset to Default</button>
         </div>
       </div>
     </div>
 
     <!-- Settings Tab -->
     <div id="settings" class="tab-content">
-      <div class="controls">
-        <div class="form-group">
-          <label>App Version</label>
-          <p id="appVersion">v2026.04.23</p>
+      <div class="settings-grid">
+        <!-- App Info -->
+        <div class="settings-card">
+          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> App Info</h3>
+          <div class="settings-row">
+            <span class="settings-label">Version</span>
+            <span class="settings-value" id="appVersion">v2026.04.23</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Phase</span>
+            <span class="settings-value">6 Complete ✅</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Status</span>
+            <span class="settings-value">Production Ready</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Storage</span>
+            <span class="settings-value" id="storageUsage">Calculating...</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Storage Usage</label>
-          <p id="storageUsage">Calculating...</p>
+
+        <!-- Current Beta -->
+        <div class="settings-card">
+          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v8M5 10h14l-2 7H7z"/></svg> Current Beta</h3>
+          <div class="settings-row">
+            <span class="settings-label">Phase</span>
+            <span class="settings-value">Phase 6 Complete ✅</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Version</span>
+            <span class="settings-value">v2026.04.23</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Features</span>
+            <span class="settings-value" style="text-align: right; line-height: 1.5;">Enhanced Forms<br>Smart Suggestions<br>Analytics Dashboard</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button onclick="showSettings()" class="secondary">More Info</button>
+
+        <!-- Activity Log -->
+        <div class="settings-card" style="grid-column: 1 / -1;">
+          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Activity Log</h3>
+          <div id="activityLog" class="activity-log">
+            <div class="intel-empty">No activity recorded yet</div>
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <button onclick="clearActivityLog()" class="btn small danger">Clear Log</button>
+            <button onclick="refreshActivityLog()" class="btn small secondary">Refresh</button>
+          </div>
         </div>
       </div>
       <div id="settingsPanel"></div>
     </div>
   </div>
-
-  <!-- Footer -->
+<!-- Footer -->
   <footer id="appFooter">
     <div class="footer-content">
       <!-- Section 1: About -->
