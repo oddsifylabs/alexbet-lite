@@ -1,30 +1,32 @@
 /* ===================================================
-   AlexBET Lite — Modern Minimalist Design
-   Clean, refined, focused on clarity
+   AlexBET Lite — Dashboard Style
+   Grays, light blacks, off-white
    =================================================== */
 
 :root {
-  --bg: #0a0a0b;
-  --bg-elevated: #141416;
-  --bg-hover: #1a1a1c;
-  --border: #222224;
-  --border-light: #2a2a2c;
-  --text: #f0f0f0;
-  --text-secondary: #888888;
-  --text-tertiary: #555555;
-  --accent: #22c55e;
-  --accent-hover: #16a34a;
-  --accent-soft: rgba(34, 197, 94, 0.1);
-  --error: #ef4444;
-  --error-soft: rgba(239, 68, 68, 0.1);
-  --warning: #f59e0b;
-  --warning-soft: rgba(245, 158, 11, 0.1);
-  --info: #3b82f6;
-  --info-soft: rgba(59, 130, 246, 0.1);
-  --radius: 8px;
-  --radius-sm: 6px;
-  --radius-lg: 12px;
-  --transition: 150ms ease;
+  --bg: #f3f4f6;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f9fafb;
+  --border: #e5e7eb;
+  --border-light: #d1d5db;
+  --text: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --accent: #1f2937;
+  --accent-hover: #111827;
+  --accent-soft: rgba(31, 41, 55, 0.08);
+  --error: #dc2626;
+  --error-soft: rgba(220, 38, 38, 0.08);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.08);
+  --info: #2563eb;
+  --info-soft: rgba(37, 99, 235, 0.08);
+  --success: #059669;
+  --success-soft: rgba(5, 150, 105, 0.08);
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
+  --transition: 120ms ease;
 }
 
 * {
@@ -52,60 +54,70 @@ body {
    =================================================== */
 
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0 24px;
 }
 
 /* ===================================================
-   Header
+   Sticky Header
    =================================================== */
 
 .header {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-elevated);
   border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  margin-bottom: 0;
 }
 
 .header-title h1 {
-  font-size: 24px;
+  font-size: 17px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--text);
 }
 
 .header-title .version {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-tertiary);
-  background: var(--bg-elevated);
+  background: var(--bg);
   padding: 2px 8px;
-  border-radius: 100px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   letter-spacing: 0;
 }
 
 .header-title .subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
-  margin-top: 4px;
+  margin-top: 2px;
   font-weight: 400;
 }
 
 /* ===================================================
-   Tabs
+   Tabs — Dashboard Nav
    =================================================== */
 
 .tabs {
+  position: sticky;
+  top: 53px;
+  z-index: 40;
   display: flex;
-  gap: 4px;
-  margin-bottom: 24px;
-  padding: 4px;
+  gap: 0;
+  margin-bottom: 0;
+  padding: 0;
   background: var(--bg-elevated);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -115,28 +127,31 @@ body {
 }
 
 .tab {
-  padding: 8px 16px;
+  padding: 12px 16px;
   border: none;
+  border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   transition: all var(--transition);
   white-space: nowrap;
   font-family: inherit;
+  margin-bottom: -1px;
 }
 
 .tab:hover {
   color: var(--text);
-  background: var(--bg-hover);
+  background: transparent;
 }
 
 .tab.active {
-  color: var(--text);
-  background: var(--bg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  color: var(--accent);
+  background: transparent;
+  border-bottom-color: var(--accent);
+  box-shadow: none;
 }
 
 /* ===================================================
@@ -145,20 +160,21 @@ body {
 
 .tab-content {
   display: none;
+  padding: 24px 0;
 }
 
 .tab-content.active {
   display: block;
-  animation: fadeIn 200ms ease;
+  animation: fadeIn 150ms ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ===================================================
-   Cards
+   Cards — Dashboard Grid
    =================================================== */
 
 .stats-grid,
@@ -167,8 +183,8 @@ body {
 .breakdown-grid,
 .analysis-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -186,7 +202,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .card:hover,
@@ -195,24 +211,25 @@ body {
 .analysis-card:hover,
 .bet-card:hover {
   border-color: var(--border-light);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .card-label,
 .analytics-label,
 .analysis-label,
 .breakdown-header {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
 }
 
 .card-value,
 .analytics-value,
 .analysis-value {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -222,29 +239,29 @@ body {
 .stat-card.success,
 .analytics-card.success,
 .card.success {
-  border-color: rgba(34, 197, 94, 0.2);
-  background: linear-gradient(135deg, var(--bg-elevated), var(--accent-soft));
+  border-color: rgba(5, 150, 105, 0.25);
+  background: var(--success-soft);
 }
 
 .stat-card.error,
 .analytics-card.error,
 .card.error {
-  border-color: rgba(239, 68, 68, 0.2);
-  background: linear-gradient(135deg, var(--bg-elevated), var(--error-soft));
+  border-color: rgba(220, 38, 38, 0.25);
+  background: var(--error-soft);
 }
 
 .stat-card.warning,
 .analytics-card.warning,
 .card.warning {
-  border-color: rgba(245, 158, 11, 0.2);
-  background: linear-gradient(135deg, var(--bg-elevated), var(--warning-soft));
+  border-color: rgba(217, 119, 6, 0.25);
+  background: var(--warning-soft);
 }
 
 .stat-card.info,
 .analytics-card.info,
 .card.info {
-  border-color: rgba(59, 130, 246, 0.2);
-  background: linear-gradient(135deg, var(--bg-elevated), var(--info-soft));
+  border-color: rgba(37, 99, 235, 0.25);
+  background: var(--info-soft);
 }
 
 /* ===================================================
@@ -260,7 +277,7 @@ body {
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 16px;
@@ -276,7 +293,7 @@ body {
 
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 6px;
@@ -286,21 +303,22 @@ body {
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--border-light);
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.06);
 }
 
 .form-group input::placeholder,
@@ -310,7 +328,7 @@ body {
 
 .help-text {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-tertiary);
   margin-top: 4px;
 }
@@ -322,7 +340,7 @@ body {
 button,
 .btn,
 .action-btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
@@ -364,7 +382,7 @@ button.danger,
 
 button.small,
 .btn.small {
-  padding: 6px 12px;
+  padding: 4px 10px;
   font-size: 12px;
 }
 
@@ -377,23 +395,28 @@ button.small,
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .bets-table th,
 .data-table th {
   text-align: left;
-  padding: 12px;
+  padding: 10px 12px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .bets-table td,
 .data-table td {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   color: var(--text);
 }
@@ -401,6 +424,11 @@ button.small,
 .bets-table tr:hover,
 .data-table tr:hover {
   background: var(--bg-hover);
+}
+
+.bets-table tr:last-child td,
+.data-table tr:last-child td {
+  border-bottom: none;
 }
 
 /* ===================================================
@@ -411,8 +439,8 @@ button.small,
 .bet-status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 100px;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -421,8 +449,8 @@ button.small,
 
 .badge.primary,
 .bet-status-badge.won {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .badge.secondary {
@@ -441,13 +469,15 @@ button.small,
 }
 
 .bet-status-badge.pending {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg);
   color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .bet-status-badge.push {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg);
   color: var(--text-tertiary);
+  border: 1px solid var(--border);
 }
 
 /* ===================================================
@@ -459,11 +489,14 @@ button.small,
   text-align: center;
   padding: 48px 24px;
   color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .empty-state h3,
 .empty-message h3 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 8px;
@@ -482,8 +515,7 @@ button.small,
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -499,10 +531,11 @@ button.small,
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-header {
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -510,7 +543,7 @@ button.small,
 }
 
 .modal-header h3 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -519,7 +552,7 @@ button.small,
 }
 
 .modal-footer {
-  padding: 16px 20px;
+  padding: 12px 20px;
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
@@ -544,7 +577,7 @@ button.small,
 
 .filter-group select,
 .filter-group input {
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -566,7 +599,7 @@ button.small,
 }
 
 .chart-header {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   margin-bottom: 16px;
   color: var(--text);
@@ -588,16 +621,16 @@ button.small,
 
 .bar-track {
   flex: 1;
-  height: 8px;
+  height: 6px;
   background: var(--bg);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
   background: var(--accent);
-  border-radius: 4px;
+  border-radius: 3px;
   transition: width 500ms ease;
 }
 
@@ -612,21 +645,57 @@ button.small,
    =================================================== */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-light);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+/* ===================================================
+   Scroll to Top Button
+   =================================================== */
+
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 60;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 0;
+}
+
+.scroll-top:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.scroll-top svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* ===================================================
@@ -637,7 +706,7 @@ button.small,
   display: none;
 }
 
-.text-success { color: var(--accent); }
+.text-success { color: var(--success); }
 .text-error { color: var(--error); }
 .text-warning { color: var(--warning); }
 .text-info { color: var(--info); }
@@ -668,13 +737,119 @@ button.small,
    Footer
    =================================================== */
 
-.footer {
+#appFooter {
   margin-top: 48px;
-  padding-top: 24px;
   border-top: 1px solid var(--border);
-  text-align: center;
+  background: var(--bg-elevated);
+}
+
+.footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 32px;
+}
+
+.footer-section h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.footer-section p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.footer-section a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color var(--transition);
+}
+
+.footer-section a:hover {
+  color: var(--text);
+}
+
+.license-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.git-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.git-info-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.git-label {
+  color: var(--text-tertiary);
+  min-width: 60px;
+  font-weight: 500;
+}
+
+.git-value {
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.footer-bottom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.copyright {
   font-size: 12px;
   color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-links a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--text);
 }
 
 /* ===================================================
@@ -683,18 +858,27 @@ button.small,
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 0 16px;
+  }
+
+  .header-title h1 {
+    font-size: 16px;
   }
 
   .tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    top: 50px;
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 12px;
   }
 
   .stats-grid,
   .analytics-grid,
   .analysis-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .bets-table {
@@ -705,6 +889,18 @@ button.small,
   .bets-table td {
     padding: 8px;
   }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 32px 16px 20px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -714,7 +910,10 @@ button.small,
     grid-template-columns: 1fr;
   }
 
-  .header-title h1 {
-    font-size: 20px;
+  .scroll-top {
+    bottom: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
   }
 }
