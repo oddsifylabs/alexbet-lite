@@ -304,7 +304,7 @@ function setupEventListeners() {
   document.getElementById('gameDate').addEventListener('change', populateEventsByDate);
 
   // Pre-Bet Analysis - update on form field changes
-  const analysisFields = ['stake', 'entryOdds', 'edge', 'confidence'];
+  const analysisFields = ['stake', 'odds', 'edge', 'confidence'];
   analysisFields.forEach(fieldId => {
     const field = document.getElementById(fieldId);
     if (field) {
@@ -717,14 +717,39 @@ function switchTab(tabName) {
   document.getElementById(tabName).classList.add('active');
 
   // Refresh data when switching tabs
-  if (tabName === 'analysis') {
+  if (tabName === 'bets') {
+    renderBets();
+    // Auto-render sub-tabs when Signals is opened
+    renderReceipt();
     const dashboard = new AnalyticsDashboard(app.betTracker, 'analyticsDashboardContainer');
     dashboard.render();
     renderAnalysis();
-  } else if (tabName === 'bets') {
-    renderBets();
-  } else if (tabName === 'receipt') {
+    updateCalculatorResults();
+  }
+}
+
+function switchSignalsSubtab(subtabName) {
+  // Update sub-tab buttons
+  document.querySelectorAll('.subtab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelector(`[data-subtab="${subtabName}"]`).classList.add('active');
+
+  // Update sub-tab content
+  document.querySelectorAll('.subtab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  document.getElementById(subtabName).classList.add('active');
+
+  // Lazy-render content for sub-tabs
+  if (subtabName === 'receipt') {
     renderReceipt();
+  } else if (subtabName === 'signal-analysis') {
+    const dashboard = new AnalyticsDashboard(app.betTracker, 'analyticsDashboardContainer');
+    dashboard.render();
+    renderAnalysis();
+  } else if (subtabName === 'tools') {
+    updateCalculatorResults();
   }
 }
 
@@ -733,10 +758,23 @@ function switchTab(tabName) {
 // ===================================================
 
 function addBet() {
-  // Validate form using FormManager
+  // Validate form using FormManager — silently return if invalid (no alerts)
   if (!formManager.validateForm()) {
     securityAudit.logValidationFailure('betForm', ['Validation errors - see feedback below']);
+    // Show inline feedback only, no modal alerts
+    const feedback = document.getElementById('formValidation');
+    if (feedback) {
+      feedback.innerHTML = '<span style="color:var(--loss)">Please fill in all required fields.</span>';
+      feedback.style.display = 'block';
+    }
     return;
+  }
+
+  // Clear inline feedback
+  const feedback = document.getElementById('formValidation');
+  if (feedback) {
+    feedback.innerHTML = '';
+    feedback.style.display = 'none';
   }
 
   // Get form data
@@ -747,18 +785,18 @@ function addBet() {
 
   if (result.success) {
     securityAudit.logDataAccess('bets', 'CREATE', true);
-    
+
     // Build description for alert
     const betDescription = buildBetDescription(betData);
-    showAlert(`✅ ${betDescription}`, 'success');
+    showAlert(`&#9989; ${betDescription}`, 'success');
     logActivity('create', betDescription);
-    
+
     // Clear form and reset
     resetBetForm();
     updateDisplays();
   } else {
     securityAudit.logValidationFailure('betForm', result.errors);
-    showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
+    showAlert(`&#10060; Error: ${result.errors.join(', ')}`, 'error');
   }
 }
 
@@ -954,7 +992,6 @@ function updateDisplays() {
   renderStats();
   renderBets();
   renderPendingBets();
-  renderReceipt();
   updateStorageInfo();
 }
 
