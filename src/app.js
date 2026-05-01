@@ -255,6 +255,8 @@ function initializeApp() {
   // Initialize UI
   renderStats();
   renderBets();
+  renderPendingBets();
+  renderReceipt();
   updateStorageInfo();
   refreshActivityLog();
 
@@ -274,7 +276,7 @@ function setupEventListeners() {
   });
 
   // Form submission
-  document.getElementById('addBetBtn').addEventListener('click', addBet);
+  document.getElementById('saveBetBtn').addEventListener('click', addBet);
   document.getElementById('pick').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addBet();
   });
@@ -721,6 +723,8 @@ function switchTab(tabName) {
     renderAnalysis();
   } else if (tabName === 'bets') {
     renderBets();
+  } else if (tabName === 'receipt') {
+    renderReceipt();
   }
 }
 
@@ -949,6 +953,8 @@ function updateDisplays() {
   app.analytics.updateBets(app.betTracker.bets);
   renderStats();
   renderBets();
+  renderPendingBets();
+  renderReceipt();
   updateStorageInfo();
 }
 
@@ -1103,6 +1109,163 @@ function renderAdvancedAnalytics() {
   `;
 
   container.innerHTML = analyticsHTML;
+}
+
+
+// ===================================================
+// Pending Bets (Dashboard)
+// ===================================================
+
+function renderPendingBets() {
+  const pendingBets = app.betTracker.getBets({ status: 'PENDING' });
+  const container = document.getElementById('pendingBetsContainer');
+  if (!container) return;
+
+  if (pendingBets.length === 0) {
+    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>No pending games.</p></div>';
+    return;
+  }
+
+  container.innerHTML = pendingBets.map(bet => {
+    const time = new Date(bet.entryTime).toLocaleDateString();
+    const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
+    const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
+
+    return `
+      <div class="bet-card pending">
+        <div class="bet-card-header">
+          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
+          <div class="bet-card-meta">
+            <span class="bet-card-date">${time}</span>
+            <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
+          </div>
+        </div>
+        <div class="bet-card-grid">
+          <div class="bet-field"><div class="bet-field-label">Sport</div><div class="bet-field-value">${bet.sport}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Type</div><div class="bet-field-value">${bet.betType}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Odds</div><div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Stake</div><div class="bet-field-value">$${bet.stake}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Edge</div><div class="bet-field-value">${bet.edge > 0 ? '+' : ''}${bet.edge}%</div></div>
+          <div class="bet-field"><div class="bet-field-label">CLV</div><div class="bet-field-value" style="color: ${clvColor};">${bet.clv > 0 ? '+' : ''}$${bet.clv}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Confidence</div><div class="bet-field-value">${bet.confidence}/10</div></div>
+          <div class="bet-field"><div class="bet-field-label">P&L</div><div class="bet-field-value" style="color: ${pnlColor}">${bet.pnl > 0 ? '+' : ''}$${bet.pnl}</div></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===================================================
+// Receipt Page — Saved Bet Slips with Edit + Status
+// ===================================================
+
+function renderReceipt() {
+  const bets = app.betTracker.bets.sort((a, b) => new Date(b.entryTime) - new Date(a.entryTime));
+  const container = document.getElementById('receiptCards');
+  if (!container) return;
+
+  if (bets.length === 0) {
+    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg><p>No saved bet slips yet.</p></div>';
+    return;
+  }
+
+  container.innerHTML = bets.map(bet => {
+    const time = new Date(bet.entryTime).toLocaleDateString();
+    const statusClass = bet.status.toLowerCase();
+    const statusEmoji = { 'pending': '⚪', 'won': '✅', 'lost': '❌', 'push': '➖' }[statusClass] || '❓';
+    const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
+    const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
+
+    return `
+      <div class="bet-card ${statusClass}" id="receipt-card-${bet.id}">
+        <div class="bet-card-header">
+          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
+          <div class="bet-card-meta">
+            <span class="bet-card-date">${time}</span>
+            <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
+          </div>
+        </div>
+
+        <div class="bet-card-grid" id="receipt-view-${bet.id}">
+          <div class="bet-field"><div class="bet-field-label">Sport</div><div class="bet-field-value">${bet.sport}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Type</div><div class="bet-field-value">${bet.betType}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Odds</div><div class="bet-field-value">${bet.entryOdds > 0 ? '+' : ''}${bet.entryOdds}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Stake</div><div class="bet-field-value">$${bet.stake}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Edge</div><div class="bet-field-value">${bet.edge > 0 ? '+' : ''}${bet.edge}%</div></div>
+          <div class="bet-field"><div class="bet-field-label">CLV</div><div class="bet-field-value" style="color: ${clvColor};">${bet.clv > 0 ? '+' : ''}$${bet.clv}</div></div>
+          <div class="bet-field"><div class="bet-field-label">Confidence</div><div class="bet-field-value">${bet.confidence}/10</div></div>
+          <div class="bet-field"><div class="bet-field-label">P&L</div><div class="bet-field-value" style="color: ${pnlColor}">${bet.pnl > 0 ? '+' : ''}$${bet.pnl}</div></div>
+          ${bet.sportsbook && bet.sportsbook !== 'Unknown' ? `<div class="bet-field"><div class="bet-field-label">Book</div><div class="bet-field-value">${bet.sportsbook}</div></div>` : ''}
+          ${bet.notes ? `<div class="bet-field full-width"><div class="bet-field-label">Notes</div><div class="bet-field-value" style="font-size: 12px; color: var(--text-tertiary); font-style: italic;">${bet.notes}</div></div>` : ''}
+        </div>
+
+        <div class="bet-card-grid hidden" id="receipt-edit-${bet.id}" style="gap: 12px;">
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Pick</label><input type="text" id="edit-pick-${bet.id}" value="${bet.pick}" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Sport</label><input type="text" id="edit-sport-${bet.id}" value="${bet.sport}" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Odds</label><input type="number" id="edit-odds-${bet.id}" value="${bet.entryOdds}" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Stake ($)</label><input type="number" id="edit-stake-${bet.id}" value="${bet.stake}" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Edge (%)</label><input type="number" id="edit-edge-${bet.id}" value="${bet.edge}" step="0.1" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0;"><label style="font-size: 10px;">Confidence (1-10)</label><input type="number" id="edit-confidence-${bet.id}" value="${bet.confidence}" min="1" max="10" class="form-control" style="padding: 6px 10px; font-size: 13px;"></div>
+          <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;"><label style="font-size: 10px;">Notes</label><textarea id="edit-notes-${bet.id}" rows="2" class="form-control" style="padding: 6px 10px; font-size: 13px;">${bet.notes || ''}</textarea></div>
+        </div>
+
+        <div class="bet-card-footer">
+          <span class="bet-status-badge ${statusClass}">${statusEmoji} ${bet.status}</span>
+          <div class="bet-card-actions">
+            <button onclick="toggleEditBet('${bet.id}')" id="receipt-edit-btn-${bet.id}" class="btn small">Edit</button>
+            <select onchange="updateBetStatus('${bet.id}', this.value)" style="padding: 4px 8px; font-size: 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); color: var(--text);">
+              <option value="">Mark as...</option>
+              <option value="PENDING">⚪ Pending</option>
+              <option value="WON">✅ Won</option>
+              <option value="LOST">❌ Lost</option>
+              <option value="PUSH">➖ Push</option>
+            </select>
+            <button onclick="deleteBet('${bet.id}')" class="danger">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleEditBet(betId) {
+  const viewEl = document.getElementById(`receipt-view-${betId}`);
+  const editEl = document.getElementById(`receipt-edit-${betId}`);
+  const btnEl = document.getElementById(`receipt-edit-btn-${betId}`);
+  if (!viewEl || !editEl || !btnEl) return;
+
+  if (editEl.classList.contains('hidden')) {
+    // Switch to edit mode
+    viewEl.classList.add('hidden');
+    editEl.classList.remove('hidden');
+    btnEl.textContent = 'Save';
+    btnEl.classList.add('primary');
+  } else {
+    // Save changes
+    const updates = {
+      pick: document.getElementById(`edit-pick-${betId}`).value,
+      sport: document.getElementById(`edit-sport-${betId}`).value,
+      entryOdds: parseFloat(document.getElementById(`edit-odds-${betId}`).value),
+      stake: parseFloat(document.getElementById(`edit-stake-${betId}`).value),
+      edge: parseFloat(document.getElementById(`edit-edge-${betId}`).value),
+      confidence: parseInt(document.getElementById(`edit-confidence-${betId}`).value),
+      notes: document.getElementById(`edit-notes-${betId}`).value
+    };
+
+    const result = app.betTracker.updateBet(betId, updates);
+    if (result.success) {
+      showAlert('✅ Bet slip updated', 'success');
+      logActivity('update', `Edited bet slip ${betId}`);
+      updateDisplays();
+    } else {
+      showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
+    }
+
+    viewEl.classList.remove('hidden');
+    editEl.classList.add('hidden');
+    btnEl.textContent = 'Edit';
+    btnEl.classList.remove('primary');
+  }
 }
 
 function renderBets(betsList) {

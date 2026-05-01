@@ -1620,3 +1620,57 @@ button.small,
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
+
+/* ===================================================
+   Pending Section — Dashboard
+   =================================================== */
+.pending-section {
+  margin-top: 28px;
+}
+
+.pending-section h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pending-section h3 .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent);
+}
+
+/* ===================================================
+   Bet Slip Section — Signals Tab
+   =================================================== */
+.bet-slip-section {
+  margin-bottom: 28px;
+}
+
+.bet-slip-section h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bet-slip-section h3 .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent);
+}

@@ -212,6 +212,54 @@ class BetTracker {
   }
 
   /**
+   * Update bet fields (edit existing bet)
+   */
+  updateBet(betId, updates) {
+    const bet = this.bets.find(b => b.id === betId);
+    if (!bet) {
+      return { success: false, errors: ['Bet not found'] };
+    }
+
+    // Allowed fields to update
+    const allowedFields = [
+      'pick', 'sport', 'betType', 'entryOdds', 'stake', 'edge', 'confidence',
+      'notes', 'spreadLine', 'spreadTeam', 'totalLine', 'overUnder',
+      'playerName', 'propType', 'propLine', 'sportsbook', 'status'
+    ];
+
+    allowedFields.forEach(field => {
+      if (updates[field] !== undefined) {
+        bet[field] = updates[field];
+      }
+    });
+
+    // Recalculate CLV if stake or edge changed
+    if (updates.stake !== undefined || updates.edge !== undefined) {
+      bet.clv = this._calculateCLV(bet.stake, bet.edge || 0);
+    }
+
+    // Recalculate P&L if status changed
+    if (updates.status !== undefined) {
+      if (updates.status === 'WON') {
+        bet.pnl = this.calculatePnL(bet, true);
+      } else if (updates.status === 'LOST') {
+        bet.pnl = -bet.stake;
+      } else if (updates.status === 'PUSH') {
+        bet.pnl = 0;
+      } else if (updates.status === 'PENDING') {
+        bet.pnl = 0;
+      }
+      bet.settleTime = updates.status !== 'PENDING' ? new Date().toISOString() : null;
+    }
+
+    if (this.saveBets()) {
+      return { success: true, errors: [], bet };
+    } else {
+      return { success: false, errors: ['Failed to save bet update'] };
+    }
+  }
+
+  /**
    * Calculate P&L based on odds
    */
   calculatePnL(bet, won) {
