@@ -167,7 +167,7 @@ class BetTracker {
     }
 
     // Validate status transition
-    const validation = BetValidator.validateBetStatus(newStatus, bet.status);
+    const validation = BetValidator.validateStatusTransition(bet.status, newStatus);
     if (!validation.valid) {
       return {
         success: false,
