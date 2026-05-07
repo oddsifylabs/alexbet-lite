@@ -21,20 +21,57 @@ class IntelPage {
       'EPL': { espn: 'soccer/english-premier-league', oddsApi: 'soccer_epl' },
       'ATP': { espn: 'tennis/atp', oddsApi: 'tennis_atp' }
     };
+    this.lastUpdatedTimes = {
+      liveGames: null,
+      news: null,
+      injuries: null,
+      weather: null
+    };
+    this.selectedGame = null;
     this.init();
   }
 
   init() {
-    // Listen for sport selection changes
+    // Initialize sport filter dropdown in Intel tab
+    const intelSportFilter = document.getElementById('intelSportFilter');
+    if (intelSportFilter) {
+      intelSportFilter.addEventListener('change', (e) => {
+        this.selectedSport = e.target.value;
+        // Sync with dashboard sport filter if exists
+        const dashboardSport = document.getElementById('sport');
+        if (dashboardSport) dashboardSport.value = this.selectedSport;
+        this.refreshAll();
+      });
+    }
+
+    // Listen for dashboard sport selection changes
     const sportSelect = document.getElementById('sport');
     if (sportSelect) {
       sportSelect.addEventListener('change', (e) => {
         this.selectedSport = e.target.value;
+        // Sync with intel sport filter
+        if (intelSportFilter) intelSportFilter.value = this.selectedSport;
         this.loadLiveGames();
         this.loadNewsFeed();
         this.loadInjuryReports();
       });
     }
+
+    // Refresh button
+    const refreshBtn = document.getElementById('refreshIntelBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => this.refreshAll());
+    }
+
+    // Modal close buttons
+    const closeBtn = document.getElementById('closeGameModal');
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeGameModal());
+    if (backdrop) backdrop.addEventListener('click', () => this.closeGameModal());
+
+    // Add bet from modal
+    const addBetBtn = document.getElementById('addBetFromModal');
+    if (addBetBtn) addBetBtn.addEventListener('click', () => this.addBetFromModal());
 
     // Load initial data
     this.loadBetaInfo();
@@ -43,9 +80,13 @@ class IntelPage {
     this.loadMarketMovers();
     this.loadWeatherConditions();
 
+    // Update last updated timestamp
+    this.updateLastUpdated();
+
     // Auto-refresh intervals
     setInterval(() => this.loadLiveGames(), 30000);
     setInterval(() => this.loadMarketMovers(), 45000);
+    setInterval(() => this.updateLastUpdated(), 60000);
   }
 
   /**
@@ -179,7 +220,7 @@ class IntelPage {
           const awayRecord = game.competitions?.[0]?.competitors?.find(c => c.homeAway === 'away')?.record || '';
           
           html += `
-            <div class="game-card ${isLive ? 'live' : ''}">
+            <div class="game-card ${isLive ? 'live' : ''}" data-game-id="${game.id}" style="cursor: pointer;">
               <div class="game-header">
                 <div class="game-time">${time}</div>
                 ${isLive ? '<span class="badge live">LIVE</span>' : `<span class="badge">${statusDetail}</span>`}
@@ -210,6 +251,18 @@ class IntelPage {
       });
 
       container.innerHTML = html;
+
+      // Update timestamp
+      this.lastUpdatedTimes.liveGames = new Date();
+
+      // Add click handlers to game cards
+      container.querySelectorAll('.game-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          const gameId = card.dataset.gameId;
+          const game = events.find(g => g.id === gameId);
+          if (game) this.openGameModal(game);
+        });
+      });
     } catch (error) {
       console.error('Error loading live games:', error);
       container.innerHTML = `
@@ -288,6 +341,9 @@ class IntelPage {
       html += '</div>';
 
       container.innerHTML = html;
+
+      // Update timestamp
+      this.lastUpdatedTimes.news = new Date();
     } catch (error) {
       console.error('Error loading news:', error);
       this.showNewsPlaceholder(container);
@@ -415,6 +471,9 @@ class IntelPage {
       html += '</div>';
 
       container.innerHTML = html;
+
+      // Update timestamp
+      this.lastUpdatedTimes.injuries = new Date();
     } catch (error) {
       console.error('Error loading injuries:', error);
       container.innerHTML = `
@@ -534,6 +593,118 @@ class IntelPage {
   }
 
   /**
+   * Update last updated timestamp display
+   */
+  updateLastUpdated() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    if (lastUpdatedEl) {
+      lastUpdatedEl.textContent = `Last updated: ${timeStr}`;
+    }
+
+    // Update individual card timestamps
+    if (this.lastUpdatedTimes.liveGames) {
+      const el = document.getElementById('liveGamesTimestamp');
+      if (el) el.textContent = this.lastUpdatedTimes.liveGames.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (this.lastUpdatedTimes.news) {
+      const el = document.getElementById('newsTimestamp');
+      if (el) el.textContent = this.lastUpdatedTimes.news.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (this.lastUpdatedTimes.injuries) {
+      const el = document.getElementById('injuryTimestamp');
+      if (el) el.textContent = this.lastUpdatedTimes.injuries.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (this.lastUpdatedTimes.weather) {
+      const el = document.getElementById('weatherTimestamp');
+      if (el) el.textContent = this.lastUpdatedTimes.weather.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+  }
+
+  /**
+   * Open game detail modal
+   */
+  openGameModal(game) {
+    this.selectedGame = game;
+    const modal = document.getElementById('gameDetailModal');
+    if (!modal) return;
+
+    // Populate modal with game data
+    const awayTeam = game.competitions?.[0]?.competitors?.find(c => c.homeAway === 'away');
+    const homeTeam = game.competitions?.[0]?.competitors?.find(c => c.homeAway === 'home');
+
+    document.getElementById('modalAwayTeam').textContent = awayTeam?.team?.abbreviation || 'Away';
+    document.getElementById('modalAwayRecord').textContent = awayTeam?.record || '';
+    document.getElementById('modalAwayScore').textContent = awayTeam?.score || '0';
+    
+    document.getElementById('modalHomeTeam').textContent = homeTeam?.team?.abbreviation || 'Home';
+    document.getElementById('modalHomeRecord').textContent = homeTeam?.record || '';
+    document.getElementById('modalHomeScore').textContent = homeTeam?.score || '0';
+
+    document.getElementById('modalGameStatus').textContent = game.status?.type?.state === 'in' ? 'LIVE' : 'UPCOMING';
+    document.getElementById('modalGameClock').textContent = game.status?.displayClock || new Date(game.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    document.getElementById('modalGameTitle').textContent = `${awayTeam?.team?.abbreviation || 'Away'} @ ${homeTeam?.team?.abbreviation || 'Home'}`;
+
+    // Mock stats (would come from API in production)
+    document.getElementById('statPossession').textContent = '50%';
+    document.getElementById('statShots').textContent = '--';
+    document.getElementById('statFouls').textContent = '--';
+    document.getElementById('statExtra').textContent = '--';
+
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Close game detail modal
+   */
+  closeGameModal() {
+    const modal = document.getElementById('gameDetailModal');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    this.selectedGame = null;
+  }
+
+  /**
+   * Add bet from modal - switch to Signals tab and pre-fill form
+   */
+  addBetFromModal() {
+    if (!this.selectedGame) return;
+
+    const awayTeam = this.selectedGame.competitions?.[0]?.competitors?.find(c => c.homeAway === 'away');
+    const homeTeam = this.selectedGame.competitions?.[0]?.competitors?.find(c => c.homeAway === 'home');
+
+    // Switch to Signals tab
+    if (window.switchTab) {
+      window.switchTab('bets');
+    }
+
+    // Pre-fill bet form
+    const eventInput = document.getElementById('event');
+    if (eventInput) {
+      eventInput.value = `${awayTeam?.team?.abbreviation || ''} @ ${homeTeam?.team?.abbreviation || ''}`;
+    }
+
+    // Close modal
+    this.closeGameModal();
+
+    // Show confirmation
+    const formValidation = document.getElementById('formValidation');
+    if (formValidation) {
+      formValidation.innerHTML = `<div class="validation-success">Game loaded! Complete your bet slip.</div>`;
+      setTimeout(() => formValidation.innerHTML = '', 3000);
+    }
+  }
+
+  /**
    * Refresh all Intel data
    */
   refreshAll() {
@@ -543,6 +714,7 @@ class IntelPage {
     this.loadInjuryReports();
     this.loadMarketMovers();
     this.loadWeatherConditions();
+    this.updateLastUpdated();
   }
 }
 

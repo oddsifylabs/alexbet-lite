@@ -342,29 +342,141 @@
 
     <!-- Intel Tab -->
     <div id="intel" class="tab-content">
+      <!-- Intel Controls Header -->
+      <div class="intel-controls">
+        <div class="intel-controls-left">
+          <div class="form-group inline">
+            <label for="intelSportFilter">Sport</label>
+            <select id="intelSportFilter">
+              <option value="">-- Select Sport --</option>
+              <option value="NBA">NBA</option>
+              <option value="NFL">NFL</option>
+              <option value="MLB">MLB</option>
+              <option value="NHL">NHL</option>
+              <option value="EPL">EPL (Soccer)</option>
+              <option value="ATP">ATP (Tennis)</option>
+            </select>
+          </div>
+        </div>
+        <div class="intel-controls-right">
+          <span class="last-updated" id="lastUpdated">Last updated: --</span>
+          <button class="btn btn-icon" id="refreshIntelBtn" title="Refresh all data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <div class="intel-grid">
         <div class="intel-card">
-          <h3><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 12h.01M18 12h.01"/></svg> Live Game Scores</h3>
+          <div class="intel-card-header">
+            <h3><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 12h.01M18 12h.01"/></svg> Live Game Scores</h3>
+            <span class="card-timestamp" id="liveGamesTimestamp">--</span>
+          </div>
           <div id="liveGamesContainer">
-            <div class="intel-empty">Select a sport on the Dashboard to load live scores</div>
+            <div class="intel-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <p>Select a sport to load live scores</p>
+              <span class="empty-hint">Choose NBA, NFL, MLB, NHL, EPL, or ATP</span>
+            </div>
           </div>
         </div>
         <div class="intel-card">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-4 0v-9a2 2 0 012-2h2"/><path d="M10 6h6M10 10h6M10 14h4"/></svg> Sports News Feed</h3>
+          <div class="intel-card-header">
+            <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-4 0v-9a2 2 0 012-2h2"/><path d="M10 6h6M10 10h6M10 14h4"/></svg> Sports News Feed</h3>
+            <span class="card-timestamp" id="newsTimestamp">--</span>
+          </div>
           <div id="newsFeedContainer">
             <div class="intel-empty">Loading sports news...</div>
           </div>
         </div>
         <div class="intel-card">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M8 10h8M12 6v8"/></svg> Injury Reports</h3>
+          <div class="intel-card-header">
+            <h3><svg class="icon" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M8 10h8M12 6v8"/></svg> Injury Reports</h3>
+            <span class="card-timestamp" id="injuryTimestamp">--</span>
+          </div>
           <div id="injuryContainer">
             <div class="intel-empty">No injury updates available</div>
           </div>
         </div>
         <div class="intel-card">
-          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> Game Conditions</h3>
+          <div class="intel-card-header">
+            <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> Game Conditions</h3>
+            <span class="card-timestamp" id="weatherTimestamp">--</span>
+          </div>
           <div id="weatherContainer">
             <div class="intel-empty">Weather data loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Detail Modal -->
+    <div id="gameDetailModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalGameTitle">Game Details</h2>
+          <button class="modal-close" id="closeGameModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="game-detail-scoreboard">
+            <div class="detail-team away">
+              <span class="team-name" id="modalAwayTeam">Away Team</span>
+              <span class="team-record" id="modalAwayRecord">0-0</span>
+              <span class="team-score" id="modalAwayScore">0</span>
+            </div>
+            <div class="detail-matchup-info">
+              <span class="game-status" id="modalGameStatus">LIVE</span>
+              <span class="game-clock" id="modalGameClock">Q1 00:00</span>
+            </div>
+            <div class="detail-team home">
+              <span class="team-name" id="modalHomeTeam">Home Team</span>
+              <span class="team-record" id="modalHomeRecord">0-0</span>
+              <span class="team-score" id="modalHomeScore">0</span>
+            </div>
+          </div>
+
+          <div class="odds-comparison-section">
+            <h4><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Live Odds Comparison</h4>
+            <div id="oddsComparisonContainer" class="odds-grid">
+              <div class="odds-placeholder">
+                <p>Odds data requires API integration</p>
+                <span class="empty-hint">Configure Odds API key in Railway env vars</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="game-detail-stats">
+            <h4><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Game Stats</h4>
+            <div id="gameStatsContainer" class="stats-grid-mini">
+              <div class="stat-mini">
+                <span class="stat-label">Possession</span>
+                <span class="stat-value" id="statPossession">--</span>
+              </div>
+              <div class="stat-mini">
+                <span class="stat-label">Shots</span>
+                <span class="stat-value" id="statShots">--</span>
+              </div>
+              <div class="stat-mini">
+                <span class="stat-label">Fouls</span>
+                <span class="stat-value" id="statFouls">--</span>
+              </div>
+              <div class="stat-mini">
+                <span class="stat-value" id="statExtra">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn primary" id="addBetFromModal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add Bet for This Game
+            </button>
           </div>
         </div>
       </div>

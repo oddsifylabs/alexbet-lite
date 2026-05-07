@@ -1923,6 +1923,127 @@ button.small,
 /* ===================================================
    Intel Page
    =================================================== */
+.intel-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.intel-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.intel-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-group.inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.form-group.inline label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.form-group.inline select {
+  min-width: 160px;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.form-group.inline select:hover {
+  border-color: var(--border-light);
+}
+
+.form-group.inline select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+.last-updated {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.intel-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.intel-card-header h3 {
+  margin: 0;
+  padding: 0;
+  border: none;
+  position: static;
+  background: transparent;
+}
+
+.card-timestamp {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
 .intel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -2397,6 +2518,330 @@ button.small,
 
 .injury-link:hover {
   color: var(--win);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.modal-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  transition: all var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--loss);
+  border-color: var(--loss);
+  color: var(--void);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Game Detail Scoreboard */
+.game-detail-scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--surface-hover);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.detail-team {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.detail-team.away {
+  opacity: 0.9;
+}
+
+.detail-team.home {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid var(--accent-dim);
+}
+
+.detail-team .team-name {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.detail-team .team-record {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.detail-team .team-score {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 48px;
+  text-align: right;
+}
+
+.detail-matchup-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.detail-matchup-info .game-status {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  background: var(--win);
+  color: var(--void);
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.detail-matchup-info .game-clock {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Odds Comparison */
+.odds-comparison-section {
+  margin-bottom: 20px;
+}
+
+.odds-comparison-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.odds-comparison-section h4 .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.odds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.odds-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.odds-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.odds-card .sportsbook-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.odds-card .odds-value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.odds-card .odds-type {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.odds-placeholder {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px 20px;
+  background: var(--surface-hover);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+}
+
+.odds-placeholder p {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.odds-placeholder .empty-hint {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* Game Detail Stats */
+.game-detail-stats {
+  margin-bottom: 20px;
+}
+
+.game-detail-stats h4 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-detail-stats h4 .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.stats-grid-mini {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-mini {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.stat-mini .stat-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stat-mini .stat-value {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-actions .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-actions .btn svg {
+  width: 18px;
+  height: 18px;
 }
 }
 
