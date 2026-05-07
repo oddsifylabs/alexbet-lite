@@ -335,7 +335,7 @@ body::after {
 .analysis-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 28px;
 }
 
@@ -358,9 +358,91 @@ body::after {
 }
 
 /* ===================================================
-   Bet Cards
+   Stats Cards — Enhanced
    =================================================== */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.stat-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 4px 16px rgba(0, 229, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-card-label svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+.stat-card-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.stat-card-subtext {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: auto;
+}
+
+.stat-card.success .stat-card-value {
+  color: var(--win);
+}
+
+.stat-card.error .stat-card-value {
+  color: var(--loss);
+}
+
+.stat-card.warning .stat-card-value {
+  color: var(--warn);
+}
+
+/* ===================================================
+/* ===================================================
+   Bet Cards — Enhanced
+   =================================================== */
 .bet-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -374,31 +456,58 @@ body::after {
   gap: 14px;
 }
 
-.bet-card:hover {
-  border-color: var(--border-light);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.04), inset 0 1px 0 rgba(0, 229, 255, 0.04);
+.bet-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity var(--transition);
 }
 
-[data-theme="light"] .bet-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(0, 136, 204, 0.04);
+.bet-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.bet-card:hover::before {
+  opacity: 1;
+}
+
+.bet-card.won::before {
+  background: var(--win);
+  opacity: 1;
 }
 
 .bet-card.won {
-  border-color: rgba(0, 255, 163, 0.2);
-  background: linear-gradient(180deg, rgba(0, 255, 163, 0.04), var(--surface));
+  border-color: rgba(0, 255, 163, 0.3);
+  background: linear-gradient(180deg, rgba(0, 255, 163, 0.05), var(--surface));
+}
+
+.bet-card.lost::before {
+  background: var(--loss);
+  opacity: 1;
 }
 
 .bet-card.lost {
-  border-color: rgba(255, 45, 90, 0.2);
-  background: linear-gradient(180deg, rgba(255, 45, 90, 0.04), var(--surface));
+  border-color: rgba(255, 45, 90, 0.3);
+  background: linear-gradient(180deg, rgba(255, 45, 90, 0.05), var(--surface));
 }
 
-.bet-card.pending {
-  border-color: var(--border);
+.bet-card.pending::before {
+  background: var(--warn);
+  opacity: 0.5;
+}
+
+.bet-card.push::before {
+  background: var(--text-secondary);
+  opacity: 0.5;
 }
 
 .bet-card.push {
-  border-color: var(--border);
   opacity: 0.9;
 }
 
@@ -657,27 +766,38 @@ body::after {
 /* ===================================================
    Forms
    =================================================== */
-
 .form-section {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 24px;
   margin-bottom: 16px;
+  transition: all var(--transition);
+}
+
+.form-section:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
   font-size: 11px;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 18px;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.section-title svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
 }
 
 .form-group {
@@ -687,9 +807,9 @@ body::after {
 .form-group label {
   display: block;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -698,7 +818,7 @@ body::after {
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 13px;
   background: var(--void);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -714,6 +834,7 @@ body::after {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-dim), inset 0 1px 0 rgba(0, 229, 255, 0.05);
+  background: var(--surface-hover);
 }
 
 .form-group input::placeholder,
@@ -725,7 +846,38 @@ body::after {
   display: block;
   font-size: 11px;
   color: var(--text-tertiary);
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ===================================================
+   Loading States
+   =================================================== */
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ===================================================
@@ -1516,6 +1668,41 @@ button.small,
   height: 48px;
   color: var(--text-tertiary);
   opacity: 0.5;
+}
+
+/* ===================================================
+   Empty States
+   =================================================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.empty-icon {
+  width: 56px;
+  height: 56px;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+}
+
+.empty-state p {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
 }
 
 /* ===================================================
