@@ -1159,7 +1159,7 @@ function renderPendingBets() {
   if (!container) return;
 
   if (pendingBets.length === 0) {
-    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>No pending games.</p></div>';
+    container.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="12 6 12 12 16 14" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="22" text-anchor="middle" font-size="8" fill="currentColor">NO GAMES</text></svg><p>No pending games.</p><p class="empty-hint">Add a signal in the Signals tab to get started</p></div>';
     return;
   }
 
@@ -1202,7 +1202,7 @@ function renderReceipt() {
   if (!container) return;
 
   if (bets.length === 0) {
-    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg><p>No saved bet slips yet.</p></div>';
+    container.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h6M9 13h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><p>No saved bet slips yet.</p><p class="empty-hint">Add your first signal to create a bet slip</p></div>';
     return;
   }
 
@@ -1312,7 +1312,7 @@ function renderBets(betsList) {
   if (!container) return;
 
   if (bets.length === 0) {
-    container.innerHTML = '<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg><p>No signals match your filters.</p></div>';
+    container.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h6M9 13h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><p>No signals match your filters.</p><p class="empty-hint">Try adjusting your filters or add a new signal</p></div>';
     return;
   }
 
