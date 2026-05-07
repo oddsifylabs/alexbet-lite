@@ -154,6 +154,17 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+[data-theme="light"] body {
+  background: var(--void);
+}
+
 /* ===================================================
    Typography — Consistent Heading Scale
    =================================================== */
