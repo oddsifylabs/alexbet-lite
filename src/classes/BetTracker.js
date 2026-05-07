@@ -116,6 +116,7 @@ class BetTracker {
       edge: betData.edge || 0,
       confidence: betData.confidence || 5,
       entryTime: new Date().toISOString(),
+      gameDate: betData.gameDate || null,
       status: 'PENDING',
       result: null,
       pnl: 0,

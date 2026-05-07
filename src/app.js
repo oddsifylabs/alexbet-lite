@@ -1214,7 +1214,7 @@ function renderPendingBets() {
   }
 
   container.innerHTML = pendingBets.map(bet => {
-    const time = new Date(bet.entryTime).toLocaleDateString();
+    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
     const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
     const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
 
@@ -1257,7 +1257,7 @@ function renderReceipt() {
   }
 
   container.innerHTML = bets.map(bet => {
-    const time = new Date(bet.entryTime).toLocaleDateString();
+    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
     const statusClass = bet.status.toLowerCase();
     const statusEmoji = { 'pending': '⚪', 'won': '✅', 'lost': '❌', 'push': '➖' }[statusClass] || '❓';
     const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
@@ -1367,7 +1367,7 @@ function renderBets(betsList) {
   }
 
   container.innerHTML = bets.map(bet => {
-    const time = new Date(bet.entryTime).toLocaleDateString();
+    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
     const statusClass = bet.status.toLowerCase();
     const statusEmoji = {
       'pending': '⚪',

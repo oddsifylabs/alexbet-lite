@@ -417,7 +417,8 @@ class FormManager {
       edge: parseFloat(this.betForm.edge.value) || 0,
       confidence: parseInt(this.betForm.confidence.value) || 5,
       sportsbook: document.getElementById('sportsbook').value || 'Unknown',
-      notes: this.betForm.notes.value.trim()
+      notes: this.betForm.notes.value.trim(),
+      gameDate: document.getElementById('gameDate').value || null
     };
 
     // Add type-specific fields
