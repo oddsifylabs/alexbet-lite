@@ -993,6 +993,40 @@ function updateDisplays() {
   renderBets();
   renderPendingBets();
   updateStorageInfo();
+  updateHeroSection();
+}
+
+function updateHeroSection() {
+  const heroSection = document.getElementById('heroSection');
+  const bets = app.betTracker.bets;
+  
+  if (!heroSection) return;
+  
+  // Show hero only when user has no bets
+  if (bets.length === 0) {
+    heroSection.classList.remove('hidden');
+  } else {
+    heroSection.classList.add('hidden');
+  }
+}
+
+function switchTab(tabId) {
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+  
+  tabs.forEach(tab => {
+    tab.classList.remove('active');
+    if (tab.dataset.tab === tabId) {
+      tab.classList.add('active');
+    }
+  });
+  
+  contents.forEach(content => {
+    content.classList.remove('active');
+    if (content.id === tabId) {
+      content.classList.add('active');
+    }
+  });
 }
 
 function renderStats() {

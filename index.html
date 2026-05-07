@@ -35,15 +35,44 @@
 
     <!-- Dashboard Tab -->
     <div id="dashboard" class="tab-content active">
+      <!-- Hero Section for New Users -->
+      <div id="heroSection" class="hero-section hidden">
+        <div class="hero-content">
+          <div class="hero-icon">🎯</div>
+          <h2>Welcome to AlexBET Lite</h2>
+          <p>Your open-source signal tracker for +EV sports betting</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="switchTab('bets')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add Your First Signal
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="hero-stat-value">0</span>
+              <span class="hero-stat-label">Bets Tracked</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">0%</span>
+              <span class="hero-stat-label">Win Rate</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">$0</span>
+              <span class="hero-stat-label">P&L</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="stats-grid" id="statsGrid"></div>
       <div id="analyticsPanel" class="analytics-panel"></div>
       <div class="pending-section">
         <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pending Games</h3>
         <div id="pendingBetsContainer" class="bets-grid">
           <div class="empty-state">
-            <svg class="empty-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <p>No pending games</p>
-            <span class="empty-hint">Bets will appear here once you add them</span>
+            <span class="empty-hint">Add a signal in the Signals tab to get started</span>
           </div>
         </div>
       </div>
@@ -382,41 +411,22 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer id="appFooter">
+  <!-- Footer — Compact Single Bar -->
+  <footer id="appFooter" class="footer">
     <div class="footer-content">
       <div class="footer-section">
-        <h3><svg class="icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> AlexBET Lite</h3>
-        <p>Open source bet tracking and analytics platform. Validate edge calculations, track CLV, and optimize your betting strategy with real-time market data.</p>
-        <span class="license-badge">MIT License</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span>AlexBET Lite v2026.04.23</span>
+        <a href="https://github.com/oddsifylabs/alexbet-lite" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48 13.39.65 13.39.65c-2.72 0-3.9 1.83-3.9 1.83S7.11.65 4.39 2.48 2 2.48 2 4.77a5.44 5.44 0 00-1.39 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          GitHub
+        </a>
+        <span class="license-badge">MIT</span>
       </div>
-      <div class="footer-section">
-        <h3><svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Open Source</h3>
-        <p><strong>Repository:</strong></p>
-        <a href="https://github.com/oddsifylabs/alexbet-lite" target="_blank" rel="noopener noreferrer">github.com/oddsifylabs/alexbet-lite &#8599;</a>
-        <p style="margin-top: var(--spacing-md); margin-bottom: 0;">
-          <a href="https://github.com/oddsifylabs/alexbet-lite/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">View MIT License &#8599;</a>
-        </p>
-        <p style="margin-bottom: 0;">
-          <a href="https://github.com/oddsifylabs/alexbet-lite/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing Guide &#8599;</a>
-        </p>
-      </div>
-      <div class="footer-section">
-        <h3><svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Latest Commit</h3>
-        <div class="git-info">
-          <div class="git-info-row"><span class="git-label">Hash:</span><span class="git-value" data-commit-hash>457f884</span></div>
-          <div class="git-info-row"><span class="git-label">Author:</span><span class="git-value" data-commit-author>Jesse Collins</span></div>
-          <div class="git-info-row"><span class="git-label">Date:</span><span class="git-value" data-commit-date>2026-04-23</span></div>
-          <div class="git-info-row"><span class="git-label">Message:</span><span class="git-value" data-commit-message><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> FIX: Add api.sportsdata.io to CSP connect-src (was blocking API calls)</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div class="copyright"><span>&copy; 2026 Oddsifly Labs&trade;</span><span>&bull;</span><span>MIT Licensed</span></div>
       <div class="footer-links">
-        <a href="https://github.com/oddsifylabs/alexbet-lite/stargazers" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Star on GitHub</a>
-        <a href="https://github.com/oddsifylabs/alexbet-lite/issues" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24"><path d="M12 8v4M8 4v4M16 4v4M6 20h12M8 12h8M7 16l-3 3M17 16l3 3"/></svg> Report Issues</a>
-        <a href="https://github.com/oddsifylabs/alexbet-lite/discussions" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Discussions</a>
+        <a href="https://github.com/oddsifylabs/alexbet-lite/stargazers" target="_blank" rel="noopener noreferrer">★ Star</a>
+        <a href="https://github.com/oddsifylabs/alexbet-lite/issues" target="_blank" rel="noopener noreferrer">⚠ Issues</a>
+        <a href="https://github.com/oddsifylabs/alexbet-lite/discussions" target="_blank" rel="noopener noreferrer">💬 Discuss</a>
       </div>
     </div>
   </footer>
