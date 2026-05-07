@@ -1970,7 +1970,239 @@ button.small,
   border-radius: var(--radius);
   color: var(--text);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: all 0.2s ease;
+}
+
+.form-group.inline select:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.form-group.inline select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(77, 208, 255, 0.2);
+}
+
+/* ===================================================
+   Analytics Dashboard Controls
+   =================================================== */
+.analytics-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+}
+
+.analytics-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.analytics-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#exportAnalyticsBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(77, 208, 255, 0.3);
+}
+
+#exportAnalyticsBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(77, 208, 255, 0.4);
+}
+
+#exportAnalyticsBtn .icon {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.dashboard-controls {
+  margin-bottom: 24px;
+}
+
+.time-window-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.time-btn {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.time-btn.active {
+  background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(77, 208, 255, 0.3);
+}
+
+/* ===================================================
+   Analytics Dashboard Summary Cards
+   =================================================== */
+#summaryCardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  position: relative;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, #00ff88 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(77, 208, 255, 0.15);
+}
+
+.summary-card:hover::before {
+  opacity: 1;
+}
+
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  text-shadow: 0 0 20px rgba(77, 208, 255, 0.3);
+}
+
+.card-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.card-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-badge.positive {
+  background: rgba(0, 214, 143, 0.15);
+  color: #00d68f;
+  border: 1px solid rgba(0, 214, 143, 0.3);
+}
+
+.card-badge.neutral {
+  background: rgba(255, 215, 61, 0.15);
+  color: #ffd93d;
+  border: 1px solid rgba(255, 215, 61, 0.3);
+}
+
+/* ===================================================
+   Analytics Sections
+   =================================================== */
+.dashboard-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dashboard-row:last-child {
+  margin-bottom: 0;
 }
 
 .form-group.inline select:hover {
