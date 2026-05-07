@@ -1107,7 +1107,8 @@ function renderAdvancedAnalytics() {
         <div class="insights-header">💡 Insights</div>
         ${insights.map(insight => `
           <div class="insight-item insight-${insight.type}">
-            ${insight.emoji} ${insight.message}
+            <span class="emoji">${insight.emoji}</span>
+            <span class="message">${insight.message}</span>
           </div>
         `).join('')}
       </div>

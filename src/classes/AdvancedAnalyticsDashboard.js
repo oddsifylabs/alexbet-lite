@@ -690,32 +690,77 @@ class AdvancedAnalyticsDashboard {
 
     // Win rate insights
     if (stats.winRate > 55) {
-      insights.push('✅ Excellent win rate! Consider increasing bet sizes slightly.');
+      insights.push({
+        emoji: '🚀',
+        message: 'Excellent win rate of ' + stats.winRate.toFixed(1) + '% - Keep up the discipline!',
+        type: 'success'
+      });
     } else if (stats.winRate < 45) {
-      insights.push('⚠️ Win rate below 45%. Review selection criteria and bet quality.');
+      insights.push({
+        emoji: '⚠️',
+        message: 'Win rate below 45%. Review selection criteria and bet quality.',
+        type: 'warning'
+      });
     }
 
     // ROI insights
     if (stats.roi > 10) {
-      insights.push('🚀 Strong ROI performance. Your edge is showing.');
+      insights.push({
+        emoji: '📈',
+        message: 'Strong ROI of ' + stats.roi.toFixed(1) + '% - Your edge is working!',
+        type: 'success'
+      });
     } else if (stats.roi > 0) {
-      insights.push('✅ Positive ROI. Keep refining selection process.');
+      insights.push({
+        emoji: '✅',
+        message: 'Positive ROI. Keep refining selection process.',
+        type: 'success'
+      });
     } else if (stats.roi < -10) {
-      insights.push('🔴 Negative ROI. Consider taking a break and analyzing bets.');
+      insights.push({
+        emoji: '🔴',
+        message: 'Negative ROI. Consider taking a break and analyzing bets.',
+        type: 'error'
+      });
+    }
+
+    // CLV insights
+    if (stats.pendingCLV !== undefined && stats.pendingCLV > 0) {
+      insights.push({
+        emoji: '💰',
+        message: 'Pending bets have +' + stats.pendingCLV.toFixed(2) + ' expected CLV - Your edge is quantified',
+        type: 'success'
+      });
     }
 
     // Volume insights
     if (stats.settledBets < 20) {
-      insights.push('📊 Limited data. Aim for 50+ settled bets for reliable analysis.');
+      insights.push({
+        emoji: '📊',
+        message: 'Limited data. Aim for 50+ settled bets for reliable analysis.',
+        type: 'info'
+      });
     } else if (stats.settledBets > 100) {
-      insights.push('📈 Solid sample size. Results are becoming more reliable.');
+      insights.push({
+        emoji: '📈',
+        message: 'Solid sample size. Results are becoming more reliable.',
+        type: 'success'
+      });
     }
 
     // Edge insights
     if (stats.avgEdge < 1) {
-      insights.push('💡 Low average edge. Focus on higher-edge opportunities.');
+      insights.push({
+        emoji: '💡',
+        message: 'Low average edge. Focus on higher-edge opportunities.',
+        type: 'warning'
+      });
     } else if (stats.avgEdge > 3) {
-      insights.push('⭐ Strong average edge. This is what you aim for.');
+      insights.push({
+        emoji: '⭐',
+        message: 'Strong average edge. This is what you aim for.',
+        type: 'success'
+      });
     }
 
     return insights;

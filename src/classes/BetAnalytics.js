@@ -30,7 +30,8 @@ class BetAnalytics {
         avgEdge: 0,
         profitableStreak: 0,
         longestWinStreak: 0,
-        longestLossStreak: 0
+        longestLossStreak: 0,
+        pendingCLV: 0
       };
     }
 
@@ -55,7 +56,8 @@ class BetAnalytics {
       avgEdge: this._calculateAverage(bets, 'edge'),
       profitableStreak: this._calculateProfitableStreak(settledBets),
       longestWinStreak: this._calculateLongestWinStreak(settledBets),
-      longestLossStreak: this._calculateLongestLossStreak(settledBets)
+      longestLossStreak: this._calculateLongestLossStreak(settledBets),
+      pendingCLV: this.betTracker.getCLVMetrics().pendingCLV
     };
   }
 
