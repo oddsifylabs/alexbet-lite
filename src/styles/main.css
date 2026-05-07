@@ -108,6 +108,40 @@
   opacity: 0.3;
 }
 
+/* ===================================================
+   Dark Theme (Explicit)
+   =================================================== */
+
+[data-theme="dark"] {
+  --void: #0a0a12;
+  --surface: #10101a;
+  --surface-hover: #181825;
+  --border: #1e1e2e;
+  --border-light: #2a2a3e;
+  --text: #e8e8ed;
+  --text-secondary: #6b6b78;
+  --text-tertiary: #3d3d4a;
+  --accent: #00e5ff;
+  --accent-dim: rgba(0, 229, 255, 0.1);
+  --accent-glow: rgba(0, 229, 255, 0.4);
+  --win: #00ffa3;
+  --win-dim: rgba(0, 255, 163, 0.1);
+  --loss: #ff2d5a;
+  --loss-dim: rgba(255, 45, 90, 0.1);
+  --warn: #ffb800;
+  --warn-dim: rgba(255, 184, 0, 0.1);
+  --info: #4488ff;
+  --info-dim: rgba(68, 136, 255, 0.1);
+}
+
+[data-theme="dark"] body::before {
+  opacity: 1;
+}
+
+[data-theme="dark"] body::after {
+  opacity: 0.8;
+}
+
 * {
   margin: 0;
   padding: 0;
