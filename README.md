@@ -1,6 +1,6 @@
 # AlexBET Lite 🎯
 
-A free, open-source sports betting tracker that helps you monitor line movements, identify value opportunities, and track your betting performance in real-time.
+A free, open-source sports betting signal tracker that helps you find +EV opportunities, monitor line movements, and track your betting performance in real-time.
 
 **Live Demo:** https://alexbetlite.oddsifylabs.com/
 
