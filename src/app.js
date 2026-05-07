@@ -1348,11 +1348,62 @@ function toggleEditBet(betId) {
       showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
     }
 
-    viewEl.classList.remove('hidden');
-    editEl.classList.add('hidden');
-    btnEl.textContent = 'Edit';
-    btnEl.classList.remove('primary');
+  viewEl.classList.remove('hidden');
+  editEl.classList.add('hidden');
+  btnEl.textContent = 'Edit';
+  btnEl.classList.remove('primary');
+}
+
+// ===================================================
+// Auto Settle All Pending Games
+// ===================================================
+function autoSettleAllPending() {
+  const pendingBets = app.betTracker.getBets({ status: 'PENDING' });
+  
+  if (pendingBets.length === 0) {
+    showAlert('ℹ️ No pending games to settle', 'info');
+    return;
   }
+  
+  // Confirm before settling
+  if (!confirm(`Auto-settle ${pendingBets.length} pending game(s)? This will mark them as WON, LOST, or PUSH based on your input.`)) {
+    return;
+  }
+  
+  let settledCount = 0;
+  
+  pendingBets.forEach(bet => {
+    // For now, prompt user for each bet result
+    // In future, this can integrate with ESPN API for auto-settlement
+    const result = prompt(
+      `Settle: ${bet.pick}\n\nEnter result:\n- Type "won" or "w" for win\n- Type "lost" or "l" for loss\n- Type "push" or "p" for push\n- Leave blank to skip`,
+      ''
+    );
+    
+    if (result) {
+      const resultLower = result.toLowerCase().trim();
+      let newStatus = null;
+      
+      if (resultLower === 'won' || resultLower === 'w') {
+        newStatus = 'WON';
+      } else if (resultLower === 'lost' || resultLower === 'l') {
+        newStatus = 'LOST';
+      } else if (resultLower === 'push' || resultLower === 'p') {
+        newStatus = 'PUSH';
+      }
+      
+      if (newStatus) {
+        const updateResult = app.betTracker.updateBetStatus(bet.id, newStatus);
+        if (updateResult.success) {
+          settledCount++;
+          logActivity('update', `Auto-settled ${bet.id} as ${newStatus}`);
+        }
+      }
+    }
+  });
+  
+  showAlert(`✅ Settled ${settledCount} of ${pendingBets.length} pending games`, 'success');
+  updateDisplays();
 }
 
 function renderBets(betsList) {

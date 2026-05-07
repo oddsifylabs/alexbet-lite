@@ -99,9 +99,24 @@
       <!-- Signals Sub-Tabs -->
       <div class="signals-subtabs">
         <button class="subtab active" data-subtab="new-slip" onclick="switchSignalsSubtab('new-slip')">New Bet Slip</button>
-        <button class="subtab" data-subtab="receipt" onclick="switchSignalsSubtab('receipt')">Receipt</button>
+        <button class="subtab" data-subtab="receipt" onclick="switchSignalsSubtab('receipt')">
+          <svg class="icon icon-xs" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg>
+          Receipt
+        </button>
         <button class="subtab" data-subtab="signal-analysis" onclick="switchSignalsSubtab('signal-analysis')">Analysis</button>
         <button class="subtab" data-subtab="tools" onclick="switchSignalsSubtab('tools')">Tools</button>
+      </div>
+
+      <!-- Receipt Sub-Tab -->
+      <div id="receipt" class="subtab-content">
+        <div class="receipt-controls">
+          <button class="btn btn-primary" onclick="autoSettleAllPending()" id="autoSettleBtn">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Auto Settle All Pending
+          </button>
+          <small class="help-text">Automatically update all pending games based on final scores</small>
+        </div>
+        <div id="receiptCards" class="receipt-cards"></div>
       </div>
 
       <!-- New Bet Slip Sub-Tab -->
