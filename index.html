@@ -64,10 +64,24 @@
         </div>
       </div>
 
-      <div class="stats-grid" id="statsGrid"></div>
+      <!-- Performance Overview Section -->
+      <div class="dashboard-group">
+        <h3 class="section-header">
+          <svg class="icon icon-md glow" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Performance Overview
+        </h3>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
+      <!-- Analytics Panel -->
       <div id="analyticsPanel" class="analytics-panel"></div>
-      <div class="pending-section">
-        <h3><svg class="icon icon-lg glow" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pending Games</h3>
+
+      <!-- Pending Games Section -->
+      <div class="dashboard-group">
+        <h3 class="section-header">
+          <svg class="icon icon-md glow" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Pending Games
+        </h3>
         <div id="pendingBetsContainer" class="bets-grid">
           <div class="empty-state">
             <svg class="empty-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -76,6 +90,7 @@
           </div>
         </div>
       </div>
+
       <div id="alertContainer"></div>
     </div>
 
