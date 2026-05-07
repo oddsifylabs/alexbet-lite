@@ -604,13 +604,17 @@ body::before {
 /* ===================================================
    Tab Content
    =================================================== */
-
 .tab-content {
   display: none;
   padding: 28px 0;
   position: relative;
   z-index: 1;
   min-height: calc(100vh - 200px);
+  background: transparent;
+}
+
+[data-theme="dark"] .tab-content {
+  background: transparent;
 }
 
 .tab-content.active {
