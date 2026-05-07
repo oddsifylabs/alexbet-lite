@@ -1348,16 +1348,17 @@ function toggleEditBet(betId) {
       showAlert(`❌ Error: ${result.errors.join(', ')}`, 'error');
     }
 
-  viewEl.classList.remove('hidden');
-  editEl.classList.add('hidden');
-  btnEl.textContent = 'Edit';
-  btnEl.classList.remove('primary');
+    viewEl.classList.remove('hidden');
+    editEl.classList.add('hidden');
+    btnEl.textContent = 'Edit';
+    btnEl.classList.remove('primary');
+  }
 }
 
 // ===================================================
-// Auto Settle All Pending Games
+// Auto Settle All Pending Games — FULL AUTOMATIC via ESPN API
 // ===================================================
-function autoSettleAllPending() {
+async function autoSettleAllPending() {
   const pendingBets = app.betTracker.getBets({ status: 'PENDING' });
   
   if (pendingBets.length === 0) {
@@ -1366,43 +1367,115 @@ function autoSettleAllPending() {
   }
   
   // Confirm before settling
-  if (!confirm(`Auto-settle ${pendingBets.length} pending game(s)? This will mark them as WON, LOST, or PUSH based on your input.`)) {
+  if (!confirm(`Auto-settle ${pendingBets.length} pending game(s) using ESPN final scores?`)) {
     return;
   }
   
-  let settledCount = 0;
+  const btn = document.getElementById('autoSettleBtn');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="icon icon-sm" style="animation: spin 1s linear infinite;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2" fill="none"/></svg> Settling...';
   
-  pendingBets.forEach(bet => {
-    // For now, prompt user for each bet result
-    // In future, this can integrate with ESPN API for auto-settlement
-    const result = prompt(
-      `Settle: ${bet.pick}\n\nEnter result:\n- Type "won" or "w" for win\n- Type "lost" or "l" for loss\n- Type "push" or "p" for push\n- Leave blank to skip`,
-      ''
-    );
-    
-    if (result) {
-      const resultLower = result.toLowerCase().trim();
-      let newStatus = null;
+  let settledCount = 0;
+  let notFoundCount = 0;
+  let liveCount = 0;
+  const results = [];
+  
+  for (const bet of pendingBets) {
+    try {
+      // Extract team from pick (e.g., "Lakers" from "Lakers +5.5")
+      const teamName = bet.pick.replace(/[\+\-\d\.]+/g, '').trim();
       
-      if (resultLower === 'won' || resultLower === 'w') {
-        newStatus = 'WON';
-      } else if (resultLower === 'lost' || resultLower === 'l') {
-        newStatus = 'LOST';
-      } else if (resultLower === 'push' || resultLower === 'p') {
-        newStatus = 'PUSH';
+      // Fetch live score from ESPN
+      const scoreData = await liveScores.fetchLiveScore(bet.sport, teamName);
+      
+      if (!scoreData || scoreData.status === 'error' || scoreData.status === 'not_found') {
+        notFoundCount++;
+        results.push({ bet, status: 'NOT_FOUND', reason: 'Game not found in ESPN API' });
+        continue;
       }
+      
+      // Check if game is final
+      if (scoreData.status !== 'final') {
+        liveCount++;
+        results.push({ bet, status: 'LIVE', reason: `Game ${scoreData.status}` });
+        continue;
+      }
+      
+      // Determine bet result based on bet type
+      let betResult = null;
+      let reason = '';
+      
+      if (bet.betType === 'MONEYLINE') {
+        betResult = scoreData.winner;
+        reason = `Moneyline: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+      } else if (bet.betType === 'SPREAD' && bet.spreadLine) {
+        // Apply spread to determine result
+        const isHomeTeam = scoreData.homeTeam.toLowerCase().includes(teamName.toLowerCase());
+        const pickScore = isHomeTeam ? scoreData.score.home : scoreData.score.away;
+        const opponentScore = isHomeTeam ? scoreData.score.away : scoreData.score.home;
+        const adjustedPickScore = pickScore + (bet.spreadLine > 0 ? bet.spreadLine : -Math.abs(bet.spreadLine));
+        
+        if (adjustedPickScore > opponentScore) {
+          betResult = 'won';
+        } else if (adjustedPickScore < opponentScore) {
+          betResult = 'lost';
+        } else {
+          betResult = 'push';
+        }
+        reason = `Spread ${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine}: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+      } else if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
+        // Apply total (over/under)
+        const totalScore = scoreData.score.home + scoreData.score.away;
+        
+        if (bet.overUnder.toLowerCase() === 'over') {
+          betResult = totalScore > bet.totalLine ? 'won' : totalScore < bet.totalLine ? 'lost' : 'push';
+        } else { // under
+          betResult = totalScore < bet.totalLine ? 'won' : totalScore > bet.totalLine ? 'lost' : 'push';
+        }
+        reason = `Total ${bet.overUnder} ${bet.totalLine}: ${scoreData.homeTeam} ${scoreData.score.home} + ${scoreData.awayTeam} ${scoreData.score.away} = ${totalScore}`;
+      } else {
+        // Fallback to simple winner for other bet types
+        betResult = scoreData.winner;
+        reason = `Final: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+      }
+      
+      // Map result to status
+      const statusMap = { 'won': 'WON', 'lost': 'LOST', 'push': 'PUSH' };
+      const newStatus = statusMap[betResult];
       
       if (newStatus) {
         const updateResult = app.betTracker.updateBetStatus(bet.id, newStatus);
         if (updateResult.success) {
           settledCount++;
-          logActivity('update', `Auto-settled ${bet.id} as ${newStatus}`);
+          results.push({ bet, status: newStatus, reason });
+          logActivity('update', `Auto-settled ${bet.id} as ${newStatus} - ${reason}`);
         }
       }
+      
+    } catch (err) {
+      console.error('[AutoSettle] Error processing bet:', bet.id, err);
+      results.push({ bet, status: 'ERROR', reason: err.message });
     }
-  });
+    
+    // Rate limiting - wait between requests
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
   
-  showAlert(`✅ Settled ${settledCount} of ${pendingBets.length} pending games`, 'success');
+  // Restore button
+  btn.disabled = false;
+  btn.innerHTML = originalText;
+  
+  // Show detailed results
+  let summary = `✅ Settled ${settledCount} of ${pendingBets.length} pending games`;
+  if (liveCount > 0) summary += `\n⏳ ${liveCount} game(s) still in progress`;
+  if (notFoundCount > 0) summary += `\n❓ ${notFoundCount} game(s) not found`;
+  
+  showAlert(summary, 'success');
+  
+  // Log detailed results to console
+  console.log('[AutoSettle] Results:', results);
+  
   updateDisplays();
 }
 
