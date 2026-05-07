@@ -2,7 +2,7 @@
 
 A free, open-source sports betting tracker that helps you monitor line movements, identify value opportunities, and track your betting performance in real-time.
 
-**Live Demo:** https://alexbet-lite.netlify.app
+**Live Demo:** https://alexbetlite.oddsifylabs.com/
 
 ## Features ✨
 
@@ -39,6 +39,10 @@ A free, open-source sports betting tracker that helps you monitor line movements
 - Active internet connection
 - No backend server required — runs entirely in the browser
 
+### Hosted Demo
+Oddsify Labs hosts a public demo instance on Railway:
+**https://alexbetlite.oddsifylabs.com/**
+
 ### Installation (Local Development)
 
 1. **Clone the repository:**
@@ -62,8 +66,9 @@ npm run dev
 http://localhost:5173
 ```
 
-### Live Deployment
-The app is deployed on Netlify and available at: https://alexbet-lite.netlify.app
+### Hosted Demo
+Oddsify Labs hosts a public demo instance on Railway:
+**https://alexbetlite.oddsifylabs.com/**
 
 ## Architecture 🏗️
 
@@ -86,6 +91,10 @@ src/
     ├── edgeDetector.js    # Sharp opportunity detection
     └── performanceChart.js # ROI/win-rate visualization
 ```
+
+**Deployment Modes:**
+- **Local use:** Runs entirely in your browser (no backend required)
+- **Hosted demo:** Minimal Express server for static file serving (Railway)
 
 ### Data Flow
 1. **Game Selection** — User selects Sport → Auto-populated Available Dates (next 5 days with games) → Auto-populated Events (games for that date)
@@ -148,22 +157,32 @@ Current status: **19/19 tests passing** ✅
 
 ## Deployment 🌍
 
-### Deploy to Netlify (Recommended)
-1. Connect your GitHub repo to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Deploy! App will be live at `https://your-site.netlify.app`
+### Hosted Demo (Railway)
+Our public demo runs on Railway with auto-deploy from GitHub:
+- **URL:** https://alexbetlite.oddsifylabs.com/
+- **Config:** `railway.json` + `Procfile` + `server.js`
+- **Auto-deploy:** Every push to `main`
 
-### Deploy to Vercel
+### Local Development (Recommended for Users)
+AlexBET Lite runs entirely in your browser — no server needed:
 ```bash
-npm install -g vercel
-vercel
+npm install
+npm run dev
+# Open http://localhost:5173
 ```
 
-### Deploy to GitHub Pages
+### Deploy Your Own Instance
+
+#### Option A: Static Hosting (Netlify, Vercel, GitHub Pages)
 ```bash
 npm run build
-npm run deploy
+# Deploy `dist/` folder to your host
+```
+
+#### Option B: Railway (Node/Express)
+```bash
+# Connect GitHub repo to Railway
+# Auto-detects railway.json + Procfile
 ```
 
 ## API Reference 📡
@@ -231,10 +250,10 @@ We welcome community contributions! Please follow these guidelines:
 ## Security 🔒
 
 ### Data Privacy
-- **No server backend** — Your betting data stays in your browser
+- **No server backend (local use)** — Your betting data stays in your browser
 - **LocalStorage only** — No cloud storage or tracking
 - **CSRF protection** — Token-based form validation
-- **No API key exposure** — Keys handled server-side for Netlify deployment
+- **Hosted demo** — API keys handled server-side on Railway
 
 ### Reporting Security Issues
 Please report security vulnerabilities to: `security@alexbet.io`
@@ -302,15 +321,15 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fi
 - **Telegram:** Join our community at [@AlexBETBot](https://t.me/AlexBETBot)
 - **Support Email:** support@oddsifylabs.com
 - **General Inquiries:** general@oddsifylabs.com
-- **Website:** https://officiants.com/alexbetlite
+- **Website:** https://alexbetlite.oddsifylabs.com/
 
 ## Credits 🙏
 
 Built with:
 - [The Odds API](https://the-odds-api.com) — Real-time sports odds
-- [Vite](https://vitejs.dev) — Lightning-fast build tool
-- [Vitest](https://vitest.dev) — Unit testing framework
-- [Netlify](https://netlify.com) — Deployment platform
+- [Vite](https://vitejs.dev) — Build tool
+- [Vitest](https://vitest.dev) — Testing framework
+- [Railway](https://railway.app) — Demo hosting
 
 ## Disclaimer ⚠️
 

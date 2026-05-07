@@ -48,10 +48,6 @@ coverage/
 .vitepress/
 .vitesse/
 
-# Netlify
-.netlify/
-netlify/functions/cache/
-
 # System files
 Thumbs.db
 .DS_Store
