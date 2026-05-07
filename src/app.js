@@ -1009,34 +1009,49 @@ function renderStats() {
   const statusType = winRateStatus.onTrack ? 'success' : 'error';
 
   statsGrid.innerHTML = `
-    <div class="stat-card stat-card--${winRateType}">
-      <div class="stat-label">Win Rate</div>
-      <div class="stat-value">${stats.winRate.toFixed(1)}%</div>
-      <div class="stat-detail">${stats.wins}W - ${stats.losses}L - ${stats.pushes}P</div>
+    <div class="stat-card ${winRateType}">
+      <div class="stat-card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Win Rate
+      </div>
+      <div class="stat-card-value">${stats.winRate.toFixed(1)}%</div>
+      <div class="stat-card-subtext">${stats.wins}W · ${stats.losses}L · ${stats.pushes}P</div>
     </div>
 
-    <div class="stat-card stat-card--${pnlType}">
-      <div class="stat-label">P&L</div>
-      <div class="stat-value">${stats.totalPnL > 0 ? '+' : ''}$${stats.totalPnL}</div>
-      <div class="stat-detail">ROI: ${stats.roi}%</div>
+    <div class="stat-card ${pnlType}">
+      <div class="stat-card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        P&L
+      </div>
+      <div class="stat-card-value">${stats.totalPnL > 0 ? '+' : ''}$${stats.totalPnL}</div>
+      <div class="stat-card-subtext">ROI: ${stats.roi > 0 ? '+' : ''}${stats.roi}%</div>
     </div>
 
-    <div class="stat-card stat-card--warning">
-      <div class="stat-label">Wagered</div>
-      <div class="stat-value">$${stats.totalWagered}</div>
-      <div class="stat-detail">${stats.settledBets} settled, ${stats.pendingBets} pending</div>
+    <div class="stat-card warning">
+      <div class="stat-card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Wagered
+      </div>
+      <div class="stat-card-value">$${stats.totalWagered}</div>
+      <div class="stat-card-subtext">${stats.settledBets} settled · ${stats.pendingBets} pending</div>
     </div>
 
-    <div class="stat-card stat-card--${edgeType}">
-      <div class="stat-label">Avg Edge</div>
-      <div class="stat-value">${parseFloat(stats.avgEdge) > 0 ? '+' : ''}${stats.avgEdge}%</div>
-      <div class="stat-detail">Target: 56-65%</div>
+    <div class="stat-card ${edgeType}">
+      <div class="stat-card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Avg Edge
+      </div>
+      <div class="stat-card-value">${parseFloat(stats.avgEdge) > 0 ? '+' : ''}${stats.avgEdge}%</div>
+      <div class="stat-card-subtext">Target: 56-65%</div>
     </div>
 
-    <div class="stat-card stat-card--${statusType}">
-      <div class="stat-label">Status</div>
-      <div class="stat-value" style="font-size: 16px;">${winRateStatus.status}</div>
-      <div class="stat-detail">${winRateStatus.message}</div>
+    <div class="stat-card ${statusType}">
+      <div class="stat-card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Status
+      </div>
+      <div class="stat-card-value" style="font-size: 18px;">${winRateStatus.status}</div>
+      <div class="stat-card-subtext">${winRateStatus.message}</div>
     </div>
   `;
 
@@ -1662,5 +1677,16 @@ function showSettings() {
 // ===================================================
 // Initialize on load
 // ===================================================
+
+// Mouse tracking for card glow effects
+document.addEventListener('mousemove', (e) => {
+  document.querySelectorAll('.stat-card:hover').forEach(card => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  });
+});
 
 console.log('[AlexBET] Script loaded successfully');
