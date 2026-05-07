@@ -586,6 +586,9 @@ class IntelPage {
           </div>
         </div>
       `;
+
+      // Update timestamp
+      this.lastUpdatedTimes.weather = new Date();
     } catch (error) {
       console.error('Error loading weather:', error);
       container.innerHTML = `<p style="color: #ff6b6b;">⚠️ Error loading conditions</p>`;
