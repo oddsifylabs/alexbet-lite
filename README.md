@@ -313,7 +313,7 @@ Please report security vulnerabilities to: `security@alexbet.io`
 
 This project is licensed under the **MIT License** — see [LICENSE](LICENSE) file for details.
 
-**Important:** AlexBET Lite is open source and free to use. The proprietary edge detection algorithm in AlexBET Sharp Bot remains closed-source and is available only via paid subscription on Telegram.
+**Important:** AlexBET Lite is open source and free to use. The proprietary edge detection algorithm in AlexBET Signal Pro remains closed-source and is available only via paid subscription on Telegram.
 
 ## Support 💬
 
