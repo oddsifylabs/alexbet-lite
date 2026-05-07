@@ -1421,85 +1421,94 @@ async function autoSettleAllPending() {
   let liveCount = 0;
   const results = [];
   
-  for (const bet of pendingBets) {
-    try {
-      // Extract team from pick (e.g., "Lakers" from "Lakers +5.5")
-      const teamName = bet.pick.replace(/[\+\-\d\.]+/g, '').trim();
-      
-      // Fetch live score from ESPN
-      const scoreData = await liveScores.fetchLiveScore(bet.sport, teamName);
-      
-      if (!scoreData || scoreData.status === 'error' || scoreData.status === 'not_found') {
-        notFoundCount++;
-        results.push({ bet, status: 'NOT_FOUND', reason: 'Game not found in ESPN API' });
-        continue;
-      }
-      
-      // Check if game is final
-      if (scoreData.status !== 'final') {
-        liveCount++;
-        results.push({ bet, status: 'LIVE', reason: `Game ${scoreData.status}` });
-        continue;
-      }
-      
-      // Determine bet result based on bet type
-      let betResult = null;
-      let reason = '';
-      
-      if (bet.betType === 'MONEYLINE') {
-        betResult = scoreData.winner;
-        reason = `Moneyline: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
-      } else if (bet.betType === 'SPREAD' && bet.spreadLine) {
-        // Apply spread to determine result
-        const isHomeTeam = scoreData.homeTeam.toLowerCase().includes(teamName.toLowerCase());
-        const pickScore = isHomeTeam ? scoreData.score.home : scoreData.score.away;
-        const opponentScore = isHomeTeam ? scoreData.score.away : scoreData.score.home;
-        const adjustedPickScore = pickScore + (bet.spreadLine > 0 ? bet.spreadLine : -Math.abs(bet.spreadLine));
+  try {
+    for (const bet of pendingBets) {
+      try {
+        // Extract team from pick (e.g., "Lakers" from "Lakers +5.5")
+        const teamName = bet.pick.replace(/[\+\-\d\.]+/g, '').trim();
         
-        if (adjustedPickScore > opponentScore) {
-          betResult = 'won';
-        } else if (adjustedPickScore < opponentScore) {
-          betResult = 'lost';
+        console.log(`[AutoSettle] Fetching score for: ${bet.sport} - ${teamName}`);
+        
+        // Fetch live score from ESPN using app.liveScores
+        const scoreData = await app.liveScores.fetchLiveScore(bet.sport, teamName);
+        
+        console.log(`[AutoSettle] Result:`, scoreData);
+        
+        if (!scoreData || scoreData.status === 'error' || scoreData.status === 'not_found') {
+          notFoundCount++;
+          results.push({ bet, status: 'NOT_FOUND', reason: 'Game not found in ESPN API' });
+          continue;
+        }
+        
+        // Check if game is final
+        if (scoreData.status !== 'final') {
+          liveCount++;
+          results.push({ bet, status: 'LIVE', reason: `Game ${scoreData.status}` });
+          continue;
+        }
+        
+        // Determine bet result based on bet type
+        let betResult = null;
+        let reason = '';
+        
+        if (bet.betType === 'MONEYLINE') {
+          betResult = scoreData.winner;
+          reason = `Moneyline: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+        } else if (bet.betType === 'SPREAD' && bet.spreadLine) {
+          // Apply spread to determine result
+          const isHomeTeam = scoreData.homeTeam.toLowerCase().includes(teamName.toLowerCase());
+          const pickScore = isHomeTeam ? scoreData.score.home : scoreData.score.away;
+          const opponentScore = isHomeTeam ? scoreData.score.away : scoreData.score.home;
+          const adjustedPickScore = pickScore + (bet.spreadLine > 0 ? bet.spreadLine : -Math.abs(bet.spreadLine));
+          
+          if (adjustedPickScore > opponentScore) {
+            betResult = 'won';
+          } else if (adjustedPickScore < opponentScore) {
+            betResult = 'lost';
+          } else {
+            betResult = 'push';
+          }
+          reason = `Spread ${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine}: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+        } else if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
+          // Apply total (over/under)
+          const totalScore = scoreData.score.home + scoreData.score.away;
+          
+          if (bet.overUnder.toLowerCase() === 'over') {
+            betResult = totalScore > bet.totalLine ? 'won' : totalScore < bet.totalLine ? 'lost' : 'push';
+          } else { // under
+            betResult = totalScore < bet.totalLine ? 'won' : totalScore > bet.totalLine ? 'lost' : 'push';
+          }
+          reason = `Total ${bet.overUnder} ${bet.totalLine}: ${scoreData.homeTeam} ${scoreData.score.home} + ${scoreData.awayTeam} ${scoreData.score.away} = ${totalScore}`;
         } else {
-          betResult = 'push';
+          // Fallback to simple winner for other bet types
+          betResult = scoreData.winner;
+          reason = `Final: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
         }
-        reason = `Spread ${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine}: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
-      } else if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
-        // Apply total (over/under)
-        const totalScore = scoreData.score.home + scoreData.score.away;
         
-        if (bet.overUnder.toLowerCase() === 'over') {
-          betResult = totalScore > bet.totalLine ? 'won' : totalScore < bet.totalLine ? 'lost' : 'push';
-        } else { // under
-          betResult = totalScore < bet.totalLine ? 'won' : totalScore > bet.totalLine ? 'lost' : 'push';
+        // Map result to status
+        const statusMap = { 'won': 'WON', 'lost': 'LOST', 'push': 'PUSH' };
+        const newStatus = statusMap[betResult];
+        
+        if (newStatus) {
+          const updateResult = app.betTracker.updateBetStatus(bet.id, newStatus);
+          if (updateResult.success) {
+            settledCount++;
+            results.push({ bet, status: newStatus, reason });
+            logActivity('update', `Auto-settled ${bet.id} as ${newStatus} - ${reason}`);
+          }
         }
-        reason = `Total ${bet.overUnder} ${bet.totalLine}: ${scoreData.homeTeam} ${scoreData.score.home} + ${scoreData.awayTeam} ${scoreData.score.away} = ${totalScore}`;
-      } else {
-        // Fallback to simple winner for other bet types
-        betResult = scoreData.winner;
-        reason = `Final: ${scoreData.homeTeam} ${scoreData.score.home}, ${scoreData.awayTeam} ${scoreData.score.away}`;
+        
+      } catch (err) {
+        console.error('[AutoSettle] Error processing bet:', bet.id, err);
+        results.push({ bet, status: 'ERROR', reason: err.message });
       }
       
-      // Map result to status
-      const statusMap = { 'won': 'WON', 'lost': 'LOST', 'push': 'PUSH' };
-      const newStatus = statusMap[betResult];
-      
-      if (newStatus) {
-        const updateResult = app.betTracker.updateBetStatus(bet.id, newStatus);
-        if (updateResult.success) {
-          settledCount++;
-          results.push({ bet, status: newStatus, reason });
-          logActivity('update', `Auto-settled ${bet.id} as ${newStatus} - ${reason}`);
-        }
-      }
-      
-    } catch (err) {
-      console.error('[AutoSettle] Error processing bet:', bet.id, err);
-      results.push({ bet, status: 'ERROR', reason: err.message });
+      // Rate limiting - wait between requests
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
-    
-    // Rate limiting - wait between requests
-    await new Promise(resolve => setTimeout(resolve, 500));
+  } catch (err) {
+    console.error('[AutoSettle] Critical error:', err);
+    showAlert(`❌ Auto-settle failed: ${err.message}`, 'error');
   }
   
   // Restore button
