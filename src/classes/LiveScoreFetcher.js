@@ -267,6 +267,16 @@ class LiveScoreFetcher {
   }
 
   /**
+   * Fetch live score for a specific bet (alias for getScore)
+   * @param {string} sport - Sport code (NBA, NFL, etc.)
+   * @param {string} teamName - Team name from pick
+   * @returns {Promise<Object>} Score data with status, scores, winner
+   */
+  async fetchLiveScore(sport, teamName) {
+    return this.getScore(teamName, sport);
+  }
+
+  /**
    * Get live score for a bet pick
    */
   async getScore(pick, sport, gameId = null) {

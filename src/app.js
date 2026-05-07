@@ -1214,16 +1214,35 @@ function renderPendingBets() {
   }
 
   container.innerHTML = pendingBets.map(bet => {
-    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
+    // Format game date and time
+    let dateTimeDisplay = '';
+    if (bet.gameDate) {
+      const gameDateTime = new Date(bet.gameDate);
+      const dateStr = gameDateTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      const timeStr = gameDateTime.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dateTimeDisplay = `${dateStr} • ${timeStr}`;
+    } else {
+      dateTimeDisplay = new Date(bet.entryTime).toLocaleDateString();
+    }
+    
     const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
     const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
+
+    // Build game info display
+    let gameInfo = bet.pick;
+    if (bet.betType === 'SPREAD' && bet.spreadLine) {
+      gameInfo += ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})`;
+    }
+    if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
+      gameInfo += ` ${bet.overUnder} ${bet.totalLine}`;
+    }
 
     return `
       <div class="bet-card pending">
         <div class="bet-card-header">
-          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
+          <div class="bet-card-pick">${gameInfo}</div>
           <div class="bet-card-meta">
-            <span class="bet-card-date">${time}</span>
+            <span class="bet-card-date">📅 ${dateTimeDisplay}</span>
             <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
           </div>
         </div>
@@ -1236,7 +1255,9 @@ function renderPendingBets() {
           <div class="bet-field"><div class="bet-field-label">CLV</div><div class="bet-field-value" style="color: ${clvColor};">${bet.clv > 0 ? '+' : ''}$${bet.clv}</div></div>
           <div class="bet-field"><div class="bet-field-label">Confidence</div><div class="bet-field-value">${bet.confidence}/10</div></div>
           <div class="bet-field"><div class="bet-field-label">P&L</div><div class="bet-field-value" style="color: ${pnlColor}">${bet.pnl > 0 ? '+' : ''}$${bet.pnl}</div></div>
+          ${bet.sportsbook && bet.sportsbook !== 'Unknown' ? `<div class="bet-field"><div class="bet-field-label">Book</div><div class="bet-field-value">${bet.sportsbook}</div></div>` : ''}
         </div>
+        ${bet.notes ? `<div class="bet-field full-width" style="margin-top: 8px; padding: 8px 12px; background: var(--surface); border-radius: var(--radius); border-left: 2px solid var(--accent);"><div class="bet-field-label" style="font-size: 10px; margin-bottom: 4px;">📝 Notes</div><div class="bet-field-value" style="font-size: 12px; color: var(--text-tertiary); font-style: italic;">${bet.notes}</div></div>` : ''}
       </div>
     `;
   }).join('');
@@ -1257,18 +1278,37 @@ function renderReceipt() {
   }
 
   container.innerHTML = bets.map(bet => {
-    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
+    // Format game date and time
+    let dateTimeDisplay = '';
+    if (bet.gameDate) {
+      const gameDateTime = new Date(bet.gameDate);
+      const dateStr = gameDateTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      const timeStr = gameDateTime.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dateTimeDisplay = `${dateStr} • ${timeStr}`;
+    } else {
+      dateTimeDisplay = new Date(bet.entryTime).toLocaleDateString();
+    }
+    
     const statusClass = bet.status.toLowerCase();
     const statusEmoji = { 'pending': '⚪', 'won': '✅', 'lost': '❌', 'push': '➖' }[statusClass] || '❓';
     const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
     const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
 
+    // Build game info display
+    let gameInfo = bet.pick;
+    if (bet.betType === 'SPREAD' && bet.spreadLine) {
+      gameInfo += ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})`;
+    }
+    if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
+      gameInfo += ` ${bet.overUnder} ${bet.totalLine}`;
+    }
+
     return `
       <div class="bet-card ${statusClass}" id="receipt-card-${bet.id}">
         <div class="bet-card-header">
-          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
+          <div class="bet-card-pick">${gameInfo}</div>
           <div class="bet-card-meta">
-            <span class="bet-card-date">${time}</span>
+            <span class="bet-card-date">📅 ${dateTimeDisplay}</span>
             <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
           </div>
         </div>
@@ -1491,7 +1531,17 @@ function renderBets(betsList) {
   }
 
   container.innerHTML = bets.map(bet => {
-    const time = bet.gameDate ? new Date(bet.gameDate).toLocaleDateString() : new Date(bet.entryTime).toLocaleDateString();
+    // Format game date and time
+    let dateTimeDisplay = '';
+    if (bet.gameDate) {
+      const gameDateTime = new Date(bet.gameDate);
+      const dateStr = gameDateTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      const timeStr = gameDateTime.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dateTimeDisplay = `${dateStr} • ${timeStr}`;
+    } else {
+      dateTimeDisplay = new Date(bet.entryTime).toLocaleDateString();
+    }
+    
     const statusClass = bet.status.toLowerCase();
     const statusEmoji = {
       'pending': '⚪',
@@ -1502,12 +1552,21 @@ function renderBets(betsList) {
     const pnlColor = bet.pnl > 0 ? 'var(--win)' : bet.pnl < 0 ? 'var(--loss)' : 'var(--text)';
     const clvColor = bet.clv > 0 ? 'var(--win)' : bet.clv < 0 ? 'var(--loss)' : 'var(--text)';
 
+    // Build game info display
+    let gameInfo = bet.pick;
+    if (bet.betType === 'SPREAD' && bet.spreadLine) {
+      gameInfo += ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})`;
+    }
+    if (bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder) {
+      gameInfo += ` ${bet.overUnder} ${bet.totalLine}`;
+    }
+
     return `
       <div class="bet-card ${statusClass}">
         <div class="bet-card-header">
-          <div class="bet-card-pick">${bet.pick}${bet.betType === 'SPREAD' && bet.spreadLine ? ` (${bet.spreadLine > 0 ? '+' : ''}${bet.spreadLine})` : ''}${bet.betType === 'TOTAL' && bet.totalLine && bet.overUnder ? ` ${bet.overUnder} ${bet.totalLine}` : ''}</div>
+          <div class="bet-card-pick">${gameInfo}</div>
           <div class="bet-card-meta">
-            <span class="bet-card-date">${time}</span>
+            <span class="bet-card-date">📅 ${dateTimeDisplay}</span>
             <span class="bet-status-tag ${bet.betStatus === 'REAL' ? 'real' : 'paper'}">${bet.betStatus === 'REAL' ? '💰 Real' : '📄 Paper'}</span>
           </div>
         </div>
