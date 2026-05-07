@@ -662,25 +662,46 @@ body::before {
   backdrop-filter: blur(8px);
 }
 
-/* Gradient backgrounds by type */
+/* Gradient backgrounds by type — Dark mode optimized */
 .stat-card.success {
-  background: linear-gradient(135deg, var(--win-dim) 0%, var(--surface) 50%);
+  background: linear-gradient(135deg, rgba(0, 255, 163, 0.08) 0%, var(--surface) 100%);
   border-color: rgba(0, 255, 163, 0.2);
 }
 
 .stat-card.error {
-  background: linear-gradient(135deg, var(--loss-dim) 0%, var(--surface) 50%);
+  background: linear-gradient(135deg, rgba(255, 45, 90, 0.08) 0%, var(--surface) 100%);
   border-color: rgba(255, 45, 90, 0.2);
 }
 
 .stat-card.warning {
-  background: linear-gradient(135deg, var(--warn-dim) 0%, var(--surface) 50%);
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.08) 0%, var(--surface) 100%);
   border-color: rgba(255, 184, 0, 0.2);
 }
 
 .stat-card.info {
-  background: linear-gradient(135deg, var(--info-dim) 0%, var(--surface) 50%);
+  background: linear-gradient(135deg, rgba(68, 136, 255, 0.08) 0%, var(--surface) 100%);
   border-color: rgba(68, 136, 255, 0.2);
+}
+
+/* Light mode stat card adjustments */
+[data-theme="light"] .stat-card.success {
+  background: linear-gradient(135deg, rgba(0, 168, 107, 0.08) 0%, var(--surface) 100%);
+  border-color: rgba(0, 168, 107, 0.2);
+}
+
+[data-theme="light"] .stat-card.error {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.08) 0%, var(--surface) 100%);
+  border-color: rgba(225, 29, 72, 0.2);
+}
+
+[data-theme="light"] .stat-card.warning {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, var(--surface) 100%);
+  border-color: rgba(217, 119, 6, 0.2);
+}
+
+[data-theme="light"] .stat-card.info {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, var(--surface) 100%);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 /* Animated gradient border on hover */
@@ -3584,6 +3605,10 @@ button.small,
    =================================================== */
 .pending-section {
   margin-top: 28px;
+}
+
+[data-theme="dark"] .pending-section {
+  background: transparent;
 }
 
 .pending-section h3 {
